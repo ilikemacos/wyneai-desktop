@@ -78,8 +78,8 @@ export function desktopTools() { return {
     if (!await ask("write", "Create " + (items.length > 1 ? items.length + " files?" : "this file?"), settings.workspace + "\n\n" + list)) return denied;
     const written = [];
     for (const f of items) { const r = await invoke("write_file", { path: f.name, content: f.content, append: false, ...ctx() }); written.push({ name: f.name, size: new TextEncoder().encode(f.content).length, path: r.path }); }
-    if (written.length === 1) return { ok: true, file: { name: written[0].name, size: written[0].size, kind: "disk", path: written[0].path, single: true }, _content: items[0].content };
-    return { ok: true, file: { name: items.length + " files", size: total, kind: "disk", path: settings.workspace, entries: written.map(w => ({ name: w.name, size: w.size })) } };
+    if (written.length === 1) return { ok: true, file: { name: written[0].name, size: written[0].size, kind: "disk", path: written[0].path, single: true }, _content: items[0].content, _items: [{ name: written[0].name, content: items[0].content }] };
+    return { ok: true, file: { name: items.length + " files", size: total, kind: "disk", path: settings.workspace, entries: written.map(w => ({ name: w.name, size: w.size })) }, _items: items.map(f => ({ name: f.name, content: f.content })) };
   }),
 }; }
 export const revealItem = path => invoke("reveal_item", { path: String(path || "") }).catch(() => {});
