@@ -179,7 +179,7 @@ Agent.prototype.runNative = async function (text, on = {}) {
   try {
     for (let step = 0; step < this.max; step++) {
       if (this.stopped) { const t = (this.summarize(all) ? this.summarize(all) + "\n\n" : "") + "Stopped."; this.remember(text, t); return { text: t, results: all, mode: "stopped" }; }
-      const r = await this.llm(msgs, TOOL_SCHEMAS, on.token); // -> {content, tool_calls}
+      const r = await this.llm(msgs, TOOL_SCHEMAS, on); // -> {content, tool_calls}
       const calls = (r.tool_calls || []).filter(c => c?.function?.name);
       if (!calls.length) { const t = (r.content || "").trim() || this.summarize(all); this.remember(text, t); return { text: t, results: all, mode: "cloud" }; }
       on.clear?.(); msgs.push({ role: "assistant", content: r.content || null, tool_calls: calls.map(c => ({ id: c.id, type: "function", function: { name: c.function.name, arguments: c.function.arguments || "{}" } })) });
@@ -191,14 +191,17 @@ Agent.prototype.runNative = async function (text, on = {}) {
     const t = this.summarize(all) || "I ran out of steps."; this.remember(text, t); return { text: t, results: all, mode: "cloud-maxsteps" };
   } catch (e) { on.error?.(e); if (all.length) { const t = this.summarize(all); this.remember(text, t); return { text: t, results: all, mode: "cloud-error" }; } throw e; } };
 export function cloudLLM(url = "/api/chat", getSignal = () => undefined) {
-  return async (messages, tools, onTok) => {
-    const res = await fetch(url, { method: "POST", signal: getSignal(), headers: { "content-type": "application/json" }, body: JSON.stringify({ messages, tools, max_tokens: 32768 }) });
+  return async (messages, tools, cb) => {
+    const on = typeof cb === "function" ? { token: cb } : (cb || {});
+    const res = await fetch(url, { method: "POST", signal: getSignal(), headers: { "content-type": "application/json" }, body: JSON.stringify({ messages, tools, max_tokens: 32768, no_search: on.noSearch }) });
     if (!res.ok) { let m = res.status; try { m = (await res.json()).error || m; } catch {} const e = new Error(String(m)); e.status = res.status; throw e; }
-    const rd = res.body.getReader(), dec = new TextDecoder(); let buf = "", content = ""; const tc = [];
+    const rd = res.body.getReader(), dec = new TextDecoder(); let buf = "", content = "", reasoning = ""; const tc = [];
     for (;;) { const { value, done } = await rd.read(); if (done) break; buf += dec.decode(value, { stream: true }); let i;
       while ((i = buf.indexOf("\n\n")) >= 0) { const ev = buf.slice(0, i).trim(); buf = buf.slice(i + 2); if (!ev.startsWith("data:")) continue; const d = ev.slice(5).trim(); if (d === "[DONE]") continue;
         let j; try { j = JSON.parse(d); } catch { continue; }
-        if (j.content) { content += j.content; if (!tc.length) onTok?.(content); }
+        if (j.type === "search") { on.search?.(j); continue; }
+        if (j.reasoning) { reasoning += j.reasoning; on.reasoning?.(reasoning); }
+        if (j.content) { content += j.content; if (!tc.length) on.token?.(content); }
         for (const t of j.tool_calls || []) { const k = t.index ?? tc.length; tc[k] ||= { id: "", function: { name: "", arguments: "" } };
           if (t.id) tc[k].id = t.id; if (t.function?.name) tc[k].function.name += t.function.name; if (t.function?.arguments) tc[k].function.arguments += t.function.arguments; } } }
-    tc.forEach((c, i) => { if (!c.id) c.id = "call_" + i; }); return { content, tool_calls: tc.filter(Boolean) }; }; }
+    tc.forEach((c, i) => { if (!c.id) c.id = "call_" + i; }); return { content, reasoning, tool_calls: tc.filter(Boolean) }; }; }
