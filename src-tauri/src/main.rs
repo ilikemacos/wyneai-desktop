@@ -180,9 +180,24 @@ fn memory_save(data: Value) -> Result<(), String> {
 #[tauri::command]
 fn open_data_dir() -> Result<(), String> { open::that_detached(data_dir()).map_err(e2s) }
 
+#[tauri::command]
+fn reveal_item(path: String) -> Result<(), String> {
+    let p = PathBuf::from(path.trim());
+    #[cfg(target_os = "macos")]
+    { Command::new("open").arg("-R").arg(&p).spawn().map_err(e2s)?; return Ok(()); }
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        Command::new("explorer").raw_arg(format!("/select,\"{}\"", p.display())).creation_flags(0x0800_0000).spawn().map_err(e2s)?;
+        return Ok(());
+    }
+    #[cfg(all(not(windows), not(target_os = "macos")))]
+    { let dir = if p.is_dir() { p.clone() } else { p.parent().map(|x| x.to_path_buf()).unwrap_or(p.clone()) }; open::that_detached(dir).map_err(e2s)?; Ok(()) }
+}
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![default_workspace, run_shell, read_file, write_file, list_dir, delete_path, open_target, memory_load, memory_save, open_data_dir])
+        .invoke_handler(tauri::generate_handler![default_workspace, run_shell, read_file, write_file, list_dir, delete_path, open_target, memory_load, memory_save, open_data_dir, reveal_item])
         .run(tauri::generate_context!())
         .expect("error while running WyneAI");
 }
