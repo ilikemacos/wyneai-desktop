@@ -10,7 +10,7 @@ use wait_timeout::ChildExt;
 
 fn home() -> PathBuf { dirs::home_dir().unwrap_or_else(|| PathBuf::from(".")) }
 fn data_dir() -> PathBuf {
-    let d = dirs::data_dir().unwrap_or_else(home).join("WyneAI");
+    let d = dirs::data_dir().unwrap_or_else(home).join("WrenbyAI");
     let _ = fs::create_dir_all(&d);
     d
 }
@@ -49,7 +49,7 @@ fn resolve(path: &str, root: &str, sandbox: bool) -> Result<PathBuf, String> {
 
 #[tauri::command]
 fn default_workspace() -> Result<String, String> {
-    let d = home().join("WyneAI Workspace");
+    let d = home().join("WrenbyAI Workspace");
     fs::create_dir_all(&d).map_err(e2s)?;
     Ok(d.display().to_string())
 }
@@ -199,5 +199,5 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![default_workspace, run_shell, read_file, write_file, list_dir, delete_path, open_target, memory_load, memory_save, open_data_dir, reveal_item])
         .run(tauri::generate_context!())
-        .expect("error while running WyneAI");
+        .expect("error while running WrenbyAI");
 }
