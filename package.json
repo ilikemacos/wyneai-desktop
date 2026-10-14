@@ -1,0 +1,3 @@
+{ "name": "wyneai-desktop", "private": true, "version": "0.1.0",
+  "scripts": { "icons": "tauri icon app-icon.png", "dev": "tauri dev", "build": "tauri build" },
+  "devDependencies": { "@tauri-apps/cli": "^2" } }

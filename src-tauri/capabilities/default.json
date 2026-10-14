@@ -1,0 +1,1 @@
+{ "identifier": "default", "description": "WyneAI main window", "windows": ["main"], "permissions": ["core:default"] }
