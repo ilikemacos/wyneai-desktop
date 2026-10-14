@@ -140,6 +140,7 @@ import { Agent, planDeterministic, cloudLLM, setApiBase } from "./agent.js";
 import { marked } from "./md/marked.esm.js";
 import DOMPurify from "./md/purify.es.mjs";
 import { initIDE, harvest, contextForModel, setFiles as ideSetFiles, openPanel, hasFiles, applyEdit as ideApplyEdit, openFile as ideOpenFile } from "./ide.js";
+import { initAuth } from "./auth.js";
 import { isDesktop, initDesktop, installDesktop, settings, saveSettings, setConfirmUI, setPlanUI, resetSessionAllow, refreshMemoryPrompt, writeExport, openItem, revealItem } from "./desktop.js";
 if (isDesktop) { window.__openItem = openItem; window.__revealItem = revealItem; }
 const API = "https://preset-ai-chat.vercel.app/api/chat"; let ctl = null;
@@ -205,6 +206,9 @@ function card(bub) { const a = window.bot; const st = a.chat.state(), set = Chat
   c.querySelector(".tog").onclick = e => { pre.hidden = !pre.hidden; e.target.textContent = pre.hidden ? "Show JSON" : "Hide JSON"; };
   c.querySelector(".copy").onclick = async e => { try { await navigator.clipboard.writeText(js); e.target.textContent = "Copied"; } catch { e.target.textContent = "Copy failed"; } setTimeout(() => e.target.textContent = "Copy JSON", 1200); };
   bub.appendChild(c); log.scrollTop = 1e9; }
+const AUTH_BASE = API.replace(/\/api\/chat$/, "");
+function freshChat(){ if(!window.bot) return; window.bot.reset(); window.agent.history.length=0; log.innerHTML=""; }
+function loadConversation(msgs){ freshChat(); for(const m of (msgs||[])){ if(m.role==="user") add("u", String(m.content||"")); else if(m.role==="assistant") add("a", String(m.content||"")); if(window.agent) window.agent.history.push({role:m.role==="assistant"?"assistant":"user", content:String(m.content||"")}); } log.scrollTop=1e9; }
 const hello = () => { add("a", "Hi, I'm WrenbyAI. I write and run code, and I can help with FrameFX too. What are we building?"); };
 let llmState = "ready"; const llmFn = cloudLLM(API, () => ctl?.signal); setApiBase(API);
 function notice(t) { $("#notice").hidden = !t; $("#notice").textContent = t || ""; }
@@ -263,10 +267,11 @@ async function handle(t) {
   done = true; finishThink(); wrap.classList.remove("dots"); renderMD(wrap, scrub(r.text || ""), true); harvest(wrap);
   if (!steps.children.length) steps.remove(); if (reason.hidden) reason.remove();
   if (!think.querySelector(".treason") && !think.querySelector(".steps")) think.remove();
-  if (presetShown && window.bot.last) card(bub); }
+  if (presetShown && window.bot.last) card(bub); return { text: scrub(r.text || ""), files: null }; }
 window.__fx = { get llmState() { return llmState; } };
 try { window.bot = new Assistant(await Model.load(ort, "./preset_beta7.onnx")); window.agent = new Agent(window.bot, null, ui);
   initIDE({ onFix: (name, err) => submitHidden("Running `" + name + "` produced this error:\n\n```\n" + err + "\n```\n\nFix the code with edit_file (small search/replace) if possible, or create_file for a full rewrite."), isDesktop: typeof isDesktop !== "undefined" && isDesktop });
+  try { window.session = await initAuth({ base: AUTH_BASE, getMode: () => (typeof tier !== "undefined" ? tier : "forge"), onNewChat: () => { freshChat(); hello(); }, onLoadChat: (msgs) => loadConversation(msgs) }); } catch (e) { console.warn("auth init failed", e); }
   if (isDesktop) { await initDesktop(); installDesktop(window.agent); await refreshMemoryPrompt(); }
   $("#status").textContent = "Ready"; $("#q").disabled = $("#send").disabled = false; $("#q").focus(); hello();
 } catch (e) { $("#status").textContent = "Failed to load"; add("a", "Error loading: " + e); }
@@ -274,11 +279,11 @@ const tierHint = $("#tierhint"); const showHint = () => { if (tierHint) tierHint
 const tierSel = $("#tier"); if (tierSel) { tierSel.value = tier; tierSel.onchange = () => { tier = tierSel.value; localStorage.setItem("wy.tier", tier); showHint(); }; showHint(); }
 let busy = false;
 async function submitHidden(modelText) { if (busy || !window.bot) return; busy = true; add("u", "Fix with WrenbyAI \u2192 sent the error"); $("#send").disabled = true; if (window.agent) window.agent.stopped = false;
-  try { await handle(modelText); } catch (err) { add("a", "Error: " + (err.message || err)); }
+  try { const res = await handle(modelText); if (window.session) await window.session.saveTurn({ user: modelText, assistant: res && res.text || "", files: res && res.files || null, mode: (typeof tier !== "undefined" ? tier : "forge") }); } catch (err) { add("a", "Error: " + (err.message || err)); }
   busy = false; $("#send").disabled = false; $("#q").focus(); }
 $("#f").onsubmit = async e => { e.preventDefault(); const t = $("#q").value.trim(); if (!t || !window.bot || busy) return; busy = true; $("#q").value = ""; add("u", t); $("#send").disabled = true;
   ctl = new AbortController(); window.agent.stopped = false; document.body.classList.add("busy");
-  try { await handle(t); } catch (err) { add("a", window.agent.stopped ? "Stopped." : "Error: " + (err.message || err)); }
+  try { const res = await handle(t); if (window.session) await window.session.saveTurn({ user: t, assistant: res && res.text || "", files: res && res.files || null, mode: (typeof tier !== "undefined" ? tier : "forge") }); } catch (err) { add("a", window.agent.stopped ? "Stopped." : "Error: " + (err.message || err)); }
   busy = false; document.body.classList.remove("busy"); $("#send").disabled = false; $("#q").focus(); };
 $("#stop").onclick = () => { if (!busy) return; window.agent.stopped = true; ctl?.abort(); const d = $("#confirm"); if (d.open) d.close("no"); };
 // confirmation dialog
@@ -293,5 +298,5 @@ if (isDesktop) { $("#settingsBtn").onclick = () => { $("#sw").value = settings.w
   $("#sok").onclick = () => { settings.workspace = $("#sw").value.trim() || settings.workspace; settings.sandbox = $("#ss").checked; saveSettings(); $("#settings").close(); };
   $("#sclear").onclick = () => { resetSessionAllow(); $("#sclear").textContent = "Cleared"; setTimeout(() => $("#sclear").textContent = "Clear session approvals", 1200); };
   $("#smem").onclick = () => window.__TAURI__.core.invoke("open_data_dir"); } else $("#settingsBtn").hidden = true;
-$("#reset").onclick = async () => { if (!window.bot || busy) return; window.bot.reset(); window.agent.history.length = 0; log.innerHTML = ""; hello(); };
+$("#reset").onclick = async () => { if (!window.bot || busy) return; freshChat(); hello(); if (window.session) window.session.startNewChat(); };
 </script></body></html>
