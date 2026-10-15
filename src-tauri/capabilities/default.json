@@ -1,1 +1,1 @@
-{ "identifier": "default", "description": "WrenbyAI main window", "windows": ["main"], "permissions": ["core:default"] }
+{"identifier": "default", "description": "WrenbyAI main window", "windows": ["main"], "permissions": ["core:default", "updater:default", "process:default"]}

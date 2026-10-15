@@ -195,8 +195,27 @@ fn reveal_item(path: String) -> Result<(), String> {
     { let dir = if p.is_dir() { p.clone() } else { p.parent().map(|x| x.to_path_buf()).unwrap_or(p.clone()) }; open::that_detached(dir).map_err(e2s)?; Ok(()) }
 }
 
+async fn check_update(app: tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+    use tauri_plugin_updater::UpdaterExt;
+    tokio::time::sleep(std::time::Duration::from_secs(3)).await;
+    if let Some(update) = app.updater()?.check().await? {
+        eprintln!("updating to {}", update.version);
+        update.download_and_install(|_, _| {}, || {}).await?;
+        app.restart();
+    }
+    Ok(())
+}
+
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
+        .setup(|app| {
+            // Check for a signed update on launch; download, install and restart if one exists.
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move { if let Err(e) = check_update(handle).await { eprintln!("update check failed: {e}"); } });
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![default_workspace, run_shell, read_file, write_file, list_dir, delete_path, open_target, memory_load, memory_save, open_data_dir, reveal_item])
         .run(tauri::generate_context!())
         .expect("error while running WrenbyAI");

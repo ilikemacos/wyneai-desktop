@@ -17,8 +17,8 @@ jobs:
             out: src-tauri/target/release/bundle/
           - os: macos-latest
             name: macos-universal
-            args: --target universal-apple-darwin --bundles dmg
-            out: src-tauri/target/universal-apple-darwin/release/bundle/dmg/
+            args: --target universal-apple-darwin --bundles app,dmg
+            out: src-tauri/target/universal-apple-darwin/release/bundle/
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -32,9 +32,12 @@ jobs:
       - run: npm install
       - run: npx tauri icon app-icon.png
       - run: npx tauri build ${{ matrix.args }}
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
       - uses: actions/upload-artifact@v4
         with:
-          name: WyneAI-${{ matrix.name }}
+          name: WrenbyAI-${{ matrix.name }}
           path: |
             ${{ matrix.out }}**/*.exe
             ${{ matrix.out }}**/*.msi

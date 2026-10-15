@@ -1,0 +1,88 @@
+name: release
+# Push a vX.Y.Z tag. The GitHub Release for that tag is created by ilikemacos as a draft
+# (gh release create vX.Y.Z --draft); this workflow builds, signs and uploads the assets
+# plus latest.json to it. ilikemacos then publishes it.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag: { description: 'Tag to build (e.g. v0.2.1)', required: true }
+permissions:
+  contents: write
+env:
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            plat: windows-x64
+            args: --bundles nsis,msi
+          - os: macos-latest
+            plat: macos-universal
+            args: --target universal-apple-darwin --bundles app,dmg
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ env.TAG }}' }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+      - uses: swatinem/rust-cache@v2
+        with: { workspaces: src-tauri }
+      - run: npm install
+      - run: npx tauri icon app-icon.png
+      - run: npx tauri build ${{ matrix.args }}
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+      - name: Collect assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          V="${TAG#v}"; mkdir -p out
+          if [ "${{ matrix.os }}" = windows-latest ]; then
+            B=src-tauri/target/release/bundle
+            cp "$B"/nsis/*-setup.exe "out/WrenbyAI_${V}_x64-setup.exe"
+            cp "$B"/nsis/*-setup.exe.sig "out/WrenbyAI_${V}_x64-setup.exe.sig"
+            cp "$B"/msi/*.msi "out/WrenbyAI_${V}_x64_en-US.msi"
+            cp "$B"/msi/*.msi.sig "out/WrenbyAI_${V}_x64_en-US.msi.sig"
+          else
+            B=src-tauri/target/universal-apple-darwin/release/bundle
+            cp "$B"/dmg/*.dmg "out/WrenbyAI_${V}_universal.dmg"
+            cp "$B"/macos/*.app.tar.gz "out/WrenbyAI_${V}_universal.app.tar.gz"
+            cp "$B"/macos/*.app.tar.gz.sig "out/WrenbyAI_${V}_universal.app.tar.gz.sig"
+          fi
+          ls -l out
+      - uses: actions/upload-artifact@v4
+        with: { name: 'WrenbyAI-${{ matrix.plat }}', path: out/*, if-no-files-found: error }
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: dist, merge-multiple: true }
+      - name: Write latest.json
+        run: |
+          set -euo pipefail
+          V="${TAG#v}"; U="https://github.com/${{ github.repository }}/releases/download/${TAG}"
+          W="WrenbyAI_${V}_x64-setup.exe"; M="WrenbyAI_${V}_universal.app.tar.gz"
+          jq -n --arg v "$V" --arg d "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg wu "$U/$W" --rawfile ws "dist/$W.sig" --arg mu "$U/$M" --rawfile ms "dist/$M.sig" \
+            '{version:$v, notes:("WrenbyAI " + $v), pub_date:$d, platforms:{
+               "windows-x86_64":{signature:$ws, url:$wu},
+               "darwin-x86_64":{signature:$ms, url:$mu},
+               "darwin-aarch64":{signature:$ms, url:$mu}}}' > dist/latest.json
+          cat dist/latest.json | jq '.platforms | keys'
+      - name: Upload to the draft release created by ilikemacos
+        env: { GH_TOKEN: '${{ github.token }}', GH_REPO: '${{ github.repository }}' }
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 30); do gh release view "$TAG" >/dev/null 2>&1 && break; echo "waiting for the $TAG release…"; sleep 20; done
+          gh release view "$TAG" >/dev/null
+          gh release upload "$TAG" dist/* --clobber
