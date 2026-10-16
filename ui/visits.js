@@ -1,6 +1,7 @@
 // Wrenby edge visits: while a response is generating, the little guy sometimes pops in from a
 // random window edge, idles (blink, bob, wave, look around) and slides back out.
 // Hook: dispatch "wrenby:gen-start" / "wrenby:gen-end" on window. Debug: ?wrenby=always.
+import { getCompanion, svgFor, BALL } from "./companion.js";
 const Q = new URLSearchParams(location.search);
 const ALWAYS = Q.get("wrenby") === "always";
 const CFG = { chance: 0.38, cooldown: 25000, delay: [1500, 7000], hold: [1800, 4200], peekChance: 0.35, size: 64 };
@@ -15,9 +16,9 @@ const CSS = `
 html.wy-inv .wy-visits{filter:invert(1) hue-rotate(180deg)}
 .wy-visit{position:absolute;width:${CFG.size}px;height:${CFG.size}px;will-change:transform,opacity}
 .wy-visit svg{display:block;width:100%;height:100%;image-rendering:pixelated;shape-rendering:crispEdges}
-.wy-visit .skin,.wy-visit .leg,.wy-visit .arm{fill:#fff}.wy-visit .eye{fill:#000}
+.wy-visit .skin,.wy-visit .leg,.wy-visit .arm{fill:#fff}.wy-visit .ball{fill:${BALL}}.wy-visit .tailg,.wy-visit .ballg,.wy-visit .ear{transform-box:fill-box}.wy-visit .tailg{transform-origin:100% 100%}.wy-visit .eye{fill:#000}
 `;
-const GUY = `<svg viewBox="0 0 16 16" aria-hidden="true"><g class="g-body"><rect class="skin" x="3" y="2" width="10" height="9"/><rect class="eye e1" x="8" y="4" width="2" height="2"/><rect class="eye e2" x="11" y="4" width="1" height="2"/><rect class="arm" x="13" y="5" width="2" height="3" style="display:none"/></g><rect class="leg l1" x="4" y="11" width="3" height="3"/><rect class="leg l2" x="9" y="11" width="3" height="3"/></svg>`;
+
 
 let active = false, lastVisit = -1e9, ov = null, visiting = false, pending = null, raf = 0;
 const frames = new Set();             // per-frame callbacks; one rAF loop drives everything
@@ -44,8 +45,9 @@ export async function visit(opts = {}) {
   const S = CFG.size, W = innerWidth, H = innerHeight;
   const edge = opts.edge || pick(["left", "right", "top", "bottom"]);
   const peek = opts.peek ?? Math.random() < CFG.peekChance;
-  const el = document.createElement("div"); el.className = "wy-visit"; el.dataset.edge = edge; el.innerHTML = GUY; overlay().appendChild(el);
+  const el = document.createElement("div"); el.className = "wy-visit"; const comp = opts.companion || getCompanion(); el.dataset.edge = edge; el.dataset.comp = comp; el.innerHTML = svgFor(comp); overlay().appendChild(el);
   const svg = el.querySelector("svg"), body = svg.querySelector(".g-body"), arm = svg.querySelector(".arm");
+  const ballg = svg.querySelector(".ballg"), tailg = svg.querySelector(".tailg"), ear = svg.querySelector(".er");
   const eyes = [...svg.querySelectorAll(".eye")], l1 = svg.querySelector(".l1"), l2 = svg.querySelector(".l2");
   // Anchor along the edge (integer px), facing inward. Top: hangs upside down. Right: mirrored.
   const along = Math.round(edge === "left" || edge === "right" ? R(0.15, 0.8) * (H - S) : R(0.12, 0.85) * (W - S));
@@ -56,8 +58,14 @@ export async function visit(opts = {}) {
   if (edge === "bottom") { el.style.bottom = "0px"; el.style.left = along + "px"; base = o => `translate3d(0,${o}px,0)`; flip = ""; }
   let bobY = 0;
   const set = o => { el.style.transform = base(Math.round(o)) + flip + (bobY ? ` translate3d(0,${bobY}px,0)` : ""); };
-  const blink = async () => { eyes.forEach(e => e.setAttribute("height", "0.3")); await wait(110); eyes.forEach(e => e.setAttribute("height", "2")); };
-  const look = async () => { for (const dx of [-3, 0]) { eyes[0].setAttribute("x", 8 + dx); eyes[1].setAttribute("x", 11 + dx); await wait(R(380, 650)); } };
+  const eh = eyes.map(e => e.getAttribute("height")), ex = eyes.map(e => +e.getAttribute("x"));
+  const blink = async () => { eyes.forEach(e => e.setAttribute("height", "0.3")); await wait(110); eyes.forEach((e, i) => e.setAttribute("height", eh[i])); };
+  const look = async () => { for (const dx of [comp === "milyy" ? -1 : -3, 0]) { eyes.forEach((e, i) => e.setAttribute("x", ex[i] + dx)); await wait(R(380, 650)); } };
+  // Milyy: tail swish, ear twitch, and her ball (bat it, bounce it).
+  const swish = async () => { for (const a of [-14, 8, -10, 0]) { tailg.style.transform = `rotate(${a}deg)`; await wait(160); } };
+  const twitch = async () => { ear.style.transform = "translateY(1px)"; await wait(120); ear.style.transform = ""; await wait(140); ear.style.transform = "translateY(1px)"; await wait(100); ear.style.transform = ""; };
+  const bat = async () => { await tween(260, k => ballg.style.transform = `translate(${Math.round(k * 3)}px,0)`); await wait(120); await tween(320, k => ballg.style.transform = `translate(${Math.round(3 - 3 * k)}px,0)`, ease.back); ballg.style.transform = ""; };
+  const bounce = async () => { for (let i = 0; i < 3; i++) { await tween(180, k => ballg.style.transform = `translate(0,${-Math.round(Math.sin(k * Math.PI) * 5)}px)`, t => t); } ballg.style.transform = ""; };
   const wave = async () => { arm.style.display = ""; for (let i = 0; i < 4; i++) { arm.setAttribute("y", i % 2 ? 5 : 3); await wait(150); } arm.style.display = "none"; };
   const bob = async () => { for (let i = 0; i < 4; i++) { bobY = i % 2 ? 0 : -2; l1.setAttribute("y", i % 2 ? 11 : 10); l2.setAttribute("y", i % 2 ? 10 : 11); set(0); await wait(170); } bobY = 0; l1.setAttribute("y", 11); l2.setAttribute("y", 11); set(0); };
   const out = S + 8, hold = R(...CFG.hold);
@@ -73,7 +81,8 @@ export async function visit(opts = {}) {
         await tween(220, k => set(p + (out - 10 - p) * k), ease.in); await wait(R(300, 700));
         await tween(R(450, 650), k => set((out - 10) * (1 - k)), ease.back);
       } else await tween(R(600, 900), k => set(out * (1 - k)), ease.back);
-      const acts = [blink, look, wave, bob].sort(() => Math.random() - 0.5);
+      const acts = (comp === "milyy" ? [blink, swish, bounce, twitch, look] : [blink, look, wave, bob]).sort(() => Math.random() - 0.5);
+      if (comp === "milyy") acts.unshift(bat);   // she always plays with her ball first
       let t = 0; for (const a of acts) { if (t > hold) break; const s = performance.now(); await a(); await wait(R(180, 420)); t += performance.now() - s; }
       await tween(R(450, 650), k => set(out * k), ease.in);
     }

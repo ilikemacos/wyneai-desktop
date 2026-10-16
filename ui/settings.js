@@ -3,6 +3,7 @@
 import { authInfo, setPassword, logout, reloadMe } from "./auth.js";
 import { getMode, setMode } from "./cloudtask.js";
 import { staticPrefs, setStaticPrefs, isInverted, setInverted } from "./static.js";
+import { getCompanion, setCompanion, COMPANIONS } from "./companion.js";
 const T = window.__TAURI__; const DESKTOP = !!T?.core;
 const invoke = (c, a) => T.core.invoke(c, a);
 const AU = "wy.autoupdate", LAST = "wy.update.last";
@@ -40,6 +41,9 @@ async function renderGeneral(b) {
     x.onclick = () => { setMode(m); seg.querySelectorAll("button").forEach(y => y.classList.toggle("on", y === x)); document.querySelectorAll(".ctmode .ctm").forEach((y, i) => y.classList.toggle("on", (i === 0) === (m === "ask"))); }; seg.append(x); }
   b.append(row("Cloud task commands", "Ask pauses before every command or file write in a cloud sandbox. Also next to the message box.", seg));
   const p = staticPrefs();
+  const cs = el("div", "wy-seg"); for (const [c, label] of Object.entries(COMPANIONS)) { const x = el("button", getCompanion() === c ? "on" : "", label); x.type = "button";
+    x.onclick = () => { setCompanion(c); cs.querySelectorAll("button").forEach(y => y.classList.toggle("on", y === x)); }; cs.append(x); }
+  b.append(row("Companion", "Who keeps you company while WrenbyAI works: Wrenby, or Milyy and her ball. Saved to your account.", cs));
   b.append(row("Pixel background", "The moving pixel static at the edges. Off keeps a plain background; clicking the background still inverts.", sw(p.on !== false, v => setStaticPrefs({ on: v }))));
   b.append(row("Inverted theme", "White background, black squares. You can also click the empty background.", sw(isInverted(), v => setInverted(v))));
   b.append(row("Shimmer", "Squares flicker slowly. Off keeps the static still.", sw(p.shimmer, v => setStaticPrefs({ shimmer: v }))));

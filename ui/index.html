@@ -148,6 +148,7 @@ import { isDesktop, initDesktop, installDesktop, settings, saveSettings, setConf
 if (isDesktop) { window.__openItem = openItem; window.__revealItem = revealItem; }
 const API = "https://preset-ai-chat.vercel.app/api/chat"; let ctl = null;
 import { initStatic } from "./static.js"; initStatic();
+import { initCompanion } from "./companion.js"; initCompanion();
 import { initIntro } from "./intro.js"; initIntro();
 import { initVisits } from "./visits.js"; initVisits();
 import "./desktop-signin.js";
