@@ -101,6 +101,7 @@ export async function openSettings(section = "general") {
   await show(SECTIONS.some(s => s[0] === section) ? section : "general");
 }
 export function initSettings() {
+  const ws = document.getElementById("settingsBtn"); if (ws) { ws.textContent = "Workspace"; ws.title = "Working folder and approvals (desktop)"; }
   const header = document.querySelector("header"); if (header && !document.getElementById("wy-gear")) { const g = el("button", "", "⚙"); g.id = "wy-gear"; g.type = "button"; g.title = "Settings (" + (/Mac/.test(navigator.platform) ? "⌘" : "Ctrl") + "+,)"; g.setAttribute("aria-label", "Settings"); g.onclick = () => openSettings();
     const reset = document.getElementById("reset"); reset ? header.insertBefore(g, reset) : header.append(g); }
   addEventListener("keydown", e => { if ((e.metaKey || e.ctrlKey) && e.key === ",") { e.preventDefault(); dlg ? close() : openSettings(); } });
