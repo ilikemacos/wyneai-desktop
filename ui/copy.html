@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>WrenbyAI · Copy code</title>
+<style>html,body{margin:0;height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+main{position:relative;z-index:1;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px}
+.b{font-weight:700}.c{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:40px;font-weight:700;letter-spacing:10px;border:2px solid #fff;padding:14px 22px;background:#000;user-select:all;-webkit-user-select:all}
+button{background:#fff;color:#000;border:0;border-radius:999px;padding:10px 20px;font:inherit;font-weight:600;cursor:pointer}#s{color:#bbb;font-size:14px;min-height:20px}</style></head>
+<body><main><div class="b">WrenbyAI</div><div class="c" id="c">------</div><button id="btn">Copy code</button><div id="s"></div></main>
+<script>
+// The code lives only in the URL fragment (#CODE), which browsers never send to the server, so it stays out of logs.
+const code = decodeURIComponent(location.hash.slice(1)).replace(/[^0-9A-Za-z]/g, "").slice(0, 12);
+history.replaceState(null, "", location.pathname); // drop it from the address bar/history
+const c = document.getElementById("c"), s = document.getElementById("s");
+if (code) c.textContent = code; else { c.textContent = "------"; s.textContent = "No code in this link."; }
+async function copy() {
+  if (!code) return;
+  try { await navigator.clipboard.writeText(code); s.textContent = "Copied"; }
+  catch { const r = document.createRange(); r.selectNodeContents(c); const g = getSelection(); g.removeAllRanges(); g.addRange(r);
+    s.textContent = document.execCommand && document.execCommand("copy") ? "Copied" : "Tap and hold the code to copy it."; }
+}
+document.getElementById("btn").onclick = copy; copy();
+</script><script type="module">import { initStatic } from "./static.js"; initStatic(); document.documentElement.classList.remove("wy-app");</script></body></html>

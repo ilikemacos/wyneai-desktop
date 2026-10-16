@@ -146,6 +146,9 @@ import { applyTheme } from "./theme.js";
 import { isDesktop, initDesktop, installDesktop, settings, saveSettings, setConfirmUI, setPlanUI, resetSessionAllow, refreshMemoryPrompt, writeExport, openItem, revealItem } from "./desktop.js";
 if (isDesktop) { window.__openItem = openItem; window.__revealItem = revealItem; }
 const API = "https://preset-ai-chat.vercel.app/api/chat"; let ctl = null;
+import { initStatic } from "./static.js"; initStatic();
+import { initIntro } from "./intro.js"; initIntro();
+import "./desktop-signin.js";
 ort.env.wasm.wasmPaths = new URL("./ort/", location.href).href; ort.env.wasm.numThreads = 1;
 const $ = s => document.querySelector(s), log = $("#log");
 const TIERS = { spark: { max: 6144, ctx: 32000, steps: 6 }, turbo: { max: 24576, ctx: 64000, steps: 10 }, forge: { max: 49152, ctx: 128000, steps: 16 }, zenith: { max: 73728, ctx: 128000, steps: 24 } };
