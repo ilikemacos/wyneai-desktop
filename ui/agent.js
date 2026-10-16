@@ -215,8 +215,8 @@ Agent.prototype.runNative = async function (text, on = {}) {
 export function cloudLLM(url = "/api/chat", getSignal = () => undefined) {
   // One streamed request. `base` is text already shown (for stitched continuations) so on.token stays cumulative.
   async function once(messages, { noSearch, continuation, maxTokens, base, on }) {
-    const res = await fetch(url, { method: "POST", signal: getSignal(), headers: { "content-type": "application/json" }, body: JSON.stringify({ messages, tools: once._tools, max_tokens: maxTokens || 32768, no_search: noSearch, continuation, tier: once._tier }) });
-    if (!res.ok) { let m = res.status; try { m = (await res.json()).error || m; } catch {} const e = new Error(String(m)); e.status = res.status; throw e; }
+    const res = await fetch(url, { method: "POST", signal: getSignal(), headers: { "content-type": "application/json", ...(localStorage.getItem("wy.token") ? { authorization: "Bearer " + localStorage.getItem("wy.token") } : {}) }, body: JSON.stringify({ messages, tools: once._tools, max_tokens: maxTokens || 32768, no_search: noSearch, continuation, tier: once._tier }) });
+    if (!res.ok) { let m = res.status, code; try { const j = await res.json(); m = j.error || m; code = j.code; } catch {} const e = new Error(String(m)); e.status = res.status; e.code = code; throw e; }
     const rd = res.body.getReader(), dec = new TextDecoder(); let buf = "", content = "", reasoning = ""; const tc = []; let finish = null, sawDone = false;
     for (;;) { const { value, done } = await rd.read(); if (done) break; buf += dec.decode(value, { stream: true }); let i;
       while ((i = buf.indexOf("\n\n")) >= 0) { const ev = buf.slice(0, i).trim(); buf = buf.slice(i + 2); if (!ev.startsWith("data:")) continue; const d = ev.slice(5).trim(); if (d === "[DONE]") { sawDone = true; continue; }

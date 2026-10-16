@@ -66,6 +66,9 @@ async function renderUsage(b, me) {
   const u = me?.user?.usage; if (!me?.user) { b.append(el("p", "sub", "Sign in to see your usage.")); return; }
   if (!u) { b.append(el("p", "sub", "Usage isn't available right now.")); return; }
   b.append(el("p", "sub", "Plan: " + u.plan + ". Numbers come from your account on the server."));
+  if (u.tokens) { const fk = n => n >= 1000 ? (n / 1000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n);
+    for (const m of Object.values(u.tokens.modes)) b.append(card(m.name + " tokens", `${fk(m.used)} / ${fk(m.limit)} today`, bar(m.used, m.limit), el("div", "muted", `${fk(m.context)} context per message. Counts input and output.`)));
+    b.append(el("p", "sub", `Token limits reset at ${u.tokens.resets} (in ${u.tokens.resetsIn}). Older messages are trimmed to fit a mode's context.`)); }
   const ct = u.cloudTasks;
   b.append(card("Cloud tasks", `${ct.used} / ${ct.limit} in the last 24 hours`, bar(ct.used, ct.limit), el("div", "muted", `Zenith tasks count as ${ct.zenithWeight}. ${ct.tasks} task${ct.tasks === 1 ? "" : "s"} started in the last 24 hours, ${ct.month} this month.`)));
   b.append(card("Running now", `${ct.running} / ${ct.concurrentLimit}`, bar(ct.running, ct.concurrentLimit), el("div", "muted", `Up to ${ct.stepLimit.forge} steps on Forge and ${ct.stepLimit.zenith} on Zenith, ${ct.maxMinutes} minutes per task.`)));
