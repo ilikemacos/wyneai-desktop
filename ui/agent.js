@@ -217,27 +217,31 @@ export function cloudLLM(url = "/api/chat", getSignal = () => undefined) {
   async function once(messages, { noSearch, continuation, maxTokens, base, on }) {
     const res = await fetch(url, { method: "POST", signal: getSignal(), headers: { "content-type": "application/json", ...(localStorage.getItem("wy.token") ? { authorization: "Bearer " + localStorage.getItem("wy.token") } : {}) }, body: JSON.stringify({ messages, tools: once._tools, max_tokens: maxTokens || 32768, no_search: noSearch, continuation, tier: once._tier }) });
     if (!res.ok) { let m = res.status, code; try { const j = await res.json(); m = j.error || m; code = j.code; } catch {} const e = new Error(String(m)); e.status = res.status; e.code = code; throw e; }
-    const rd = res.body.getReader(), dec = new TextDecoder(); let buf = "", content = "", reasoning = ""; const tc = []; let finish = null, sawDone = false;
+    const rd = res.body.getReader(), dec = new TextDecoder(); let buf = "", content = "", reasoning = ""; const tc = []; let finish = null, sawDone = false, err = null;
     for (;;) { const { value, done } = await rd.read(); if (done) break; buf += dec.decode(value, { stream: true }); let i;
       while ((i = buf.indexOf("\n\n")) >= 0) { const ev = buf.slice(0, i).trim(); buf = buf.slice(i + 2); if (!ev.startsWith("data:")) continue; const d = ev.slice(5).trim(); if (d === "[DONE]") { sawDone = true; continue; }
         let j; try { j = JSON.parse(d); } catch { continue; }
         if (j.type === "search") { on.search?.(j); continue; }
+        if (j.error) { err = j; continue; }
         if (j.finish_reason) finish = j.finish_reason;
         if (j.reasoning) { reasoning += j.reasoning; on.reasoning?.(reasoning); }
         if (j.content) { content += j.content; if (!tc.length) on.token?.(base + content); }
         for (const t of j.tool_calls || []) { const k = t.index ?? tc.length; tc[k] ||= { id: "", function: { name: "", arguments: "" } };
           if (t.id) tc[k].id = t.id; if (t.function?.name) tc[k].function.name += t.function.name; if (t.function?.arguments) tc[k].function.arguments += t.function.arguments; } } }
     tc.forEach((c, i) => { if (!c.id) c.id = "call_" + i; });
+    // never return silently empty: the server sends an error event, and a stream that just ends empty is treated the same way
+    if (!content.trim() && !tc.length) { const e = new Error(err?.error || "WrenbyAI didn't send an answer this time. Please try again."); e.code = "no_answer"; e.reason = err?.reason || (sawDone ? "empty" : "dropped"); throw e; }
     // truncated if the model hit its length cap, or the stream died (e.g. Vercel's 300s limit) before a clean [DONE]
     const truncated = finish === "length" || (!sawDone && !tc.length && content.length > 0);
     return { content, reasoning, tool_calls: tc.filter(Boolean), truncated }; }
   return async (messages, tools, cb) => {
     const on = typeof cb === "function" ? { token: cb } : (cb || {});
-    once._tools = tools; once._tier = on.tier; let full = "", reasoning = "";
+    once._tools = tools; once._tier = on.tier; let full = "", reasoning = "", retried = false;
     for (let attempt = 0; attempt < 6; attempt++) {
       let r; const msgs = attempt === 0 ? messages : [...messages, { role: "assistant", content: full }, { role: "user", content: "Continue exactly where you left off. Do not repeat anything already written; pick up mid-sentence if needed." }];
       try { r = await once(msgs, { noSearch: attempt > 0 ? true : on.noSearch, continuation: attempt > 0, maxTokens: on.maxTokens, base: full, on }); }
-      catch (e) { if (attempt === 0) throw e; break; } // keep what we have if a continuation fails
+      catch (e) { if (attempt === 0 && e.code === "no_answer" && !retried && e.reason !== "length" && e.reason !== "timeout") { retried = true; on.continued?.(0, "retry"); attempt--; continue; }
+        if (attempt === 0) throw e; break; } // keep what we have if a continuation fails
       full += r.content; if (r.reasoning) reasoning = r.reasoning;
       if (r.tool_calls.length) return { content: full, reasoning, tool_calls: r.tool_calls };
       if (!r.truncated || !r.content) break;
