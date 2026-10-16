@@ -24,3 +24,7 @@ strip = true
 lto = true
 codegen-units = 1
 opt-level = "s"
+
+# zip 4.x was yanked on crates.io; tauri-plugin-updater (Windows) still needs ^4, so pin it from the upstream tag.
+[patch.crates-io]
+zip = { git = "https://github.com/zip-rs/zip2", tag = "v4.6.1" }
