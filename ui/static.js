@@ -2,6 +2,16 @@
 // One canvas, requestAnimationFrame, paused when hidden. Click the background to invert.
 // Configure via window.WRENBY_STATIC = { cell: 8, gap: 1, shimmer: 0.01, period: 15000, min: 0.05, max: 0.40 } before load.
 const CFG = Object.assign({ cell: 8, gap: 1, shimmer: 0.01, period: 15000, min: 0.05, max: 0.40, curve: 1.6 }, window.WRENBY_STATIC || {});
+// User preferences from Settings (wy.static = { shimmer: bool, chunky: bool }).
+const PREF_DEFAULT = { shimmer: true, chunky: false };
+export const staticPrefs = () => { try { return Object.assign({}, PREF_DEFAULT, JSON.parse(localStorage.getItem("wy.static") || "{}")); } catch { return { ...PREF_DEFAULT }; } };
+const BASE = { cell: CFG.cell, shimmer: CFG.shimmer };
+const applyPrefs = p => { CFG.cell = p.chunky ? BASE.cell * 2 : BASE.cell; CFG.gap = p.chunky ? 2 : 1; CFG.shimmer = p.shimmer ? BASE.shimmer : 0; };
+applyPrefs(staticPrefs());
+let hooks = null;
+export function setStaticPrefs(p) { const n = Object.assign(staticPrefs(), p); localStorage.setItem("wy.static", JSON.stringify(n)); applyPrefs(n); hooks?.resize(); return n; }
+export const isInverted = () => inverted;
+export function setInverted(v) { inverted = !!v; localStorage.setItem("wy.inv", inverted ? "1" : "0"); document.documentElement.classList.toggle("wy-inv", inverted); }
 const RM = matchMedia("(prefers-reduced-motion: reduce)");
 let inverted = localStorage.getItem("wy.inv") === "1";
 
@@ -11,7 +21,7 @@ body>main{position:relative;z-index:1}
 html.wy-app #wy-static{opacity:.32}
 html:root,html:root body{background:#000!important}
 html.wy-inv:root,html.wy-inv:root body{background:#fff!important}
-html.wy-inv body>main,html.wy-inv .wy-dialog,html.wy-inv .wy-menu,html.wy-inv #histbar{filter:invert(1) hue-rotate(180deg)}
+html.wy-inv body>main,html.wy-inv .wy-dialog,html.wy-inv .wy-settings,html.wy-inv .wy-menu,html.wy-inv #histbar{filter:invert(1) hue-rotate(180deg)}
 html.wy-inv body>main img,html.wy-inv .wy-dialog img,html.wy-inv .wy-gbtn{filter:invert(1) hue-rotate(180deg)}
 html.wy-auth body>main,html.wy-auth #histbar{visibility:hidden}
 html.wy-auth #wy-static{opacity:1}
@@ -69,9 +79,9 @@ export function initStatic() {
   function stop() { if (raf) cancelAnimationFrame(raf), raf = 0, paused = performance.now(); }
   let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(resize, 100); });
   document.addEventListener("visibilitychange", () => document.hidden ? stop() : start());
-  resize(); start();
+  resize(); start(); hooks = { resize };
 
-  const invert = () => { inverted = !inverted; localStorage.setItem("wy.inv", inverted ? "1" : "0"); document.documentElement.classList.toggle("wy-inv", inverted); };
+  const invert = () => setInverted(!inverted);
   // Background clicks only: empty page area, or outside the sign-in panel.
   document.addEventListener("click", e => {
     const t = e.target;

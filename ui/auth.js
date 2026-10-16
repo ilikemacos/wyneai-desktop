@@ -450,3 +450,6 @@ function injectStyle() {
 
 // Used by cloud tasks.
 export const authInfo = () => ({ base: S.base, token: S.token, user: S.user });
+// Used by the Settings page.
+export { setPassword, logout };
+export const reloadMe = async () => { const r = await api("/api/auth/me?usage=1"); const j = await r.json(); return j; };

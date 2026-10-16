@@ -22,6 +22,7 @@ if "<<<<<<<" in s:  # keep both sides of any conflict (desktop imports + new web
         out.append(line)
     s = "\n".join(out)
 s = s.replace('import { initDesktopLogin } from "./desktop-login.js"; initDesktopLogin().catch(() => {});', 'import "./desktop-signin.js";')
+while 'import "./desktop-signin.js";\nimport "./desktop-signin.js";' in s: s = s.replace('import "./desktop-signin.js";\nimport "./desktop-signin.js";', 'import "./desktop-signin.js";')
 open(os.path.join(ui, "index.html"), "w").write(s)
 a = open(os.path.join(pub, "auth.js")).read()
 def rep(old, new):

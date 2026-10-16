@@ -195,28 +195,34 @@ fn reveal_item(path: String) -> Result<(), String> {
     { let dir = if p.is_dir() { p.clone() } else { p.parent().map(|x| x.to_path_buf()).unwrap_or(p.clone()) }; open::that_detached(dir).map_err(e2s)?; Ok(()) }
 }
 
-async fn check_update(app: tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+// Updates are driven from Settings: the UI calls update_install on launch when automatic updates are on.
+#[tauri::command]
+fn app_version(app: tauri::AppHandle) -> String { app.package_info().version.to_string() }
+
+#[tauri::command]
+async fn update_check(app: tauri::AppHandle) -> Result<Value, String> {
     use tauri_plugin_updater::UpdaterExt;
-    tokio::time::sleep(std::time::Duration::from_secs(3)).await;
-    if let Some(update) = app.updater()?.check().await? {
-        eprintln!("updating to {}", update.version);
-        update.download_and_install(|_, _| {}, || {}).await?;
+    match app.updater().map_err(e2s)?.check().await.map_err(e2s)? {
+        Some(u) => Ok(json!({ "available": true, "version": u.version, "current": u.current_version, "notes": u.body, "date": u.date.map(|d| d.to_string()) })),
+        None => Ok(json!({ "available": false, "current": app.package_info().version.to_string() })),
+    }
+}
+
+#[tauri::command]
+async fn update_install(app: tauri::AppHandle) -> Result<Value, String> {
+    use tauri_plugin_updater::UpdaterExt;
+    if let Some(u) = app.updater().map_err(e2s)?.check().await.map_err(e2s)? {
+        u.download_and_install(|_, _| {}, || {}).await.map_err(e2s)?;
         app.restart();
     }
-    Ok(())
+    Ok(json!({ "installed": false }))
 }
 
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
-        .setup(|app| {
-            // Check for a signed update on launch; download, install and restart if one exists.
-            let handle = app.handle().clone();
-            tauri::async_runtime::spawn(async move { if let Err(e) = check_update(handle).await { eprintln!("update check failed: {e}"); } });
-            Ok(())
-        })
-        .invoke_handler(tauri::generate_handler![default_workspace, run_shell, read_file, write_file, list_dir, delete_path, open_target, memory_load, memory_save, open_data_dir, reveal_item])
+        .invoke_handler(tauri::generate_handler![default_workspace, run_shell, read_file, write_file, list_dir, delete_path, open_target, memory_load, memory_save, open_data_dir, reveal_item, app_version, update_check, update_install])
         .run(tauri::generate_context!())
         .expect("error while running WrenbyAI");
 }
