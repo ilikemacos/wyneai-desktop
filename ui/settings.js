@@ -40,6 +40,7 @@ async function renderGeneral(b) {
     x.onclick = () => { setMode(m); seg.querySelectorAll("button").forEach(y => y.classList.toggle("on", y === x)); document.querySelectorAll(".ctmode .ctm").forEach((y, i) => y.classList.toggle("on", (i === 0) === (m === "ask"))); }; seg.append(x); }
   b.append(row("Cloud task commands", "Ask pauses before every command or file write in a cloud sandbox. Also next to the message box.", seg));
   const p = staticPrefs();
+  b.append(row("Pixel background", "The moving pixel static at the edges. Off keeps a plain background; clicking the background still inverts.", sw(p.on !== false, v => setStaticPrefs({ on: v }))));
   b.append(row("Inverted theme", "White background, black squares. You can also click the empty background.", sw(isInverted(), v => setInverted(v))));
   b.append(row("Shimmer", "Squares flicker slowly. Off keeps the static still.", sw(p.shimmer, v => setStaticPrefs({ shimmer: v }))));
   b.append(row("Chunky squares", "Twice the square size.", sw(p.chunky, v => setStaticPrefs({ chunky: v }))));

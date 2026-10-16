@@ -149,6 +149,7 @@ if (isDesktop) { window.__openItem = openItem; window.__revealItem = revealItem;
 const API = "https://preset-ai-chat.vercel.app/api/chat"; let ctl = null;
 import { initStatic } from "./static.js"; initStatic();
 import { initIntro } from "./intro.js"; initIntro();
+import { initVisits } from "./visits.js"; initVisits();
 import "./desktop-signin.js";
 import { initSettings } from "./settings.js"; initSettings();
 ort.env.wasm.wasmPaths = new URL("./ort/", location.href).href; ort.env.wasm.numThreads = 1;
@@ -295,13 +296,13 @@ try { window.bot = new Assistant(await Model.load(ort, "./preset_beta7.onnx")); 
 const tierHint = $("#tierhint"); const showHint = () => { if (tierHint) tierHint.textContent = tier === "zenith" ? "uses the most usage" : ""; };
 const tierSel = $("#tier"); if (tierSel) { tierSel.value = tier; tierSel.onchange = () => { tier = tierSel.value; localStorage.setItem("wy.tier", tier); showHint(); }; showHint(); }
 let busy = false;
-async function submitHidden(modelText) { if (busy || !window.bot) return; busy = true; add("u", "Fix with WrenbyAI \u2192 sent the error"); $("#send").disabled = true; if (window.agent) window.agent.stopped = false;
+async function submitHidden(modelText) { if (busy || !window.bot) return; busy = true; dispatchEvent(new Event("wrenby:gen-start")); add("u", "Fix with WrenbyAI \u2192 sent the error"); $("#send").disabled = true; if (window.agent) window.agent.stopped = false;
   try { const res = await handle(modelText); if (window.session) await window.session.saveTurn({ user: modelText, assistant: res && res.text || "", files: res && res.files || null, mode: (typeof tier !== "undefined" ? tier : "forge") }); } catch (err) { add("a", "Error: " + (err.message || err)); }
-  busy = false; $("#send").disabled = false; $("#q").focus(); }
-$("#f").onsubmit = async e => { e.preventDefault(); const t = $("#q").value.trim(); if (!t || !window.bot || busy) return; busy = true; $("#q").value = ""; add("u", t); $("#send").disabled = true;
+  busy = false; dispatchEvent(new Event("wrenby:gen-end")); $("#send").disabled = false; $("#q").focus(); }
+$("#f").onsubmit = async e => { e.preventDefault(); const t = $("#q").value.trim(); if (!t || !window.bot || busy) return; busy = true; dispatchEvent(new Event("wrenby:gen-start")); $("#q").value = ""; add("u", t); $("#send").disabled = true;
   ctl = new AbortController(); window.agent.stopped = false; document.body.classList.add("busy");
   try { const res = await handle(t); if (window.session) await window.session.saveTurn({ user: t, assistant: res && res.text || "", files: res && res.files || null, mode: (typeof tier !== "undefined" ? tier : "forge") }); } catch (err) { add("a", window.agent.stopped ? "Stopped." : "Error: " + (err.message || err)); }
-  busy = false; document.body.classList.remove("busy"); $("#send").disabled = false; $("#q").focus(); };
+  busy = false; dispatchEvent(new Event("wrenby:gen-end")); document.body.classList.remove("busy"); $("#send").disabled = false; $("#q").focus(); };
 $("#stop").onclick = () => { if (!busy) return; window.agent.stopped = true; ctl?.abort(); const d = $("#confirm"); if (d.open) d.close("no"); };
 // confirmation dialog
 setConfirmUI(({ kind, title, detail }) => new Promise(res => { const d = $("#confirm"); $("#ck").textContent = { shell: "Shell command", write: "File write", delete: "Delete", open: "Open app" }[kind] || kind;

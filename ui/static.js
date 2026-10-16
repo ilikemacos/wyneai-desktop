@@ -3,10 +3,10 @@
 // Configure via window.WRENBY_STATIC = { cell: 8, gap: 1, shimmer: 0.01, period: 15000, min: 0.05, max: 0.40 } before load.
 const CFG = Object.assign({ cell: 8, gap: 1, shimmer: 0.01, period: 15000, min: 0.05, max: 0.40, curve: 1.6 }, window.WRENBY_STATIC || {});
 // User preferences from Settings (wy.static = { shimmer: bool, chunky: bool }).
-const PREF_DEFAULT = { shimmer: true, chunky: false };
+const PREF_DEFAULT = { on: true, shimmer: true, chunky: false };
 export const staticPrefs = () => { try { return Object.assign({}, PREF_DEFAULT, JSON.parse(localStorage.getItem("wy.static") || "{}")); } catch { return { ...PREF_DEFAULT }; } };
 const BASE = { cell: CFG.cell, shimmer: CFG.shimmer };
-const applyPrefs = p => { CFG.cell = p.chunky ? BASE.cell * 2 : BASE.cell; CFG.gap = p.chunky ? 2 : 1; CFG.shimmer = p.shimmer ? BASE.shimmer : 0; };
+const applyPrefs = p => { document.documentElement.classList.toggle("wy-static-off", p.on === false); CFG.cell = p.chunky ? BASE.cell * 2 : BASE.cell; CFG.gap = p.chunky ? 2 : 1; CFG.shimmer = p.shimmer ? BASE.shimmer : 0; };
 applyPrefs(staticPrefs());
 let hooks = null;
 export function setStaticPrefs(p) { const n = Object.assign(staticPrefs(), p); localStorage.setItem("wy.static", JSON.stringify(n)); applyPrefs(n); hooks?.resize(); return n; }
@@ -25,6 +25,7 @@ html.wy-inv body>main,html.wy-inv .wy-dialog,html.wy-inv .wy-settings,html.wy-in
 html.wy-inv body>main img,html.wy-inv .wy-dialog img,html.wy-inv .wy-gbtn{filter:invert(1) hue-rotate(180deg)}
 html.wy-auth body>main,html.wy-auth #histbar{visibility:hidden}
 html.wy-auth #wy-static{opacity:1}
+html.wy-static-off:not(.wy-auth):not(.wy-intro) #wy-static{display:none}
 .wy-dialog::backdrop{background:transparent!important}
 .wy-dialog{background:#000!important;border:1px solid #2a2a2a!important;box-shadow:0 0 0 8px #000,0 20px 60px rgba(0,0,0,.8);border-radius:10px!important}
 .wy-dialog .wy-spam{display:none;font-size:11px;color:#8f8f8f;margin:-6px 0 12px}
@@ -61,16 +62,22 @@ export function initStatic() {
     const reduced = RM.matches, period = reduced ? CFG.period * 3 : CFG.period;
     const ph = ((now - t0) % period) / period;
     const s = 0.5 - 0.5 * Math.cos(ph * 2 * Math.PI);               // 0..1..0 swell
-    const band = CFG.min + (CFG.max - CFG.min) * s;                  // fraction of width per side
+    const H = document.documentElement.classList, full = H.contains("wy-auth") || H.contains("wy-intro");
+    if (H.contains("wy-static-off") && !full) return;                // Settings → Pixel background off (paused)
+    // App (calm): band 3–18% per side, max ~55% fill, never inside the ~860px reading column.
+    const mn = full ? CFG.min : 0.03, mx = full ? CFG.max : 0.18, peak = full ? 0.98 : 0.55, curve = full ? CFG.curve : 2.4;
+    let band = mn + (mx - mn) * s;                                   // fraction of width per side
     if (!reduced && CFG.shimmer > 0) { const n = Math.round(thr.length * CFG.shimmer); for (let k = 0; k < n; k++) thr[(Math.random() * thr.length) | 0] = Math.random(); }
     ctx.fillStyle = inverted ? "#fff" : "#000"; ctx.fillRect(0, 0, cv.width, cv.height);
     ctx.fillStyle = inverted ? "#000" : "#fff";
-    const half = cols / 2, bandCols = Math.max(1, band * cols);
+    let bandCols = Math.max(1, band * cols);
+    if (!full) bandCols = Math.max(2, Math.min(bandCols, (cols - 860 / CFG.cell) / 2));
+    const half = cols / 2;
     for (let x = 0; x < cols; x++) {
       const d = Math.min(x + 0.5, cols - x - 0.5);                   // distance from nearest edge, in cells (mirrored)
       if (d > bandCols || d > half) continue;
       const u = d / bandCols;                                        // 0 at edge, 1 at band's inner limit
-      const p = 0.98 * (1 - Math.pow(u, CFG.curve));                 // curved falloff: drops faster near the middle
+      const p = peak * (1 - Math.pow(u, curve));                 // curved falloff: drops faster near the middle
       const X = x * px;
       for (let y = 0, i = x; y < rows; y++, i += cols) if (thr[i] < p) ctx.fillRect(X, y * px, sq, sq);
     }
