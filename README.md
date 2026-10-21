@@ -22,4 +22,6 @@ npm install && npx tauri icon app-icon.png && npx tauri build
 ```
 
 ## Updating from WrenbyAI
-Version 0.3.0 renames the app to LarkquillAI. The built-in updater installs it; on Windows the installer then removes the old WrenbyAI program files and shortcuts, and keeps your chats, settings and memory. On macOS the app keeps its file name (WrenbyAI.app) after an in-place update but shows as LarkquillAI; a fresh download is named LarkquillAI.app.
+Version 0.3.0 renamed the app to LarkquillAI. The built-in updater installs it and keeps your chats, settings and memory.
+- **Windows:** the installer removes the old WrenbyAI program files and shortcuts.
+- **macOS:** the updater replaces the app in place, so it kept the old file name (WrenbyAI.app). From 0.3.1, on launch the app renames itself to LarkquillAI.app (if that name is free in the same folder) and reopens, so Finder, the Dock and Launchpad all say LarkquillAI. If you dragged a fresh LarkquillAI.app next to the old WrenbyAI.app, LarkquillAI moves the old copy to the Trash (only if it is really this app, bundle id `com.framefx.wyneai`, and it isn't running). If macOS doesn't allow the change, nothing happens and the app runs as before. The data folder (`WrenbyAI`), `~/WrenbyAI Workspace` and the bundle id are never changed.

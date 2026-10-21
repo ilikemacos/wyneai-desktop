@@ -8,6 +8,9 @@ use std::time::Duration;
 use std::{fs, thread};
 use wait_timeout::ChildExt;
 
+#[cfg(any(test, target_os = "macos"))]
+mod mac_rename;
+
 fn home() -> PathBuf { dirs::home_dir().unwrap_or_else(|| PathBuf::from(".")) }
 fn data_dir() -> PathBuf {
     // Kept as "WrenbyAI" on purpose: memory.json and settings from earlier versions live here.
@@ -222,6 +225,10 @@ async fn update_install(app: tauri::AppHandle) -> Result<Value, String> {
 }
 
 fn main() {
+    // macOS: an in-place update from WrenbyAI keeps the old WrenbyAI.app file name; rename it (and relaunch) or
+    // trash a leftover old copy. Silent on failure; app data, bundle id and folders are untouched.
+    #[cfg(target_os = "macos")]
+    mac_rename::run();
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
