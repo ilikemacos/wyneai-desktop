@@ -60,7 +60,7 @@ button:active,.lq-btn:active{transform:scale(.98)}
 button:disabled{opacity:.45!important;cursor:default}
 .primary,button.primary,.lq-btn,a.lq-btn{background:var(--lq-ink)!important;color:var(--lq-on-ink)!important;border-color:var(--lq-ink)!important}
 .primary:hover,button.primary:hover,.lq-btn:hover{background:color-mix(in srgb,var(--lq-ink) 86%,var(--lq-bg))!important}
-a.lq-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none!important;height:44px;padding:0 22px;font-size:15px!important}
+a.lq-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;text-decoration:none!important;height:44px;padding:0 22px;font-size:15px!important}
 .lq-btn.lq-ghost{background:var(--lq-tert)!important;color:var(--lq-ink)!important;border-color:transparent!important}
 .danger:hover{background:color-mix(in srgb,transparent,var(--lq-bad) 14%)!important;color:var(--lq-bad)!important}
 
@@ -96,7 +96,7 @@ table{border-collapse:collapse}th{color:var(--lq-muted)!important;font-weight:50
 .lq-foot a{color:var(--lq-muted)}
 .lq-credits-btn{height:28px!important;padding:0 12px!important;font-size:12.5px!important;color:var(--lq-muted)!important}
 .lq-pop{position:fixed;inset:auto 16px 16px auto;max-width:min(420px,calc(100vw - 32px));background:var(--lq-bg);color:var(--lq-ink);border:1px solid var(--lq-line);border-radius:20px;box-shadow:var(--lq-shadow);padding:18px 20px;font-size:13.5px;line-height:1.5;z-index:100}
-.lq-pop h3{margin:0 0 8px;font:500 14px var(--lq-sans)}.lq-pop p{margin:6px 0;color:var(--lq-muted)}.lq-pop ul{margin:6px 0;padding-left:18px}
+.lq-pop h3{margin:0 0 8px;font:500 14px var(--lq-sans)!important;color:var(--lq-ink)!important}.lq-pop p{margin:6px 0;color:var(--lq-muted)}.lq-pop ul{margin:6px 0;padding-left:18px}
 .lq-pop .x{position:absolute;top:10px;right:10px;width:30px;height:30px;padding:0!important}
 @media (max-width:640px){body{font-size:15px}main>h1,.lq-display{font-size:38px!important}.lq-word{font-size:22px}}
 #chart,.spark{color:var(--lq-ink)}
