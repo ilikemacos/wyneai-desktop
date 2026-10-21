@@ -1,5 +1,5 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="favicon.ico" sizes="48x48"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="theme-color" content="#111111"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="./md/highlight.min.js"></script><script src="./md/fflate.min.js"></script><title>WrenbyAI</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="favicon.ico" sizes="48x48"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="theme-color" content="#111111"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="./md/highlight.min.js"></script><script src="./md/fflate.min.js"></script><title>LarkquillAI</title><link rel="canonical" href="https://ilikemacos.github.io/larkquillai/"><meta property="og:site_name" content="LarkquillAI"><meta property="og:title" content="LarkquillAI"><meta property="og:url" content="https://ilikemacos.github.io/larkquillai/"><meta property="og:image" content="https://ilikemacos.github.io/larkquillai/icon-512.png">
 <style>
 :root{--bg:#111111;--fg:#ececec;--muted:#9a9a9a;--rule:#2a2a2a;--card:#181818;--accent:#ff6a2b;--warn:#e0a03a;--sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}
 *{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;font:15px/1.6 var(--sans);background:var(--bg);color:var(--fg);height:100vh;display:flex;-webkit-font-smoothing:antialiased}
@@ -31,7 +31,6 @@ dialog input[type=text]{width:100%;background:#0c0c0c;border:1px solid var(--rul
 .btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}.primary{background:var(--accent);border:0;color:#111}.primary:hover{background:#ff7d45}
 .kind{font-family:var(--mono);font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.06em}
 .plan{font-family:var(--mono);font-size:12px;border:1px solid var(--rule);border-radius:4px;padding:8px 12px;margin:0 0 8px;max-width:560px}.plan div{color:var(--muted)}.plan .doing{color:var(--fg)}.plan .done{text-decoration:line-through}
-#stop{height:44px;display:none}body.busy #stop{display:inline-block}body.busy #send{display:none}
 .think{border:1px solid var(--rule);border-radius:4px;margin:0 0 10px;max-width:620px;background:#141414}
 .think>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:13px;color:var(--muted)}
 .think>summary::-webkit-details-marker{display:none}
@@ -125,11 +124,23 @@ body.side-open main{flex:1 1 0;min-width:360px}
 #tier{background:transparent;color:var(--fg);border:1px solid #3a3a3a;border-radius:4px;height:32px;padding:0 8px;font:inherit;font-size:13px;font-weight:500;cursor:pointer}#tier:hover{border-color:#555}
 .dots::after{content:"…";animation:b 1s infinite}@keyframes b{50%{opacity:.2}}
 </style></head><body>
-<main><header><img class="logo" src="favicon.svg" alt="WrenbyAI"><h1>WrenbyAI</h1><span class="badge" id="badge" title="Trained on a 2021 ROG Zephyrus G14. Presets are built by the FrameFX preset engine in your browser.">coding assistant · also FrameFX</span><span id="status">Loading…</span><button id="settingsBtn">Settings</button><select id="tier" title="Output length and memory"><option value="spark">Spark · 6k</option><option value="turbo">Turbo · 24k</option><option value="forge">Forge · 32k</option><option value="zenith" title="uses the most usage">Zenith · 32k</option></select><span id="tierhint"></span><button id="reset">New chat</button></header>
+<main><header><img class="logo" src="favicon.svg" alt="LarkquillAI"><h1>Larkquill<em>AI</em></h1><span class="badge" id="badge" title="Trained on a 2021 ROG Zephyrus G14. Presets are built by the FrameFX preset engine in your browser.">coding assistant · also FrameFX</span><span id="status">Loading…</span><button id="settingsBtn">Settings</button><select id="tier" title="Output length and memory"><option value="spark" title="16k context · 128k tokens a day">Chirp 1 · 6k</option><option value="turbo" title="64k context · 200k tokens a day">Trill 1 · 24k</option><option value="forge" title="128k context · 655k tokens a day">Aria 1.5 · 32k</option><option value="zenith" title="200k context · 800k tokens a day">Chorus 0.7 · 32k</option></select><span id="tierhint"></span><button id="reset">New chat</button></header>
 <div id="notice" hidden></div><div id="log"></div>
 
-<form id="f"><input id="q" autocomplete="off" placeholder="Message WrenbyAI…" disabled><button id="send" disabled>Send</button><button id="stop" type="button">Stop</button></form>
-<p class="foot">Trained on a 2021 ROG Zephyrus G14. WrenbyAI can run commands, edit files and open apps on this computer, but asks you first every time. An internet connection is required. It can make mistakes.</p>
+<form id="f"><input id="q" autocomplete="off" placeholder="Message LarkquillAI…" disabled><button id="send" disabled>Send</button></form>
+<p class="foot">Trained on a 2021 ROG Zephyrus G14. LarkquillAI can run commands, edit files and open apps on this computer, but asks you first every time. An internet connection is required. It can make mistakes.</p>
+<style>/* desktop dialogs (confirm an action, workspace settings) on the LarkquillAI look */
+html.wy-sky dialog#confirm,html.wy-sky dialog#settings{background:rgba(250,250,248,.96)!important;color:#141414!important;border:0!important;border-radius:24px!important;padding:24px!important;box-shadow:0 1px 2px rgba(29,29,31,.1),0 8px 40px rgba(29,29,31,.2)!important;-webkit-backdrop-filter:blur(50px);backdrop-filter:blur(50px)}
+html.wy-sky dialog#confirm::backdrop,html.wy-sky dialog#settings::backdrop{background:rgba(20,22,40,.18)!important;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+html.wy-sky dialog#confirm h2,html.wy-sky dialog#settings h2{font-family:"LQ Serif","Iowan Old Style",Georgia,serif!important;font-weight:300!important;font-size:26px!important;letter-spacing:-.01em;color:#141414!important;margin:2px 0 12px!important}
+html.wy-sky dialog#confirm .kind{color:#7b8499!important;font-family:"Inter",sans-serif!important;font-weight:500;letter-spacing:.04em}
+html.wy-sky dialog#confirm pre{background:#efefec!important;border:0!important;border-radius:16px!important;color:#141414!important}
+html.wy-sky dialog label{color:#7b8499!important}html.wy-sky dialog#settings label[style]{color:#141414!important}
+html.wy-sky dialog input[type=text]{background:rgba(20,20,20,.05)!important;border:0!important;border-radius:14px!important;height:44px!important;color:#141414!important;margin-top:6px}
+html.wy-sky dialog .btns button{border-radius:999px!important;height:38px!important;padding:0 16px!important;border:0!important;background:rgba(20,20,20,.06)!important;color:#141414!important;box-shadow:none!important;font-weight:500}
+html.wy-sky dialog .btns .primary{background:#141414!important;color:#fff!important}
+html.wy-sky .plan{background:rgba(255,255,255,.6)!important;border:0!important;border-radius:14px!important;color:#141414!important}html.wy-sky .plan div{color:rgba(20,20,20,.55)!important}html.wy-sky .plan .doing{color:#141414!important}
+</style>
 <dialog id="confirm"><div class="kind" id="ck"></div><h2 id="ct"></h2><pre id="cd"></pre><label><input type="checkbox" id="cs"> Allow this kind of action for the rest of this session</label><div class="btns"><button id="cno">Deny</button><button id="cyes" class="primary">Allow</button></div></dialog>
 <dialog id="settings"><h2>Settings</h2><label style="display:block;color:var(--fg)">Working folder<input type="text" id="sw"></label><label><input type="checkbox" id="ss"> Sandbox file tools to the working folder (recommended)</label><p style="font-size:12px;color:var(--muted);margin:4px 0 0">Shell commands start in the working folder but can reach other places, which is why each one needs your approval.</p><div class="btns"><button id="sclear">Clear session approvals</button><button id="smem">Open memory file folder</button><button id="sok" class="primary">Save</button></div></dialog></main>
 <script type="module">
@@ -145,18 +156,21 @@ import { runCloudTask, classifyRemote, fileCards, signedIn, LOOSE } from "./clou
 import { applyTheme } from "./theme.js";
 import { isDesktop, initDesktop, installDesktop, settings, saveSettings, setConfirmUI, setPlanUI, resetSessionAllow, refreshMemoryPrompt, writeExport, openItem, revealItem } from "./desktop.js";
 if (isDesktop) { window.__openItem = openItem; window.__revealItem = revealItem; }
-const API = "https://preset-ai-chat.vercel.app/api/chat"; let ctl = null;
+const API = "https://preset-ai-chat.vercel.app/api/chat";
 import { initStatic } from "./static.js"; initStatic();
 import { initCompanion } from "./companion.js"; initCompanion();
 import { initIntro } from "./intro.js"; initIntro();
 import { initVisits } from "./visits.js"; initVisits();
 import "./desktop-signin.js";
 import { initSettings } from "./settings.js"; initSettings();
+import { initChatKit, renderImages, enhanceCode, QUOTA_TIERS, modelName } from "./chatkit.js";
+import { onAuthChange, authInfo } from "./auth.js";
 ort.env.wasm.wasmPaths = new URL("./ort/", location.href).href; ort.env.wasm.numThreads = 1;
 const $ = s => document.querySelector(s), log = $("#log");
-const TIERS = { spark: { max: 6144, ctx: 16000, steps: 6 }, turbo: { max: 24576, ctx: 64000, steps: 10 }, forge: { max: 32768, ctx: 128000, steps: 16 }, zenith: { max: 32768, ctx: 200000, steps: 24 } };
-let tier = TIERS[localStorage.getItem("wy.tier")] ? localStorage.getItem("wy.tier") : "forge";
-const scrub = t => t.replace(/\b(Nemotron|Nvidia|NVIDIA|Qwen|Llama|Mistral|OpenAI|GPT)[\w.\/-]*/gi, "WrenbyAI");
+const TIERS = { spark: { max: 6144, ctx: 16000, steps: 6 }, turbo: { max: 24576, ctx: 64000, steps: 10 }, forge: { max: 32768, ctx: 128000, steps: 16 }, zenith: { max: 32768, ctx: 200000, steps: 24 }, flash: { max: 16384, ctx: 128000, steps: 2 }, code: { max: 32768, ctx: 128000, steps: 2 } };
+let kit = null, curCtrl = null; // chat kit (composer/model pill/actions) and the AbortController of the reply being streamed
+let tier = TIERS[localStorage.getItem("wy.model")] ? localStorage.getItem("wy.model") : TIERS[localStorage.getItem("wy.tier")] ? localStorage.getItem("wy.tier") : "forge";
+const scrub = t => t.replace(/\b(Nemotron|Nvidia|NVIDIA|Qwen|Llama|Mistral|OpenAI|GPT)[\w.\/-]*/gi, "LarkquillAI");
 marked.setOptions({ gfm: true, breaks: true });
 function enhanceMD(el) {
   el.querySelectorAll("a[href]").forEach(a => { a.target = "_blank"; a.rel = "noopener noreferrer"; });
@@ -167,7 +181,7 @@ function enhanceMD(el) {
     const dlb = document.createElement("button"); dlb.className = "codedl"; dlb.type = "button"; dlb.textContent = "Download";
     dlb.onclick = () => { const lang = (code.className.match(/language-(\w+)/) || [])[1] || "txt"; const ext = { python: "py", javascript: "js", typescript: "ts", bash: "sh", xml: "html", markdown: "md", json: "json", css: "css", html: "html" }[lang] || lang; const bb = new Blob([code.textContent], { type: "text/plain" }); const u = URL.createObjectURL(bb); const a = document.createElement("a"); a.href = u; a.download = "snippet." + ext; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 5000); };
     pre.appendChild(dlb); pre.appendChild(btn); }); }
-function renderMD(el, md, final) { el.classList.add("md"); el.innerHTML = DOMPurify.sanitize(marked.parse(md || ""), { ADD_ATTR: ["target"] }); if (final) enhanceMD(el); log.scrollTop = 1e9; }
+function renderMD(el, md, final) { el.classList.add("md"); el.innerHTML = DOMPurify.sanitize(marked.parse(md || ""), { ADD_ATTR: ["target"] }); if (final) { enhanceMD(el); enhanceCode(el); } log.scrollTop = 1e9; }
 const safeFile = n => (String(n || "file").split(/[\\/]/).pop().replace(/[^\w.\- ]/g, "").trim().slice(0, 80)) || "file";
 const fmtBytes = b => b < 1024 ? b + " B" : b < 1048576 ? (b / 1024).toFixed(b < 10240 ? 1 : 0) + " KB" : (b / 1048576).toFixed(2) + " MB";
 const MIME = { txt: "text/plain", md: "text/markdown", json: "application/json", js: "text/javascript", mjs: "text/javascript", ts: "text/typescript", py: "text/x-python", html: "text/html", css: "text/css", csv: "text/csv", xml: "application/xml", yml: "text/yaml", yaml: "text/yaml", sh: "text/x-sh", c: "text/x-c", cpp: "text/x-c", cs: "text/x-csharp", java: "text/x-java", rs: "text/x-rust", go: "text/x-go", sql: "text/x-sql" };
@@ -199,7 +213,7 @@ function fileCard(host, call, res) {
     if (!f.isZip) mk("Copy", e => { navigator.clipboard.writeText(content).then(() => { e.target.textContent = "Copied"; setTimeout(() => e.target.textContent = "Copy", 1200); }).catch(() => {}); }); }
   if (!f.isZip && content) mk("Open in panel", () => ideOpenFile(f.name));
   card.appendChild(row); host.appendChild(card); log.scrollTop = 1e9; }
-function add(who, text) { const d = document.createElement("div"); d.className = "msg " + who; d.innerHTML = `<div class="av">${who === "u" ? "You" : '<img src="favicon.svg" alt="WrenbyAI" style="width:24px;height:24px;border-radius:5px">'}</div><div class="bub"></div>`;
+function add(who, text) { const d = document.createElement("div"); d.className = "msg " + who; d.innerHTML = `<div class="av">${who === "u" ? "You" : '<img src="favicon.svg" alt="LarkquillAI" style="width:24px;height:24px;border-radius:5px">'}</div><div class="bub"></div>`;
   const b = d.querySelector(".bub"); if (text === null) b.className += " dots"; else if (who === "a") renderMD(b, scrub(text), true); else setText(b, text); log.appendChild(d); log.scrollTop = 1e9; return b; }
 function setText(b, text) { b.textContent = ""; text.split("\n").forEach(l => { const s = document.createElement("div"); if (l.startsWith("WARNING")) s.className = "warn"; linkify(s, l || "\u00a0"); b.appendChild(s); }); }
 function linkify(el, l) { const re = /\[([^\]]{1,200})\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s)<>\]]+)/g; let i = 0, m;
@@ -217,8 +231,8 @@ function card(bub) { const a = window.bot; const st = a.chat.state(), set = Chat
 const AUTH_BASE = API.replace(/\/api\/chat$/, "");
 function freshChat(){ if(!window.bot) return; window.bot.reset(); window.agent.history.length=0; log.innerHTML=""; }
 function loadConversation(msgs){ freshChat(); for(const m of (msgs||[])){ if(m.role==="user") add("u", String(m.content||"")); else if(m.role==="assistant") add("a", String(m.content||"")); if(window.agent) window.agent.history.push({role:m.role==="assistant"?"assistant":"user", content:String(m.content||"")}); } log.scrollTop=1e9; }
-const hello = () => { add("a", "Hi, I'm WrenbyAI. I write and run code, and I can help with FrameFX too. What are we building?"); };
-let llmState = "ready"; const llmFn = cloudLLM(API, () => ctl?.signal); setApiBase(API);
+const hello = () => { add("a", "Hi, I'm LarkquillAI. I write and run code, and I can help with FrameFX too. What are we building?").closest(".msg").classList.add("wy-noacts"); };
+let llmState = "ready"; const llmFn = cloudLLM(API, () => curCtrl?.signal); setApiBase(API);
 function notice(t) { $("#notice").hidden = !t; $("#notice").textContent = t || ""; }
 const ui = {
   createFile: a => makeBlobFiles(a),
@@ -240,9 +254,9 @@ async function cloudTry(t) { if (!(tier === "forge" || tier === "zenith") || !LO
     if (ct.files.length) { fileCards(bub, ct.files); try { ideSetFiles(ct.files.map(f => ({ name: f.name.replace(/^\//, ""), content: f.content }))); } catch {} }
     $("#status").textContent = "Ready"; return { text: scrub(ct.summary || ""), files: ct.files.length ? ct.files : null };
   } catch (e) { const w = document.createElement("div"); w.className = "warn"; w.textContent = "Cloud sandbox unavailable (" + e.message + "), answering in chat instead."; bub.appendChild(w); return null; } }
-async function handle(t) {
-  { const ct = await cloudTry(t); if (ct) return ct; }
-  const agent = window.agent; agent.llm = llmState === "ready" ? llmFn : null; const basic = !agent.llm; agent.ctxBudget = TIERS[tier].ctx; agent.max = TIERS[tier].steps || agent.max; const modelText = hasFiles() ? contextForModel() + "\n\n---\n\n" + t : t;
+async function handle(t, images = []) {
+  if (!images.length && !QUOTA_TIERS.has(tier)) { const ct = await cloudTry(t); if (ct) return ct; }
+  const agent = window.agent; agent.llm = llmState === "ready" ? llmFn : null; const basic = !agent.llm && !images.length; agent.pendingImages = images.length ? images : null; agent.ctxBudget = TIERS[tier].ctx; agent.max = TIERS[tier].steps || agent.max; const modelText = hasFiles() ? contextForModel() + "\n\n---\n\n" + t : t;
   if (basic && window.bot.route(t)) { const r = await window.bot.send(t); add("a", r.text); return; }
   const bub = add("a", "");
   const think = document.createElement("details"); think.className = "think"; think.open = true;
@@ -270,7 +284,9 @@ async function handle(t) {
     search: ev => { toWeb(); const d = document.createElement("div"); d.className = "step"; d.textContent = "Searched the web \u00b7 " + ev.count + " result" + (ev.count === 1 ? "" : "s"); steps.appendChild(d); log.scrollTop = 1e9; },
     step: (c, r) => { toWeb(); steps.appendChild(stepRow(c, r)); if (r.preset_changed) presetShown = true; if (r.ok && (c.name === "create_file" || c.name === "write_file")) { fileCard(bub, c, r); const fs = c.name === "create_file" ? (r._items || (r._content != null ? [{ name: r.file.name, content: r._content }] : null)) : (c.arguments && c.arguments.content != null ? [{ name: String((r.path || (r.file && r.file.path) || "file")).split(/[\\/]/).pop(), content: c.arguments.content }] : null); if (fs) ideSetFiles(fs); } log.scrollTop = 1e9; },
     token: buf => { if (/<tool_call|^\s*[{`]/.test(buf)) { wrap.classList.add("dots"); wrap.textContent = ""; return; } setDir("left"); finishThink(); wrap.classList.remove("dots"); paintAns(wrap, scrub(buf)); },
-    clear: () => { wrap.textContent = ""; wrap.classList.add("dots"); }, error: e => console.warn("agent LLM error", e) };
+    clear: () => { wrap.textContent = ""; wrap.classList.add("dots"); }, error: e => console.warn("agent LLM error", e),
+    quota: j => kit?.setQuota(j.model, j.left),
+    notice: j => { const d = document.createElement("div"); d.className = "step"; d.textContent = j.text; steps.appendChild(d); } };
   let r;
   if (basic) { const plan = planDeterministic(t, !!window.bot.chat.last);
     if (plan.length === 1 && (plan[0].name === "make_preset" || plan[0].name === "change_preset")) { const x = await window.bot.send(t); let txt = x.text;
@@ -279,33 +295,57 @@ async function handle(t) {
     else if (!plan.length) { const x = await window.bot.send(t); r = { text: x.text }; }
     else r = await agent.deterministic(t, on); }
   else { try { r = await agent.runNative(modelText, on); }
-    catch (e) { if (e.code === "no_answer") { r = { text: "\u26a0\ufe0f " + e.message }; }
-      else { const tl = e.code === "token_limit"; const msg = tl ? e.message + " Meanwhile, here's what I can do in basic mode:" : e.status === 429 ? "I'm getting too many requests right now (rate limit). Here's what I can do in basic mode:" : "I couldn't reach WrenbyAI (" + (e.message || e) + "), so I'm in basic mode for this message.";
-      notice(tl ? e.message : e.status === 429 ? "Rate limited: please wait a minute. Basic mode is used meanwhile." : "WrenbyAI is unavailable right now; using basic mode (presets and FrameFX help still work).");
+    catch (e) { if (e.name === "AbortError") { r = { text: "_Stopped._", stopped: true }; }
+      else if (e.code === "no_answer") { r = { text: "\u26a0\ufe0f " + e.message, retry: true }; }
+      else if (["quota_limit", "signin_required", "model_unavailable", "quota_error", "bad_image", "too_large", "no_vision"].includes(e.code) || (images.length && e.status)) {
+        // quota models and image messages: say clearly what happened instead of dropping to basic mode
+        r = { text: "\u26a0\ufe0f " + e.message, retry: e.code === "model_unavailable" || e.code === "quota_error" || e.status >= 500 };
+        if (e.code === "quota_limit") kit?.setQuota(tier, 0); }
+      else { const tl = e.code === "token_limit"; const msg = tl ? e.message + " Meanwhile, here's what I can do in basic mode:" : e.status === 429 ? "I'm getting too many requests right now (rate limit). Here's what I can do in basic mode:" : "I couldn't reach LarkquillAI (" + (e.message || e) + "), so I'm in basic mode for this message.";
+      notice(tl ? e.message : e.status === 429 ? "Rate limited: please wait a minute. Basic mode is used meanwhile." : "LarkquillAI is unavailable right now; using basic mode (presets and FrameFX help still work).");
       agent.llm = null; if (window.bot.route(t)) { const x = await window.bot.send(t); r = { text: msg + "\n" + x.text }; } else { r = await agent.deterministic(t, on); r.text = msg + "\n" + (r.text || "I couldn't do that in basic mode."); } } } }
-  if (!String(r && r.text || "").trim()) r = { ...(r || {}), text: "\u26a0\ufe0f WrenbyAI didn't send an answer this time. Please try again." };
+  if (!String(r && r.text || "").trim()) r = { ...(r || {}), text: "\u26a0\ufe0f LarkquillAI didn't send an answer this time. Please try again." };
   done = true; finishThink(); wrap.classList.remove("dots"); renderMD(wrap, scrub(r.text || ""), true); harvest(wrap);
   if (!steps.children.length) steps.remove(); if (reason.hidden) reason.remove();
   if (!think.querySelector(".treason") && !think.querySelector(".steps")) think.remove();
-  if (presetShown && window.bot.last) card(bub); return { text: scrub(r.text || ""), files: null }; }
+  if (presetShown && window.bot.last) card(bub);
+  if (r.retry && kit) kit.retryButton(wrap, "Retry", () => regenerate());
+  return { text: scrub(r.text || ""), files: null, failed: !!r.retry }; }
 window.__fx = { get llmState() { return llmState; } };
 try { window.bot = new Assistant(await Model.load(ort, "./preset_beta7.onnx")); window.agent = new Agent(window.bot, null, ui);
   initIDE({ onFix: (name, err) => submitHidden("Running `" + name + "` produced this error:\n\n```\n" + err + "\n```\n\nFix the code with edit_file (small search/replace) if possible, or create_file for a full rewrite."), isDesktop: typeof isDesktop !== "undefined" && isDesktop });
-  try { window.session = await initAuth({ base: AUTH_BASE, getMode: () => (typeof tier !== "undefined" ? tier : "forge"), onNewChat: () => { freshChat(); hello(); }, onLoadChat: (msgs) => loadConversation(msgs) }); } catch (e) { console.warn("auth init failed", e); }
+  try { window.session = await initAuth({ base: AUTH_BASE, getMode: () => tier, onNewChat: () => { freshChat(); hello(); }, onLoadChat: (msgs) => loadConversation(msgs) }); } catch (e) { console.warn("auth init failed", e); }
   if (isDesktop) { await initDesktop(); installDesktop(window.agent); await refreshMemoryPrompt(); }
   $("#status").textContent = "Ready"; $("#q").disabled = $("#send").disabled = false; $("#q").focus(); hello();
 } catch (e) { $("#status").textContent = "Failed to load"; add("a", "Error loading: " + e); }
 const tierHint = $("#tierhint"); const showHint = () => { if (tierHint) tierHint.textContent = tier === "zenith" ? "uses the most usage" : ""; };
-const tierSel = $("#tier"); if (tierSel) { tierSel.value = tier; tierSel.onchange = () => { tier = tierSel.value; localStorage.setItem("wy.tier", tier); showHint(); }; showHint(); }
+const tierSel = $("#tier"); if (tierSel) { tierSel.value = tier; tierSel.onchange = () => { tier = tierSel.value; if (!QUOTA_TIERS.has(tier)) localStorage.setItem("wy.tier", tier); showHint(); }; showHint(); }
 let busy = false;
-async function submitHidden(modelText) { if (busy || !window.bot) return; busy = true; dispatchEvent(new Event("wrenby:gen-start")); add("u", "Fix with WrenbyAI \u2192 sent the error"); $("#send").disabled = true; if (window.agent) window.agent.stopped = false;
-  try { const res = await handle(modelText); if (window.session) await window.session.saveTurn({ user: modelText, assistant: res && res.text || "", files: res && res.files || null, mode: (typeof tier !== "undefined" ? tier : "forge") }); } catch (err) { add("a", "Error: " + (err.message || err)); }
-  busy = false; dispatchEvent(new Event("wrenby:gen-end")); $("#send").disabled = false; $("#q").focus(); }
-$("#f").onsubmit = async e => { e.preventDefault(); const t = $("#q").value.trim(); if (!t || !window.bot || busy) return; busy = true; dispatchEvent(new Event("wrenby:gen-start")); $("#q").value = ""; add("u", t); $("#send").disabled = true;
-  ctl = new AbortController(); window.agent.stopped = false; document.body.classList.add("busy");
-  try { const res = await handle(t); if (window.session) await window.session.saveTurn({ user: t, assistant: res && res.text || "", files: res && res.files || null, mode: (typeof tier !== "undefined" ? tier : "forge") }); } catch (err) { add("a", window.agent.stopped ? "Stopped." : "Error: " + (err.message || err)); }
-  busy = false; dispatchEvent(new Event("wrenby:gen-end")); document.body.classList.remove("busy"); $("#send").disabled = false; $("#q").focus(); };
-$("#stop").onclick = () => { if (!busy) return; window.agent.stopped = true; ctl?.abort(); const d = $("#confirm"); if (d.open) d.close("no"); };
+async function submitHidden(modelText) { if (busy || !window.bot) return; busy = true; dispatchEvent(new Event("wrenby:gen-start")); add("u", "Fix with LarkquillAI \u2192 sent the error").closest(".msg").classList.add("wy-noacts"); $("#send").disabled = true; if (window.agent) window.agent.stopped = false; curCtrl = new AbortController(); kit?.setBusy(true, () => { if (window.agent) window.agent.stopped = true; curCtrl?.abort(); const cd = document.getElementById("confirm"); if (cd?.open) cd.close("no"); });
+  try { const res = await handle(modelText); if (window.session) await window.session.saveTurn({ user: modelText, assistant: res && res.text || "", files: res && res.files || null, mode: tier }); } catch (err) { add("a", "Error: " + (err.message || err)); }
+  curCtrl = null; kit?.setBusy(false); busy = false; dispatchEvent(new Event("wrenby:gen-end")); $("#send").disabled = false; $("#q").focus(); }
+// One user turn: optional user bubble (with images), streamed reply with a Stop button, saved to history.
+async function runTurn(t, images = [], { showUser = true } = {}) {
+  if (!window.bot || busy) return; busy = true; dispatchEvent(new Event("wrenby:gen-start"));
+  if (showUser) { const ub = add("u", t); const m = ub.closest(".msg"); m._raw = t; m._images = images; renderImages(ub, images); }
+  $("#send").disabled = true; curCtrl = new AbortController(); if (window.agent) window.agent.stopped = false;
+  kit?.setBusy(true, () => { if (window.agent) window.agent.stopped = true; curCtrl?.abort(); const cd = document.getElementById("confirm"); if (cd?.open) cd.close("no"); });
+  try { const res = await handle(t, images); if (window.session && res && !res.failed) await window.session.saveTurn({ user: t + (images.length ? `\n[${images.length} image${images.length === 1 ? "" : "s"}]` : ""), assistant: res.text || "", files: res.files || null, mode: tier }); }
+  catch (err) { if (err.name === "AbortError") add("a", "_Stopped._"); else { const b = add("a", "Error: " + (err.message || err)); kit?.retryButton(b, "Retry", () => regenerate()); } }
+  curCtrl = null; kit?.setBusy(false); busy = false; dispatchEvent(new Event("wrenby:gen-end")); $("#send").disabled = false; $("#q").focus(); }
+const userMsgs = () => [...log.querySelectorAll(".msg.u")];
+// Regenerate: drop the last reply (and its history pair) and run the last user message again.
+function regenerate() { if (busy) return; const us = userMsgs(), u = us[us.length - 1]; if (!u) return;
+  let n = u.nextElementSibling; while (n) { const x = n.nextElementSibling; n.remove(); n = x; }
+  const h = window.agent?.history; if (h && h.length >= 2 && h[h.length - 1].role === "assistant") h.splice(-2);
+  runTurn(u._raw ?? u.querySelector(".bub").innerText, u._images || [], { showUser: false }); }
+// Edit and resend: remove that message and everything after it (and the matching history), then send the new text.
+function editResend(m, text) { if (busy) return; const us = userMsgs(), k = us.indexOf(m); if (k < 0) return; const after = us.length - k, imgs = m._images || [];
+  let n = m; while (n) { const x = n.nextElementSibling; n.remove(); n = x; }
+  const h = window.agent?.history; if (h) h.splice(Math.max(0, h.length - after * 2));
+  runTurn(text, imgs); }
+$("#f").onsubmit = async e => { e.preventDefault(); if (!window.bot || busy) return; const images = kit ? kit.takeImages() : []; let t = $("#q").value.trim();
+  if (!t && !images.length) return; if (!t) t = images.length === 1 ? "What's in this image?" : "What's in these images?"; $("#q").value = ""; runTurn(t, images); };
 // confirmation dialog
 setConfirmUI(({ kind, title, detail }) => new Promise(res => { const d = $("#confirm"); $("#ck").textContent = { shell: "Shell command", write: "File write", delete: "Delete", open: "Open app" }[kind] || kind;
   $("#ct").textContent = title; $("#cd").textContent = detail; $("#cs").checked = false;
@@ -320,4 +360,8 @@ if (isDesktop) { $("#settingsBtn").onclick = () => { $("#sw").value = settings.w
   $("#smem").onclick = () => window.__TAURI__.core.invoke("open_data_dir"); } else $("#settingsBtn").hidden = true;
 $("#reset").onclick = async () => { if (!window.bot || busy) return; freshChat(); hello(); if (window.session) window.session.startNewChat(); };
 try { applyTheme(); } catch (e) { console.warn("theme", e); }
+try { kit = initChatKit({ form: $("#f"), input: $("#q"), send: $("#send"), tierSelect: $("#tier"), log, dropZone: document.querySelector("main"), apiBase: AUTH_BASE,
+    onRegenerate: () => regenerate(), onEdit: (m, text) => editResend(m, text) });
+  onAuthChange(u => kit.setUser(u && (u.id || u.email))); { const u0 = authInfo().user; if (u0) kit.setUser(u0.id || u0.email); }
+} catch (e) { console.warn("chat kit", e); }
 </script></body></html>

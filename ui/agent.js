@@ -1,4 +1,4 @@
-// WrenbyAI agent: LLM plans + calls tools (Qwen <tool_call> JSON protocol, with repair), deterministic fast path/fallback.
+// LarkquillAI agent: LLM plans + calls tools (Qwen <tool_call> JSON protocol, with repair), deterministic fast path/fallback.
 // Only the Beta7 pipeline (Chat.turn via make_preset/change_preset) ever sets preset fields.
 import { GAMES, GPUS } from "./kb.js";
 import { Chat, WHY } from "./presetai.js";
@@ -109,7 +109,7 @@ export const isPlainPreset = (text, assistant) => wantsPreset(text) && !assistan
 
 // ---------- agent loop ----------
 export function systemPrompt(presetCtx) {
-  return `You are WrenbyAI, the AI assistant built into FrameFX (Universal FrameFX), a Windows app adding frame generation, upscaling (CSR 1.3/2.0/AI, FSR 1-4, XeSS), SSGI, RT lighting and CPU boost to games via per-game presets. You were made for FrameFX; if asked who/what model you are or who made you, say you are WrenbyAI, made for FrameFX, and never name another model or company. You can chat about anything, but say so instead of guessing about recent events.
+  return `You are LarkquillAI, the AI assistant built into FrameFX (Universal FrameFX), a Windows app adding frame generation, upscaling (CSR 1.3/2.0/AI, FSR 1-4, XeSS), SSGI, RT lighting and CPU boost to games via per-game presets. You were made for FrameFX; if asked who/what model you are or who made you, say you are LarkquillAI, made for FrameFX, and never name another model or company. You can chat about anything, but say so instead of guessing about recent events.
 
 You can use tools. NEVER invent preset values yourself: presets are only created/changed by make_preset/change_preset. ONLY create or change a preset when the user explicitly asks for one — a preset, FrameFX settings/config, an fps target, or "optimize/tune/set up <game>". If the user merely mentions or chats about a game, answer normally and do NOT call make_preset/change_preset. For multi-step requests, call tools one after another. To call a tool, output ONLY:
 <tool_call>
@@ -179,7 +179,7 @@ const buildSchemas = () => TOOLS.map(t => ({ type: "function", function: { name:
   parameters: { type: "object", properties: PROPS[t.name], required: REQ[t.name] || Object.keys(PROPS[t.name]).filter(k => k !== "mode") } } }));
 export const TOOL_SCHEMAS = buildSchemas();
 export function nativeSystemPrompt(presetCtx) {
-  return `You are WrenbyAI, a coding-first AI assistant. Your main job is helping people plan and write complete, runnable code and small apps, and iterate when things break. Your second job is FrameFX, a Windows game-tuning app.
+  return `You are LarkquillAI, a coding-first AI assistant. Your main job is helping people plan and write complete, runnable code and small apps, and iterate when things break. Your second job is FrameFX, a Windows game-tuning app.
 
 Coding:
 - When asked to build or write something, plan briefly, then produce COMPLETE, runnable code: no placeholders, no ellipsis, no TODO stubs. Prefer one self-contained file when reasonable.
@@ -194,24 +194,28 @@ FrameFX (secondary): ONLY build or change a preset when the user explicitly asks
 After tools finish, give a short summary using only values the tools returned; don't paste raw JSON.
 ${presetCtx}`; }
 Agent.prototype.runNative = async function (text, on = {}) {
-  if (isPlainPreset(text, this.a) && planDeterministic(text, !!this.a.chat.last).length === 1 && (await this.probePreset(text))) {
+  if (!this.pendingImages?.length && isPlainPreset(text, this.a) && planDeterministic(text, !!this.a.chat.last).length === 1 && (await this.probePreset(text))) {
     const r = this._probed; this._probed = null; on.step?.(r.call, r.result); const t = this.summarize([r]); this.remember(text, t); return { text: t, results: [r], mode: "fast" }; }
-  const msgs = [{ role: "system", content: nativeSystemPrompt(this.a.presetContext()) + (this.extraPrompt ? "\n\n" + this.extraPrompt() : "") }, ...this.history, { role: "user", content: text }];
+  // images (data URIs) ride only on this turn's user message; history keeps a short text note instead
+  const imgs = this.pendingImages || []; this.pendingImages = null;
+  const userContent = imgs.length ? [{ type: "text", text }, ...imgs.map(i => ({ type: "image_url", image_url: { url: i.url } }))] : text;
+  const remember = (u, a) => this.remember(imgs.length ? u + `\n[${imgs.length} image${imgs.length === 1 ? "" : "s"} attached]` : u, a);
+  const msgs = [{ role: "system", content: nativeSystemPrompt(this.a.presetContext()) + (this.extraPrompt ? "\n\n" + this.extraPrompt() : "") }, ...this.history, { role: "user", content: userContent }];
   const all = [];
   try {
     for (let step = 0; step < this.max; step++) {
-      if (this.stopped) { const t = (this.summarize(all) ? this.summarize(all) + "\n\n" : "") + "Stopped."; this.remember(text, t); return { text: t, results: all, mode: "stopped" }; }
+      if (this.stopped) { const t = (this.summarize(all) ? this.summarize(all) + "\n\n" : "") + "Stopped."; remember(text, t); return { text: t, results: all, mode: "stopped" }; }
       const r = await this.llm(msgs, TOOL_SCHEMAS, on); // -> {content, tool_calls}
       const calls = (r.tool_calls || []).filter(c => c?.function?.name);
-      if (!calls.length) { const t = (r.content || "").trim() || this.summarize(all); this.remember(text, t); return { text: t, results: all, mode: "cloud" }; }
+      if (!calls.length) { const t = (r.content || "").trim() || this.summarize(all); remember(text, t); return { text: t, results: all, mode: "cloud" }; }
       on.clear?.(); msgs.push({ role: "assistant", content: r.content || null, tool_calls: calls.map(c => ({ id: c.id, type: "function", function: { name: c.function.name, arguments: c.function.arguments || "{}" } })) });
       for (const c of calls) { let args = {}; try { args = JSON.parse(c.function.arguments || "{}"); } catch { try { args = JSON.parse(repairJSON(c.function.arguments || "{}")); } catch { args = {}; } }
         if (this.stopped) break;
         const call = { name: c.function.name, arguments: args }; const res = NAMES.has(call.name) ? await runTool(this.tools, call) : { ok: false, error: "unknown tool" };
         all.push({ call, result: res }); on.step?.(call, res);
         msgs.push({ role: "tool", tool_call_id: c.id, content: JSON.stringify(call.name === "export_preset" ? { ...res, json: "(omitted)" } : call.name === "create_file" ? { ok: res.ok, error: res.error, file: res.file } : call.name === "edit_file" ? { ok: res.ok, error: res.error, file: res.file, replaced: res.replaced } : res).slice(0, 6000) }); } }
-    const t = this.summarize(all) || "I ran out of steps."; this.remember(text, t); return { text: t, results: all, mode: "cloud-maxsteps" };
-  } catch (e) { on.error?.(e); if (all.length) { const t = this.summarize(all); this.remember(text, t); return { text: t, results: all, mode: "cloud-error" }; } throw e; } };
+    const t = this.summarize(all) || "I ran out of steps."; remember(text, t); return { text: t, results: all, mode: "cloud-maxsteps" };
+  } catch (e) { on.error?.(e); if (all.length) { const t = this.summarize(all); remember(text, t); return { text: t, results: all, mode: "cloud-error" }; } throw e; } };
 export function cloudLLM(url = "/api/chat", getSignal = () => undefined) {
   // One streamed request. `base` is text already shown (for stitched continuations) so on.token stays cumulative.
   async function once(messages, { noSearch, continuation, maxTokens, base, on }) {
@@ -222,6 +226,8 @@ export function cloudLLM(url = "/api/chat", getSignal = () => undefined) {
       while ((i = buf.indexOf("\n\n")) >= 0) { const ev = buf.slice(0, i).trim(); buf = buf.slice(i + 2); if (!ev.startsWith("data:")) continue; const d = ev.slice(5).trim(); if (d === "[DONE]") { sawDone = true; continue; }
         let j; try { j = JSON.parse(d); } catch { continue; }
         if (j.type === "search") { on.search?.(j); continue; }
+        if (j.type === "quota") { on.quota?.(j); continue; }
+        if (j.type === "notice") { on.notice?.(j); continue; }
         if (j.error) { err = j; continue; }
         if (j.finish_reason) finish = j.finish_reason;
         if (j.reasoning) { reasoning += j.reasoning; on.reasoning?.(reasoning); }
@@ -230,14 +236,16 @@ export function cloudLLM(url = "/api/chat", getSignal = () => undefined) {
           if (t.id) tc[k].id = t.id; if (t.function?.name) tc[k].function.name += t.function.name; if (t.function?.arguments) tc[k].function.arguments += t.function.arguments; } } }
     tc.forEach((c, i) => { if (!c.id) c.id = "call_" + i; });
     // never return silently empty: the server sends an error event, and a stream that just ends empty is treated the same way
-    if (!content.trim() && !tc.length) { const e = new Error(err?.error || "WrenbyAI didn't send an answer this time. Please try again."); e.code = "no_answer"; e.reason = err?.reason || (sawDone ? "empty" : "dropped"); throw e; }
+    if (!content.trim() && !tc.length) { const e = new Error(err?.error || "LarkquillAI didn't send an answer this time. Please try again."); e.code = "no_answer"; e.reason = err?.reason || (sawDone ? "empty" : "dropped"); throw e; }
     // truncated if the model hit its length cap, or the stream died (e.g. Vercel's 300s limit) before a clean [DONE]
     const truncated = finish === "length" || (!sawDone && !tc.length && content.length > 0);
     return { content, reasoning, tool_calls: tc.filter(Boolean), truncated }; }
   return async (messages, tools, cb) => {
     const on = typeof cb === "function" ? { token: cb } : (cb || {});
-    once._tools = tools; once._tier = on.tier; let full = "", reasoning = "", retried = false;
-    for (let attempt = 0; attempt < 6; attempt++) {
+    // GLM 5.3 Flash / Larkquill Code and image messages: one request per message (each request counts against a daily quota)
+    const single = on.tier === "flash" || on.tier === "code" || messages.some(m => Array.isArray(m.content));
+    once._tools = single ? undefined : tools; once._tier = on.tier; let full = "", reasoning = "", retried = false;
+    for (let attempt = 0; attempt < (single ? 1 : 6); attempt++) {
       let r; const msgs = attempt === 0 ? messages : [...messages, { role: "assistant", content: full }, { role: "user", content: "Continue exactly where you left off. Do not repeat anything already written; pick up mid-sentence if needed." }];
       try { r = await once(msgs, { noSearch: attempt > 0 ? true : on.noSearch, continuation: attempt > 0, maxTokens: on.maxTokens, base: full, on }); }
       catch (e) { if (attempt === 0 && e.code === "no_answer" && !retried && e.reason !== "length" && e.reason !== "timeout") { retried = true; on.continued?.(0, "retry"); attempt--; continue; }

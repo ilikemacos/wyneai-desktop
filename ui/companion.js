@@ -1,9 +1,9 @@
-// Companions: Wrenby (the little guy) and Milyy (a cat with her ball). Same 16x16 pixel grid,
+// Companions: Larkquill (the little guy) and Milyy (a cat with her ball). Same 16x16 pixel grid,
 // white with black eyes (inverted mode flips them via the page filter). The choice lives on the
 // account (users.companion via POST /api/auth/me {action:'set_companion'}) and is mirrored in
 // localStorage. ?companion=milyy overrides it for testing.
 import { authInfo } from "./auth.js";
-export const COMPANIONS = { wrenby: "Wrenby", milyy: "Milyy" };
+export const COMPANIONS = { wrenby: "Larkquill", milyy: "Milyy" };
 const LS = "wy.companion";
 const urlPick = () => { const c = new URLSearchParams(location.search).get("companion"); return COMPANIONS[c] ? c : null; };
 export function getCompanion() { return urlPick() || (COMPANIONS[localStorage.getItem(LS)] ? localStorage.getItem(LS) : "wrenby"); }
@@ -18,7 +18,7 @@ export async function setCompanion(c, { save = true } = {}) {
   } catch { return false; }
 }
 // Inner markup (no <svg>). Classes: skin/eye/leg l1 l2 like the Thinking walker, plus
-// arm (Wrenby) or ear/tailg/ballg (Milyy).
+// arm (Larkquill) or ear/tailg/ballg (Milyy).
 export const PARTS = {
   wrenby: `<g class="bob"><g class="mbody g-body"><rect class="skin" x="3" y="2" width="10" height="9"/><rect class="eye" x="8" y="4" width="2" height="2"/><rect class="eye" x="11" y="4" width="1" height="2"/><rect class="arm" x="13" y="5" width="2" height="3" style="display:none"/></g><rect class="leg l1" x="4" y="11" width="3" height="3"/><rect class="leg l2" x="9" y="11" width="3" height="3"/></g>`,
   milyy: `<g class="bob"><g class="mbody g-body"><g class="tailg"><rect class="skin tail" x="0" y="3" width="1" height="4"/><rect class="skin tail" x="1" y="6" width="1" height="2"/></g><rect class="skin" x="2" y="7" width="8" height="4"/><rect class="skin" x="7" y="3" width="6" height="5"/><rect class="skin ear el" x="7" y="1" width="1" height="2"/><rect class="skin ear er" x="12" y="1" width="1" height="2"/><rect class="eye" x="9" y="5" width="1" height="1"/><rect class="eye" x="11" y="5" width="1" height="1"/></g><rect class="leg l1" x="3" y="11" width="2" height="3"/><rect class="leg l2" x="8" y="11" width="2" height="3"/><g class="ballg"><rect class="ball" x="13" y="10" width="2" height="4"/><rect class="ball" x="12" y="11" width="4" height="2"/></g></g>`,
@@ -64,7 +64,7 @@ export function showPicker() {
     if (!document.getElementById("wy-pick-css")) { const s = document.createElement("style"); s.id = "wy-pick-css"; s.textContent = PCSS; document.head.appendChild(s); }
     const ov = document.createElement("div"); ov.className = "wy-pick-ov"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true"); ov.setAttribute("aria-label", "Choose your companion");
     const card = (c, ds) => `<div class="card">${svgFor(c, "wy-comp")}<div class="nm">${COMPANIONS[c]}</div><div class="ds">${ds}</div><button data-c="${c}">Pick ${COMPANIONS[c]}</button></div>`;
-    ov.innerHTML = `<div class="wy-pick"><h2>Choose your companion</h2><p>They'll keep you company while WrenbyAI works. You can switch any time in Settings.</p>
+    ov.innerHTML = `<div class="wy-pick"><h2>Choose your companion</h2><p>They'll keep you company while LarkquillAI works. You can switch any time in Settings.</p>
       <div class="cards">${card("wrenby", "The little guy. Waves hello and keeps an eye on things.")}${card("milyy", "A curious cat who never goes anywhere without her ball.")}</div></div>`;
     document.body.appendChild(ov); document.documentElement.classList.add("wy-picker");
     const btns = [...ov.querySelectorAll("button")]; btns[0].focus();

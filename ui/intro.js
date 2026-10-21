@@ -1,15 +1,15 @@
-// Wrenby's first-run intro. Shown once, right after a brand-new account is created
+// Larkquill's first-run intro. Shown once, right after a brand-new account is created
 // (the server's verify/google response says isNew). Replay any time with ?intro=1.
 // Self-contained: watches auth responses instead of editing auth.js.
 import { getCompanion, setCompanion, showPicker, svgFor, BALL } from "./companion.js";
 const MILYY_STEPS = [
-  "Hi! I'm Milyy! I brought my ball. Welcome to WrenbyAI, I'm so happy you're here.",
+  "Hi! I'm Milyy! I brought my ball. Welcome to LarkquillAI, I'm so happy you're here.",
   "I can chat, help you write and fix code, and run things in a terminal. For bigger jobs I start a fresh cloud machine and work through the task step by step.",
   "You're in charge of commands. Pick Ask and I'll check with you before running anything, or Auto and I'll just get on with it. Switch any time next to the message box.",
   "That's the tour! Ask me anything and I'll keep my ball ready. Let's go!",
 ];
 const WRENBY_STEPS = [
-  "Hi! My name is Wrenby! Welcome to WrenbyAI. I'm really glad you're here.",
+  "Hi! My name is Larkquill! Welcome to LarkquillAI. I'm really glad you're here.",
   "I can chat, help you write and fix code, and run things in a terminal. For bigger jobs I start a fresh cloud machine and work through the task step by step.",
   "You're in charge of commands. Pick Ask and I'll check with you before running anything, or Auto and I'll just get on with it. Switch any time next to the message box.",
   "That's the tour! Ask me anything to get started. Let's go!",
@@ -45,7 +45,7 @@ export function showIntro(userId, comp = getCompanion()) {
   const STEPS = comp === "milyy" ? MILYY_STEPS : WRENBY_STEPS;
   if (open) return; open = true;
   if (!document.getElementById("wy-intro-css")) { const s = document.createElement("style"); s.id = "wy-intro-css"; s.textContent = CSS; document.head.appendChild(s); }
-  const ov = document.createElement("div"); ov.className = "wy-intro-ov"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true"); ov.setAttribute("aria-label", "Welcome to WrenbyAI");
+  const ov = document.createElement("div"); ov.className = "wy-intro-ov"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true"); ov.setAttribute("aria-label", "Welcome to LarkquillAI");
   ov.innerHTML = `<div class="wy-intro-stage"><div class="wy-intro-bub" aria-live="polite"><span class="t"></span><span class="wy-intro-caret"></span></div>
     <div class="wy-intro-row">${svgFor(comp, "wy-intro-guy")}</div>
     <div class="wy-intro-ctl"><div class="wy-intro-dots">${STEPS.map(() => "<i></i>").join("")}</div><button class="wy-intro-skip">Skip</button><button class="wy-intro-next">Next</button></div></div>`;

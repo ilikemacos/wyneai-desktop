@@ -48,19 +48,21 @@ jobs:
           V="${TAG#v}"; mkdir -p out
           if [ "${{ matrix.os }}" = windows-latest ]; then
             B=src-tauri/target/release/bundle
-            cp "$B"/nsis/*-setup.exe "out/WrenbyAI_${V}_x64-setup.exe"
-            cp "$B"/nsis/*-setup.exe.sig "out/WrenbyAI_${V}_x64-setup.exe.sig"
-            cp "$B"/msi/*.msi "out/WrenbyAI_${V}_x64_en-US.msi"
-            cp "$B"/msi/*.msi.sig "out/WrenbyAI_${V}_x64_en-US.msi.sig"
+            cp "$B"/nsis/*-setup.exe "out/LarkquillAI_${V}_x64-setup.exe"
+            cp "$B"/nsis/*-setup.exe.sig "out/LarkquillAI_${V}_x64-setup.exe.sig"
+            cp "$B"/msi/*.msi "out/LarkquillAI_${V}_x64_en-US.msi"
+            cp "$B"/msi/*.msi.sig "out/LarkquillAI_${V}_x64_en-US.msi.sig"
+            cp "$B"/nsis/*-setup.exe "out/LarkquillAI_x64-setup.exe"   # stable name for /releases/latest/download links
           else
             B=src-tauri/target/universal-apple-darwin/release/bundle
-            cp "$B"/dmg/*.dmg "out/WrenbyAI_${V}_universal.dmg"
-            cp "$B"/macos/*.app.tar.gz "out/WrenbyAI_${V}_universal.app.tar.gz"
-            cp "$B"/macos/*.app.tar.gz.sig "out/WrenbyAI_${V}_universal.app.tar.gz.sig"
+            cp "$B"/dmg/*.dmg "out/LarkquillAI_${V}_universal.dmg"
+            cp "$B"/dmg/*.dmg "out/LarkquillAI_universal.dmg"   # stable name for /releases/latest/download links
+            cp "$B"/macos/*.app.tar.gz "out/LarkquillAI_${V}_universal.app.tar.gz"
+            cp "$B"/macos/*.app.tar.gz.sig "out/LarkquillAI_${V}_universal.app.tar.gz.sig"
           fi
           ls -l out
       - uses: actions/upload-artifact@v4
-        with: { name: 'WrenbyAI-${{ matrix.plat }}', path: out/*, if-no-files-found: error }
+        with: { name: 'LarkquillAI-${{ matrix.plat }}', path: out/*, if-no-files-found: error }
   publish:
     needs: build
     runs-on: ubuntu-latest
@@ -71,10 +73,10 @@ jobs:
         run: |
           set -euo pipefail
           V="${TAG#v}"; U="https://github.com/${{ github.repository }}/releases/download/${TAG}"
-          W="WrenbyAI_${V}_x64-setup.exe"; M="WrenbyAI_${V}_universal.app.tar.gz"
+          W="LarkquillAI_${V}_x64-setup.exe"; M="LarkquillAI_${V}_universal.app.tar.gz"
           jq -n --arg v "$V" --arg d "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             --arg wu "$U/$W" --rawfile ws "dist/$W.sig" --arg mu "$U/$M" --rawfile ms "dist/$M.sig" \
-            '{version:$v, notes:("WrenbyAI " + $v), pub_date:$d, platforms:{
+            '{version:$v, notes:("LarkquillAI " + $v), pub_date:$d, platforms:{
                "windows-x86_64":{signature:$ws, url:$wu},
                "darwin-x86_64":{signature:$ms, url:$mu},
                "darwin-aarch64":{signature:$ms, url:$mu}}}' > dist/latest.json

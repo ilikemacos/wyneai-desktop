@@ -1,6 +1,7 @@
-// WrenbyAI minimal dark theme: near-black, centered rounded composer pill with the mode picker inside,
+// LarkquillAI minimal dark theme: near-black, centered rounded composer pill with the mode picker inside,
 // right-aligned grey user bubbles, plain assistant text, slim collapsible chat sidebar. Loaded after the page builds.
 import { modeToggle, injectCSS } from "./cloudtask.js";
+import { startSky } from "./sky.js";
 const CSS = `
 :root{--bg:#0b0b0b;--fg:#ececec;--muted:#8f8f8f;--rule:#1f1f1f;--card:#161616;--accent:#f2f2f2;--sans:"Inter",ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 html,body{background:var(--bg)!important;color:var(--fg);font-family:var(--sans)!important;-webkit-font-smoothing:antialiased}
@@ -23,7 +24,17 @@ form#f .ctmode{flex:none}#tierhint{display:none!important}
 button{border-radius:10px}a{color:#cfcfcf}
 @media(max-width:640px){header{padding:6px 10px!important;gap:6px!important;flex-wrap:nowrap!important}header button{white-space:nowrap;padding:0 10px!important;height:32px!important;font-size:12px!important}header h1{white-space:nowrap}form#f #send,form#f #stop{margin-left:auto}header #status{display:none}form#f{flex-wrap:wrap;border-radius:22px;padding:6px 8px 6px 14px!important;width:calc(100% - 16px)!important}form#f #q{flex-basis:100%}.msg{padding:8px 14px!important}.msg.u .bub{max-width:88%}form#f{padding-left:14px!important}form#f .ctmode .ctm{padding:0 7px}form#f select#tier{max-width:96px}}
 `;
-export function applyTheme() { injectCSS(); if (!document.getElementById("wtheme")) { const s = document.createElement("style"); s.id = "wtheme"; s.textContent = CSS; document.head.appendChild(s); }
+// Liquid glass layer (glass.css) must stay the last stylesheet so it wins over styles other modules inject later.
+function keepGlassLast() {
+  let l = document.getElementById("wy-glass");
+  if (!l) { l = document.createElement("link"); l.id = "wy-glass"; l.rel = "stylesheet"; l.href = new URL("./glass.css", import.meta.url).href; }
+  const last = () => { if (document.head.lastElementChild !== l) document.head.appendChild(l); };
+  let k = document.getElementById("wy-sky");
+  if (!k) { k = document.createElement("link"); k.id = "wy-sky"; k.rel = "stylesheet"; k.href = new URL("./sky.css", import.meta.url).href; }
+  const last2 = () => { if (document.head.lastElementChild !== k || k.previousElementSibling !== l) { document.head.appendChild(l); document.head.appendChild(k); } };
+  last2(); new MutationObserver(last2).observe(document.head, { childList: true }); startSky();
+}
+export function applyTheme() { keepGlassLast(); injectCSS(); if (!document.getElementById("wtheme")) { const s = document.createElement("style"); s.id = "wtheme"; s.textContent = CSS; document.head.appendChild(s); }
   const f = document.getElementById("f"), q = document.getElementById("q"), tier = document.getElementById("tier");
   if (f && q) { if (tier && tier.parentElement !== f) f.insertBefore(tier, q.nextSibling); if (!f.querySelector(".ctmode")) f.insertBefore(modeToggle(), (tier && tier.parentElement === f ? tier : q).nextSibling); }
-  document.title = document.title.replace(/·.*$/, "").trim() || "WrenbyAI"; }
+  document.title = document.title.replace(/·.*$/, "").trim() || "LarkquillAI"; }

@@ -10,6 +10,7 @@ use wait_timeout::ChildExt;
 
 fn home() -> PathBuf { dirs::home_dir().unwrap_or_else(|| PathBuf::from(".")) }
 fn data_dir() -> PathBuf {
+    // Kept as "WrenbyAI" on purpose: memory.json and settings from earlier versions live here.
     let d = dirs::data_dir().unwrap_or_else(home).join("WrenbyAI");
     let _ = fs::create_dir_all(&d);
     d
@@ -49,7 +50,9 @@ fn resolve(path: &str, root: &str, sandbox: bool) -> Result<PathBuf, String> {
 
 #[tauri::command]
 fn default_workspace() -> Result<String, String> {
-    let d = home().join("WrenbyAI Workspace");
+    // New installs get "LarkquillAI Workspace"; anyone who already has the folder from the WrenbyAI days keeps it.
+    let old = home().join("WrenbyAI Workspace");
+    let d = if old.exists() { old } else { home().join("LarkquillAI Workspace") };
     fs::create_dir_all(&d).map_err(e2s)?;
     Ok(d.display().to_string())
 }
@@ -224,5 +227,5 @@ fn main() {
         .plugin(tauri_plugin_process::init())
         .invoke_handler(tauri::generate_handler![default_workspace, run_shell, read_file, write_file, list_dir, delete_path, open_target, memory_load, memory_save, open_data_dir, reveal_item, app_version, update_check, update_install])
         .run(tauri::generate_context!())
-        .expect("error while running WrenbyAI");
+        .expect("error while running LarkquillAI");
 }

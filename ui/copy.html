@@ -1,10 +1,15 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>WrenbyAI · Copy code</title>
-<style>html,body{margin:0;height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
-main{position:relative;z-index:1;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px}
-.b{font-weight:700}.c{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:40px;font-weight:700;letter-spacing:10px;border:2px solid #fff;padding:14px 22px;background:#000;user-select:all;-webkit-user-select:all}
-button{background:#fff;color:#000;border:0;border-radius:999px;padding:10px 20px;font:inherit;font-weight:600;cursor:pointer}#s{color:#bbb;font-size:14px;min-height:20px}</style></head>
-<body><main><div class="b">WrenbyAI</div><div class="c" id="c">------</div><button id="btn">Copy code</button><div id="s"></div></main>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>LarkquillAI · Copy code</title><link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>html,body{margin:0;height:100%}
+main{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:var(--lq-sky)}
+.gcard{width:min(420px,100%);display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:36px 28px 28px;box-sizing:border-box;border-radius:28px;background:var(--lq-bg);box-shadow:var(--lq-shadow)}
+.logo{width:52px;height:52px;border-radius:15px}
+.b{margin-top:4px}.sub{color:var(--lq-muted);margin:-4px 0 6px}
+.c{font:500 38px/1.15 "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;letter-spacing:.22em;padding:16px 10px 16px 24px;background:var(--lq-bubble);border-radius:20px;color:var(--lq-ink);user-select:all;width:100%;box-sizing:border-box}
+#btn{width:100%;height:48px;font-size:15px!important;margin-top:6px}
+#s{min-height:20px;font-size:13px;color:var(--lq-muted)}
+</style><link rel="stylesheet" href="lq.css"></head>
+<body><main><div class="gcard"><img class="logo" src="icon-192.png" alt=""><div class="b lq-word" style="font-size:28px">Larkquill<em>AI</em></div><div class="sub">Your sign-in code</div><div class="c" id="c">------</div><button id="btn" class="primary">Copy code</button><div id="s"></div></div></main>
 <script>
 // The code lives only in the URL fragment (#CODE), which browsers never send to the server, so it stays out of logs.
 const code = decodeURIComponent(location.hash.slice(1)).replace(/[^0-9A-Za-z]/g, "").slice(0, 12);
@@ -18,4 +23,4 @@ async function copy() {
     s.textContent = document.execCommand && document.execCommand("copy") ? "Copied" : "Tap and hold the code to copy it."; }
 }
 document.getElementById("btn").onclick = copy; copy();
-</script><script type="module">import { initStatic } from "./static.js"; initStatic(); document.documentElement.classList.remove("wy-app");</script></body></html>
+</script></body></html>

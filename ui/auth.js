@@ -1,4 +1,4 @@
-// WrenbyAI auth + chat-history UI. Self-contained ES module.
+// LarkquillAI auth + chat-history UI. Self-contained ES module.
 // Enables itself only when /api/auth/me reports { configured:true } (the DB flag).
 // Stores a bearer token in localStorage (for GitHub Pages and Tauri where the
 // session cookie is cross-site) and also sends credentials for same-origin cookies.
@@ -66,10 +66,11 @@ function buildChrome() {
   const slot = el("span", "wy-authslot"); slot.style.marginLeft = "8px"; header.appendChild(slot); S.els.slot = slot;
   // sidebar
   const bar = el("aside"); bar.id = "histbar"; bar.hidden = true;
-  bar.innerHTML = '<div class="hhead"><span class="htitle">Chats</span><button class="hnew">New chat</button></div><div class="hlist"></div>';
+  bar.innerHTML = '<div class="hhead"><span class="htitle">Chats</span><button class="hnew">New chat</button></div><div class="hsearch"><input type="search" placeholder="Search chats" aria-label="Search chats" autocomplete="off"></div><div class="hlist"></div>';
   document.body.insertBefore(bar, document.body.firstChild);
   bar.querySelector(".hnew").onclick = () => { S.chatId = null; if (S.opts.onNewChat) S.opts.onNewChat(); markActive(); if (window.innerWidth <= 860) bar.classList.remove("open"); };
   S.els.bar = bar; S.els.list = bar.querySelector(".hlist");
+  const sq = bar.querySelector(".hsearch input"); sq.oninput = () => { S.filter = sq.value; renderList(); };
 }
 
 function render() {
@@ -82,6 +83,7 @@ function render() {
     S.els.bar.hidden = true;
     const b = el("button", "", "Sign in"); b.onclick = openSignin; slot.appendChild(b);
   }
+  for (const f of S.listeners || []) { try { f(S.user); } catch {} }
 }
 
 function toggleMenu() {
@@ -90,7 +92,7 @@ function toggleMenu() {
   m.innerHTML = '<div class="wy-email"></div>';
   m.querySelector(".wy-email").textContent = S.user.email;
   const setPw = el("button", "", "Set or change password"); setPw.onclick = setPassword; m.appendChild(setPw);
-  if (!DESKTOP && window.PublicKeyCredential) { const pk = el("button", "", "Add a passkey"); pk.onclick = addPasskey; m.appendChild(pk); }
+  if (!DESKTOP && window.PublicKeyCredential) { const pk = el("button", "", bioName() === "passkey" ? "Add a passkey" : "Set up " + bioName()); pk.onclick = addPasskey; m.appendChild(pk); }
   const out = el("button", "", "Log out"); out.onclick = logout; m.appendChild(out);
   document.body.appendChild(m);
   setTimeout(() => document.addEventListener("click", function h(e) { if (!m.contains(e.target) && !e.target.classList.contains("wy-avatar")) { m.remove(); document.removeEventListener("click", h); } }), 0);
@@ -184,6 +186,16 @@ async function swa() {
   await loadScript(new URL("./vendor/simplewebauthn-browser-13.3.0.umd.min.js", import.meta.url).href);
   return window.SimpleWebAuthnBrowser;
 }
+// What the device calls its built-in passkey check, for button labels.
+function bioName() {
+  const ua = navigator.userAgent || "", plat = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || "";
+  if (/iPhone|iPad|iPod/.test(ua) || (/Mac/.test(plat) && navigator.maxTouchPoints > 1)) return "Face ID";
+  if (/Mac/.test(plat) || /Macintosh/.test(ua)) return "Touch ID";
+  if (/Win/.test(plat)) return "Windows Hello";
+  if (/Android/.test(ua)) return "fingerprint";
+  return "passkey";
+}
+async function hasBio() { try { return !!(window.PublicKeyCredential && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()); } catch { return false; } }
 async function passkeyLogin() {
   if (!window.PublicKeyCredential) return { error: "This browser doesn't support passkeys." };
   const o = await api("/api/auth/passkey?action=login-options", { method: "POST", body: {} });
@@ -196,12 +208,13 @@ async function passkeyLogin() {
 async function addPasskey() {
   document.querySelector(".wy-menu")?.remove();
   try {
+    if (!(await hasBio())) { notice("Add a passkey", "This device has no Touch ID, Face ID or Windows Hello set up. Turn it on in your system settings, then try again."); return; }
     const o = await api("/api/auth/passkey?action=register-options", { method: "POST", body: {} });
     const oj = await o.json().catch(() => ({})); if (!o.ok) { notice("Add a passkey", oj.error || "Could not start passkey setup."); return; }
     let response; try { response = await (await swa()).startRegistration({ optionsJSON: oj.options }); } catch { return; }
     const r = await api("/api/auth/passkey?action=register-verify", { method: "POST", body: { challengeId: oj.challengeId, response } });
     const j = await r.json().catch(() => ({}));
-    notice("Add a passkey", r.ok ? "Passkey added. Next time, pick Passkey to sign in." : (j.error || "Could not save passkey."));
+    notice("Add a passkey", r.ok ? (bioName() === "passkey" ? "Passkey" : bioName()) + " is set up. Next time, pick it to sign in." : (j.error || "Could not save passkey."));
   } catch { notice("Add a passkey", "Something went wrong. Try again."); }
 }
 
@@ -215,16 +228,28 @@ async function logout() {
 function renderList() {
   const list = S.els.list; if (!list) return; list.innerHTML = "";
   if (!S.chats.length) { const e = el("div", "hempty", "No chats yet"); e.style.cssText = "padding:10px;color:var(--muted);font-size:12px"; list.appendChild(e); return; }
-  for (const c of S.chats) {
-    const row = el("div", "hitem" + (c.id === S.chatId ? " on" : ""));
-    const name = el("span", "hname", c.title || "New chat"); row.appendChild(name);
-    const act = el("span", "hact");
-    const rn = el("button", "", "\u270e"); rn.title = "Rename"; rn.onclick = (e) => { e.stopPropagation(); renameChat(c); };
-    const dl = el("button", "", "\u00d7"); dl.title = "Delete"; dl.onclick = (e) => { e.stopPropagation(); deleteChat(c); };
-    act.append(rn, dl); row.appendChild(act);
-    row.onclick = () => loadChat(c.id);
-    list.appendChild(row);
-  }
+  // search filters by title; pinned chats (server-side pinned_at) are listed first under their own heading
+  const f = String(S.filter || "").trim().toLowerCase(), shown = S.chats.filter(c => !f || String(c.title || "New chat").toLowerCase().includes(f));
+  if (!shown.length) { const e = el("div", "hempty", "No chats match \u201c" + S.filter.trim() + "\u201d"); e.style.cssText = "padding:10px;color:var(--muted);font-size:12px"; list.appendChild(e); return; }
+  const pinned = shown.filter(c => c.pinned_at), rest = shown.filter(c => !c.pinned_at);
+  const group = (label, items) => { if (!items.length) return; if (pinned.length) list.appendChild(el("div", "hgroup", label));
+    for (const c of items) {
+      const row = el("div", "hitem" + (c.id === S.chatId ? " on" : "") + (c.pinned_at ? " pinned" : ""));
+      const name = el("span", "hname", c.title || "New chat"); name.title = c.title || "New chat"; row.appendChild(name);
+      const act = el("span", "hact");
+      const pn = el("button", "hpin", c.pinned_at ? "\u2605" : "\u2606"); pn.title = c.pinned_at ? "Unpin" : "Pin"; pn.setAttribute("aria-label", pn.title); pn.onclick = (e) => { e.stopPropagation(); pinChat(c); };
+      const rn = el("button", "", "\u270e"); rn.title = "Rename"; rn.onclick = (e) => { e.stopPropagation(); renameChat(c); };
+      const dl = el("button", "", "\u00d7"); dl.title = "Delete"; dl.onclick = (e) => { e.stopPropagation(); deleteChat(c); };
+      act.append(pn, rn, dl); row.appendChild(act);
+      row.onclick = () => loadChat(c.id);
+      list.appendChild(row);
+    } };
+  group("Pinned", pinned); group("Recent", rest);
+}
+async function pinChat(c) {
+  const want = !c.pinned_at; c.pinned_at = want ? new Date().toISOString() : null; renderList();
+  try { const r = await api("/api/chats", { method: "POST", body: { action: "pin", id: c.id, pinned: want } }); if (!r.ok) throw new Error(); await refreshChats(); }
+  catch { c.pinned_at = want ? null : new Date().toISOString(); renderList(); }
 }
 function markActive() { document.querySelectorAll(".hitem").forEach(r => r.classList.remove("on")); renderList(); }
 
@@ -274,6 +299,25 @@ async function finishSignin(j, dlg) {
   S.token = j.token || null; if (S.token) localStorage.setItem(LS, S.token);
   S.user = j.user; dlg.close(); render(); await refreshChats();
   await offerImport();
+  offerBio(j.method === "passkey").catch(() => {});
+}
+// Right after sign-in, offer to turn on Touch ID / Face ID / Windows Hello once per account on this device.
+async function offerBio(viaPasskey) {
+  if (viaPasskey || !S.user || !(await hasBio())) return;
+  const key = "wy.bioAsked." + (S.user.id || S.user.email || "");
+  if (localStorage.getItem(key)) return;
+  try { const r = await api("/api/auth/me"); const me = (await r.json()).user; if (!me || me.passkeys > 0 || me.passkeys == null) return; } catch { return; }
+  localStorage.setItem(key, "1");
+  const name = bioName(), label = name === "passkey" ? "a passkey" : name;
+  const d = document.createElement("dialog"); d.className = "wy-dialog wy-bio";
+  d.innerHTML = `<div class="wy-db"><div class="wy-bioicon" aria-hidden="true"></div>
+    <div class="wy-ct">Sign in faster with ${name === "passkey" ? "a passkey" : name}</div>
+    <div class="wy-cs">Next time, skip the email code. Just use ${label} on this device.</div>
+    <div class="wy-df"><button type="button" class="wy-cancel">Not now</button><button type="button" class="primary wy-go" autofocus>${name === "passkey" ? "Set up passkey" : "Use " + name}</button></div></div>`;
+  document.body.appendChild(d); d.showModal();
+  d.addEventListener("close", () => d.remove());
+  d.querySelector(".wy-cancel").onclick = () => d.close();
+  d.querySelector(".wy-go").onclick = () => { d.close(); addPasskey(); };
 }
 async function mountGoogle(dlg, err) {
   const cid = S.feat.googleClientId; if (!cid) return;
@@ -297,8 +341,8 @@ async function mountGoogle(dlg, err) {
 // ---- sign-in dialog ----
 function openSignin() {
   const dlg = document.createElement("dialog"); dlg.className = "wy-dialog";
-  dlg.innerHTML = `<div class="wy-dh">Sign in to WrenbyAI</div><div class="wy-db">
-    <div class="wy-methods" role="tablist"><button type="button" data-m="password">Password</button><button type="button" data-m="email" class="on">Email code</button><button type="button" data-m="passkey">Passkey</button></div>
+  dlg.innerHTML = `<div class="wy-dh">Sign in to LarkquillAI</div><div class="wy-db">
+    <div class="wy-methods" role="tablist"><button type="button" data-m="password">Password</button><button type="button" data-m="email" class="on">Email code</button><button type="button" data-m="passkey">${bioName() === "passkey" ? "Passkey" : bioName()}</button></div>
     <div class="wy-google" hidden><div class="wy-gbtn"></div><div class="wy-or">or</div></div>
     <div class="wy-hint">We'll email you a 6-digit code. No password needed.</div>
     <input class="wy-email-in" type="email" placeholder="you@example.com" autocomplete="email">
@@ -320,6 +364,42 @@ function openSignin() {
     eye.onclick = () => { const show = pwIn.type === "password"; pwIn.type = show ? "text" : "password"; eye.textContent = show ? "Hide" : "Show"; eye.setAttribute("aria-label", show ? "Hide password" : "Show password"); pwIn.focus(); };
     w.appendChild(eye);
     new MutationObserver(() => { w.hidden = pwIn.hidden; }).observe(pwIn, { attributes: true, attributeFilter: ["hidden"] }); w.hidden = pwIn.hidden; }
+  // ---- code entry: six slots drawn over one real input (keeps paste, autofill and SMS/email one-time-code suggestions working) ----
+  const otp = el("div", "wy-otp"); codeIn.before(otp); otp.appendChild(codeIn);
+  codeIn.setAttribute("autocomplete", "one-time-code"); codeIn.setAttribute("aria-label", "6-digit code");
+  const slots = Array.from({ length: 6 }, () => otp.appendChild(el("span", "wy-slot")));
+  const codeHead = el("div", "wy-codehead"); otp.before(codeHead);
+  const codeFoot = el("div", "wy-codefoot"); otp.after(codeFoot);
+  const backBtn = el("button", "wy-link", "Use a different email"); backBtn.type = "button";
+  const resend = el("button", "wy-link", "Resend code"); resend.type = "button";
+  codeFoot.append(backBtn, resend);
+  const paint = () => {
+    const v = codeIn.value.replace(/\D/g, "").slice(0, 6); if (v !== codeIn.value) codeIn.value = v;
+    const f = document.activeElement === codeIn;
+    slots.forEach((sl, i) => { sl.textContent = v[i] || ""; sl.classList.toggle("filled", !!v[i]); sl.classList.toggle("cur", f && i === Math.min(v.length, 5) && !(v.length === 6 && i === 5 && false)); });
+  };
+  let cool = 0, coolT = null;
+  const tick = () => { resend.disabled = cool > 0; resend.textContent = cool > 0 ? `Resend in ${cool}s` : "Resend code"; if (cool > 0) { cool--; coolT = setTimeout(tick, 1000); } };
+  const showCode = (on) => {
+    dlg.classList.toggle("wy-codestage", on); otp.hidden = codeHead.hidden = codeFoot.hidden = !on;
+    if (on) {
+      codeHead.innerHTML = ""; codeHead.append(el("div", "wy-ct", "Check your email"));
+      const sub = el("div", "wy-cs", "Enter the 6-digit code we sent to "); sub.appendChild(el("b", "", email)); codeHead.appendChild(sub); codeHead.appendChild(el("div", "wy-cs2", "Can't find it? Check your spam folder."));
+      clearTimeout(coolT); cool = 30; tick(); paint();
+    }
+  };
+  new MutationObserver(() => showCode(!codeIn.hidden)).observe(codeIn, { attributes: true, attributeFilter: ["hidden"] }); showCode(false);
+  codeIn.addEventListener("input", () => { paint(); err.textContent = ""; if (codeIn.value.length === 6 && stage === "code" && !go.disabled) go.click(); });
+  codeIn.addEventListener("focus", paint); codeIn.addEventListener("blur", paint); codeIn.addEventListener("keyup", paint);
+  otp.addEventListener("click", () => codeIn.focus());
+  backBtn.onclick = () => { const m = stage === "reset-code" ? "reset" : "email"; const keep = email; setMode(m); emailIn.value = keep; emailIn.focus(); emailIn.select(); };
+  resend.onclick = async () => {
+    if (cool > 0) return; err.textContent = ""; resend.disabled = true;
+    try { const r = await api("/api/auth/start", { method: "POST", body: { email, recaptcha: await captcha("request_code") } });
+      if (!r.ok) { err.textContent = (await r.json().catch(() => ({}))).error || "Could not send code."; resend.disabled = false; return; }
+      codeIn.value = ""; paint(); codeIn.focus(); cool = 30; tick();
+    } catch { err.textContent = "Something went wrong. Try again."; resend.disabled = false; }
+  };
   const tabs = dlg.querySelectorAll(".wy-methods button"), pwForgot = dlg.querySelector(".wy-pw-forgot");
   // Password modes: "password" = email + password login; "reset" = email code + new password (also sign-up).
   const setMode = (m) => {
@@ -331,9 +411,9 @@ function openSignin() {
     emailIn.hidden = m === "passkey";
     hint.textContent = m === "email" ? "We'll email you a 6-digit code. No password needed."
       : m === "password" ? "Sign in with your email and password. New? Use Forgot password to create one."
-      : m === "passkey" ? (window.PublicKeyCredential ? "Use the passkey saved on this device or phone. New here? Sign up with an email code, then add a passkey from your account menu." : "This browser doesn't support passkeys.")
+      : m === "passkey" ? (window.PublicKeyCredential ? `Sign in with ${bioName() === "passkey" ? "the passkey on this device" : bioName()}. First time? Sign in with an email code, then set it up from your account menu.` : "This browser doesn't support passkeys.")
       : "We'll email you a code, then you pick a new password.";
-    go.textContent = m === "password" ? "Sign in" : m === "passkey" ? "Use passkey" : "Send code";
+    go.textContent = m === "password" ? "Sign in" : m === "passkey" ? (bioName() === "passkey" ? "Use passkey" : "Use " + bioName()) : "Send code";
   };
   tabs.forEach(t => t.onclick = () => { setMode(t.dataset.m); if (t.dataset.m !== "passkey") emailIn.focus(); });
   pwForgot.onclick = (e) => { e.preventDefault(); setMode("reset"); emailIn.focus(); };
@@ -349,7 +429,7 @@ function openSignin() {
       if (stage === "passkey") {
         const j = await passkeyLogin();
         if (j.error) { err.textContent = j.error; go.disabled = false; return; }
-        await finishSignin(j, dlg); return;
+        j.method = "passkey"; await finishSignin(j, dlg); return;
       } else if (stage === "password") {
         email = emailIn.value.trim().toLowerCase();
         const r = await api("/api/auth/password?action=login", { method: "POST", body: { email, password: pwIn.value, recaptcha: await captcha("password_login") } });
@@ -379,7 +459,7 @@ function openSignin() {
         const code = codeIn.value.trim();
         const r = await api("/api/auth/verify", { method: "POST", body: { email, code, recaptcha: await captcha("verify_code") } });
         const j = await r.json().catch(() => ({}));
-        if (!r.ok) { err.textContent = j.error || "Incorrect code."; go.disabled = false; return; }
+        if (!r.ok) { err.textContent = j.error || "Incorrect code."; go.disabled = false; otp.classList.remove("shake"); void otp.offsetWidth; otp.classList.add("shake"); codeIn.value = ""; paint(); codeIn.focus(); return; }
         await finishSignin(j, dlg); return;
       }
     } catch (e) { err.textContent = "Something went wrong. Try again."; }
@@ -416,7 +496,7 @@ function injectStyle() {
 .hitem{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:4px;cursor:pointer;font-size:13px;color:var(--fg)}
 .hitem:hover{background:var(--card)}.hitem.on{background:var(--card);border:1px solid var(--rule)}
 .hitem .hname{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hitem .hact{opacity:0;display:flex;gap:2px;flex:none}.hitem:hover .hact{opacity:1}
+.hitem .hact{opacity:0;display:flex;gap:2px;flex:none}.hitem:hover .hact,.hitem.pinned .hact .hpin{opacity:1}.hitem.pinned .hact{opacity:1}.hitem.pinned:not(:hover) .hact button:not(.hpin){display:none}
 .hact button{height:22px;width:22px;padding:0;font-size:12px;border:0;background:transparent;color:var(--muted)}
 .hact button:hover{color:var(--fg);background:transparent}
 .wy-avatar{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#111;font-weight:700;border:0;display:grid;place-items:center;cursor:pointer;padding:0;font-size:13px}
@@ -450,6 +530,7 @@ function injectStyle() {
 
 // Used by cloud tasks.
 export const authInfo = () => ({ base: S.base, token: S.token, user: S.user });
+export const onAuthChange = fn => { (S.listeners ||= []).push(fn); };
 // Used by the Settings page.
 export { setPassword, logout };
 export const reloadMe = async () => { const r = await api("/api/auth/me?usage=1"); const j = await r.json(); return j; };

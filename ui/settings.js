@@ -1,8 +1,8 @@
-// WrenbyAI Settings: General, Account, Usage, and Updates (desktop app only).
+// LarkquillAI Settings: General, Account, Usage, and Updates (desktop app only).
 // Opens from the gear in the header or Cmd/Ctrl+,. Usage numbers come from GET /api/auth/me?usage=1.
 import { authInfo, setPassword, logout, reloadMe } from "./auth.js";
 import { getMode, setMode } from "./cloudtask.js";
-import { staticPrefs, setStaticPrefs, isInverted, setInverted } from "./static.js";
+import { staticPrefs, setStaticPrefs, isInverted, setInverted, SKY } from "./static.js";
 import { getCompanion, setCompanion, COMPANIONS } from "./companion.js";
 const T = window.__TAURI__; const DESKTOP = !!T?.core;
 const invoke = (c, a) => T.core.invoke(c, a);
@@ -36,18 +36,23 @@ function card(title, right, ...kids) { const c = el("div", "card"), h = el("div"
 
 const SECTIONS = [["general", "General"], ["account", "Account"], ["usage", "Usage"], ...(DESKTOP ? [["updates", "Updates"]] : [])];
 async function renderGeneral(b) {
-  b.append(el("h2", "", "General"), el("p", "sub", "How WrenbyAI looks and how cloud tasks run."));
+  b.append(el("h2", "", "General"), el("p", "sub", "How LarkquillAI looks and how cloud tasks run."));
   const seg = el("div", "wy-seg"); for (const [m, label] of [["ask", "Ask before running"], ["auto", "Auto-run"]]) { const x = el("button", getMode() === m ? "on" : "", label); x.type = "button";
     x.onclick = () => { setMode(m); seg.querySelectorAll("button").forEach(y => y.classList.toggle("on", y === x)); document.querySelectorAll(".ctmode .ctm").forEach((y, i) => y.classList.toggle("on", (i === 0) === (m === "ask"))); }; seg.append(x); }
   b.append(row("Cloud task commands", "Ask pauses before every command or file write in a cloud sandbox. Also next to the message box.", seg));
   const p = staticPrefs();
   const cs = el("div", "wy-seg"); for (const [c, label] of Object.entries(COMPANIONS)) { const x = el("button", getCompanion() === c ? "on" : "", label); x.type = "button";
     x.onclick = () => { setCompanion(c); cs.querySelectorAll("button").forEach(y => y.classList.toggle("on", y === x)); }; cs.append(x); }
-  b.append(row("Companion", "Who keeps you company while WrenbyAI works: Wrenby, or Milyy and her ball. Saved to your account.", cs));
-  b.append(row("Pixel background", "The moving pixel static at the edges. Off keeps a plain background; clicking the background still inverts.", sw(p.on !== false, v => setStaticPrefs({ on: v }))));
-  b.append(row("Inverted theme", "White background, black squares. You can also click the empty background.", sw(isInverted(), v => setInverted(v))));
-  b.append(row("Shimmer", "Squares flicker slowly. Off keeps the static still.", sw(p.shimmer, v => setStaticPrefs({ shimmer: v }))));
-  b.append(row("Chunky squares", "Twice the square size.", sw(p.chunky, v => setStaticPrefs({ chunky: v }))));
+  b.append(row("Companion", "Who keeps you company while LarkquillAI works: Larkquill, or Milyy and her ball. Saved to your account.", cs));
+  const ak = el("button", "pri", "API keys"); ak.type = "button";
+  ak.onclick = async () => { const url = DESKTOP ? "https://larkquillai.vercel.app/api" : new URL("/api", location.origin).href;
+    if (DESKTOP) { try { if (T.opener?.openUrl) return void await T.opener.openUrl(url); await T.core.invoke("plugin:opener|open_url", { url }); return; } catch {} }
+    window.open(url, "_blank", "noopener"); };
+  b.append(row("API keys", "Create and manage keys for the LarkquillAI developer API, and read the docs.", ak));
+  if (!SKY) b.append(row("Pixel background", "The moving pixel static at the edges. Off keeps a plain background; clicking the background still inverts.", sw(p.on !== false, v => setStaticPrefs({ on: v }))));
+  if (!SKY) b.append(row("Inverted theme", "White background, black squares. You can also click the empty background.", sw(isInverted(), v => setInverted(v))));
+  if (!SKY) b.append(row("Shimmer", "Squares flicker slowly. Off keeps the static still.", sw(p.shimmer, v => setStaticPrefs({ shimmer: v }))));
+  if (!SKY) b.append(row("Chunky squares", "Twice the square size.", sw(p.chunky, v => setStaticPrefs({ chunky: v }))));
 }
 async function renderAccount(b, me) {
   b.append(el("h2", "", "Account"));
@@ -61,7 +66,7 @@ async function renderAccount(b, me) {
   const so = el("button", "", "Sign out"); so.onclick = async () => { close(); await logout(); };
   b.append(row("Sign out", "Sign out on this device.", so));
   const all = el("button", "danger", "Sign out everywhere"); all.onclick = async () => {
-    if (!confirm("Sign out of WrenbyAI on all devices, including this one?")) return; all.disabled = true; const a = authInfo();
+    if (!confirm("Sign out of LarkquillAI on all devices, including this one?")) return; all.disabled = true; const a = authInfo();
     try { const r = await fetch((a.base || "") + "/api/auth/me", { method: "POST", credentials: "include", headers: { "content-type": "application/json", ...(a.token ? { authorization: "Bearer " + a.token } : {}) }, body: JSON.stringify({ action: "logout_all" }) });
       if (!r.ok) throw new Error("HTTP " + r.status); close(); await logout(); } catch (e) { all.disabled = false; alert("Couldn't sign out everywhere: " + e.message); } };
   b.append(row("All devices", "Ends every session: browsers, desktop apps and the CLI.", all));
@@ -75,16 +80,16 @@ async function renderUsage(b, me) {
     for (const m of Object.values(u.tokens.modes)) b.append(card(m.name + " tokens", `${fk(m.used)} / ${fk(m.limit)} today`, bar(m.used, m.limit), el("div", "muted", `${fk(m.context)} context per message. Counts input and output.`)));
     b.append(el("p", "sub", `Token limits reset at ${u.tokens.resets} (in ${u.tokens.resetsIn}). Older messages are trimmed to fit a mode's context.`)); }
   const ct = u.cloudTasks;
-  b.append(card("Cloud tasks", `${ct.used} / ${ct.limit} in the last 24 hours`, bar(ct.used, ct.limit), el("div", "muted", `Zenith tasks count as ${ct.zenithWeight}. ${ct.tasks} task${ct.tasks === 1 ? "" : "s"} started in the last 24 hours, ${ct.month} this month.`)));
-  b.append(card("Running now", `${ct.running} / ${ct.concurrentLimit}`, bar(ct.running, ct.concurrentLimit), el("div", "muted", `Up to ${ct.stepLimit.forge} steps on Forge and ${ct.stepLimit.zenith} on Zenith, ${ct.maxMinutes} minutes per task.`)));
+  b.append(card("Cloud tasks", `${ct.used} / ${ct.limit} in the last 24 hours`, bar(ct.used, ct.limit), el("div", "muted", `Chorus tasks count as ${ct.zenithWeight}. ${ct.tasks} task${ct.tasks === 1 ? "" : "s"} started in the last 24 hours, ${ct.month} this month.`)));
+  b.append(card("Running now", `${ct.running} / ${ct.concurrentLimit}`, bar(ct.running, ct.concurrentLimit), el("div", "muted", `Up to ${ct.stepLimit.forge} steps on Aria and ${ct.stepLimit.zenith} on Chorus, ${ct.maxMinutes} minutes per task.`)));
   const kv = el("div", "kv"); for (const [k, v] of [["Today", u.messages.today], ["This month", u.messages.month], ["All time", u.messages.total], ["Chats", u.chats]]) kv.append(el("span", "", k), el("span", "", String(v)));
   b.append(card("Messages", "saved to your history", kv, el("div", "muted", "Counts messages you sent in saved chats.")));
-  const cl = u.chatLimits; b.append(card("Chat limits", cl.scope, el("div", "muted", `${cl.perMinute} messages a minute and ${cl.perDay} a day. Zenith counts as ${cl.zenithWeight}, with up to ${cl.zenithPerDay} Zenith messages a day. These are counted per network address, so they aren't shown as a bar.`)));
+  const cl = u.chatLimits; b.append(card("Chat limits", cl.scope, el("div", "muted", `${cl.perMinute} messages a minute and ${cl.perDay} a day. Chorus counts as ${cl.zenithWeight}, with up to ${cl.zenithPerDay} Zenith messages a day. These are counted per network address, so they aren't shown as a bar.`)));
 }
 async function renderUpdates(b) {
   b.append(el("h2", "", "Updates"));
   let cur = "?"; try { cur = await invoke("app_version"); } catch {}
-  b.append(el("p", "sub", "WrenbyAI " + cur));
+  b.append(el("p", "sub", "LarkquillAI " + cur));
   const st = el("div", "d"); st.textContent = "Last checked: " + fmtTime(+localStorage.getItem(LAST) || 0);
   const btn = el("button", "", "Check for updates"); const r = row("Check for updates", null, btn); r.querySelector(".l").append(st); b.append(r);
   btn.onclick = async () => { btn.disabled = true; btn.textContent = "Checking…";

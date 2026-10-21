@@ -1,4 +1,4 @@
-// WrenbyAI "digital static" theme: white 7px squares on an 8px grid, pushed in from both edges.
+// LarkquillAI "digital static" theme: white 7px squares on an 8px grid, pushed in from both edges.
 // One canvas, requestAnimationFrame, paused when hidden. Click the background to invert.
 // Configure via window.WRENBY_STATIC = { cell: 8, gap: 1, shimmer: 0.01, period: 15000, min: 0.05, max: 0.40 } before load.
 const CFG = Object.assign({ cell: 8, gap: 1, shimmer: 0.01, period: 15000, min: 0.05, max: 0.40, curve: 1.6 }, window.WRENBY_STATIC || {});
@@ -13,7 +13,9 @@ export function setStaticPrefs(p) { const n = Object.assign(staticPrefs(), p); l
 export const isInverted = () => inverted;
 export function setInverted(v) { inverted = !!v; localStorage.setItem("wy.inv", inverted ? "1" : "0"); document.documentElement.classList.toggle("wy-inv", inverted); }
 const RM = matchMedia("(prefers-reduced-motion: reduce)");
-let inverted = localStorage.getItem("wy.inv") === "1";
+// Sky theme (sky.js) is the default look: always the light UI, no background-click inversion.
+export const SKY = true;
+let inverted = SKY || localStorage.getItem("wy.inv") === "1";
 
 const CSS = `
 #wy-static{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none;image-rendering:pixelated;image-rendering:crisp-edges}
@@ -88,7 +90,7 @@ export function initStatic() {
   document.addEventListener("visibilitychange", () => document.hidden ? stop() : start());
   resize(); start(); hooks = { resize };
 
-  const invert = () => setInverted(!inverted);
+  const invert = () => { if (!SKY) setInverted(!inverted); };
   // Background clicks only: empty page area, or outside the sign-in panel.
   document.addEventListener("click", e => {
     const t = e.target;

@@ -1,4 +1,4 @@
-// Wrenby edge visits: while a response is generating, the little guy sometimes pops in from a
+// Larkquill edge visits: while a response is generating, the little guy sometimes pops in from a
 // random window edge, idles (blink, bob, wave, look around) and slides back out.
 // Hook: dispatch "wrenby:gen-start" / "wrenby:gen-end" on window. Debug: ?wrenby=always.
 import { getCompanion, svgFor, BALL } from "./companion.js";

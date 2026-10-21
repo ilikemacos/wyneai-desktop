@@ -11,7 +11,7 @@ export async function desktopSignin() {
   if (active) return; const state = b64url(crypto.getRandomValues(new Uint8Array(32))); const code = await codeOf(state);
   const url = API_BASE + "/?desktop_login=" + state;
   const dlg = document.createElement("dialog"); dlg.className = "wy-dialog";
-  dlg.innerHTML = `<div class="wy-dh">Sign in with your browser</div><div class="wy-db"><p>Your browser opened WrenbyAI. Sign in there (Google, passkey, password or email code), then confirm this code:</p><p style="font:600 26px ui-monospace,Menlo,monospace;letter-spacing:.2em;text-align:center;margin:12px 0">${code}</p><p class="ds-st" style="color:var(--muted);font-size:12px">Waiting for the browser…</p><div style="display:flex;gap:8px;justify-content:flex-end"><button class="ds-open">Open browser again</button><button class="ds-x">Cancel</button></div></div>`;
+  dlg.innerHTML = `<div class="wy-dh">Sign in with your browser</div><div class="wy-db"><p>Your browser opened LarkquillAI. Sign in there (Google, passkey, password or email code), then confirm this code:</p><p style="font:600 26px ui-monospace,Menlo,monospace;letter-spacing:.2em;text-align:center;margin:12px 0">${code}</p><p class="ds-st" style="color:var(--muted);font-size:12px">Waiting for the browser…</p><div style="display:flex;gap:8px;justify-content:flex-end"><button class="ds-open">Open browser again</button><button class="ds-x">Cancel</button></div></div>`;
   document.body.appendChild(dlg); dlg.showModal();
   const open = () => T.core.invoke("open_target", { target: url }).catch(() => {}); open();
   let stop = false; active = true; const end = () => { stop = true; active = null; dlg.close(); dlg.remove(); };

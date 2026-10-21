@@ -1,4 +1,4 @@
-// WrenbyAI Desktop: local agent tools (shell, files, apps, memory, plan) with confirmations + working-folder sandbox.
+// LarkquillAI Desktop: local agent tools (shell, files, apps, memory, plan) with confirmations + working-folder sandbox.
 import { registerTools } from "./agent.js";
 const T = window.__TAURI__; export const isDesktop = !!T?.core;
 const invoke = (cmd, args) => T.core.invoke(cmd, args);
@@ -27,7 +27,7 @@ export async function memoryPrompt() { const m = await memory(); if (!m.facts.le
 let memCache = ""; export const refreshMemoryPrompt = async () => { memCache = await memoryPrompt(); };
 
 export function desktopPrompt() {
-  return `You are running in the WrenbyAI desktop app on the user's ${navigator.userAgent.includes("Windows") ? "Windows" : navigator.userAgent.includes("Mac") ? "macOS" : "computer"}, as an agent that can act on their PC. Working folder: ${settings.workspace} (relative paths resolve there${settings.sandbox ? "; file tools are sandboxed to it" : ""}).
+  return `You are running in the LarkquillAI desktop app on the user's ${navigator.userAgent.includes("Windows") ? "Windows" : navigator.userAgent.includes("Mac") ? "macOS" : "computer"}, as an agent that can act on their PC. Working folder: ${settings.workspace} (relative paths resolve there${settings.sandbox ? "; file tools are sandboxed to it" : ""}).
 Desktop tools: run_shell (${navigator.userAgent.includes("Windows") ? "Windows cmd.exe; use powershell -Command \"...\" for PowerShell" : "sh"}), read_file, write_file (edit an existing or new file), create_file (save a new file, or several as separate files, into the working folder for the user to open), list_dir, delete_path, open_app (apps, URLs, files), remember / recall / forget (persistent memory), update_plan. When the user asks for a file, script, document or code to keep, use create_file.
 How to work: for any task needing more than 2 steps, first call update_plan with short steps, then work through them, calling update_plan again to mark progress. Inspect before changing (list_dir/read_file before write_file). Prefer small, safe, reversible commands; never run destructive commands (format, rm -rf on broad paths, registry edits) unless the user explicitly asked. The user approves every shell command, write, delete and launch in a dialog; if they decline, don't retry, ask instead. Use remember for durable facts about the user (GPU, games, preferences, projects), not for one-off details. Summarize what you did at the end, briefly.
 ${memCache}`; }

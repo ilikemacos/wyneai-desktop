@@ -1,0 +1,296 @@
+/* LarkquillAI "sky" look, in the spirit of Hark: a calm time-of-day sky behind everything (sky.js sets the
+   colours), one narrow column, assistant replies as soft milky bubbles, crisp white cards, and a slim
+   translucent composer pill. Loaded after glass.css, which supplies the light palette for dialogs/menus. */
+html.wy-sky{
+  --sky1:#93b3dc;--sky2:#c3d4ee;--sky3:#ece8f2;--sky-ink:#1b1a24;--sky-ink-soft:rgba(27,26,36,.55);
+  --c-milk:rgba(255,255,255,.66);--c-card:rgba(255,255,255,.86);--c-line:rgba(255,255,255,.7);
+  --c-shadow:0 1px 2px rgba(30,30,60,.06),0 8px 24px rgba(30,30,60,.08);
+  --col:680px;
+}
+html.wy-sky:root{background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 55%,var(--sky3) 100%) fixed!important;transition:background 2s}
+html.wy-sky::before{display:none!important}
+html.wy-sky #wy-static{display:none!important}
+html.wy-sky body{font-family:"Inter",-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif!important;letter-spacing:-.006em}
+
+/* header: no bar, just floating type and small pills */
+html.wy-sky header{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;padding:12px 18px!important;margin:0!important;border-radius:0!important}
+html.wy-sky header::before,html.wy-sky header::after{display:none!important}
+html.wy-sky header h1{color:var(--sky-ink)!important;font-size:15px!important;font-weight:600!important;letter-spacing:-.01em}
+html.wy-sky header .logo{width:22px!important;height:22px!important;border-radius:7px!important}
+html.wy-sky #status{color:var(--sky-ink-soft)!important}
+html.wy-sky header button:not(.wy-avatar),html.wy-sky header select,html.wy-sky .wy-hamb,html.wy-sky header #wy-gear,html.wy-sky header a.btn,html.wy-sky header a[href]:not(.logo){display:inline-flex;align-items:center;padding:0 13px;text-decoration:none;
+  background:var(--c-milk)!important;border:1px solid var(--c-line)!important;color:#1b1a24!important;box-shadow:var(--c-shadow)!important;
+  -webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);border-radius:999px!important;height:32px!important;font-size:13px!important;font-weight:500!important}
+html.wy-sky header button:not(.wy-avatar):hover{background:rgba(255,255,255,.88)!important}
+
+/* conversation column */
+html.wy-sky #log{padding:18px 0 12px!important}
+html.wy-sky .msg{max-width:var(--col)!important;padding:5px 20px!important;gap:0!important}
+html.wy-sky .msg .av{display:none!important}
+html.wy-sky .msg.a .bub{
+  flex:0 1 auto!important;max-width:100%;background:var(--c-milk)!important;color:#1b1a24!important;border:1px solid var(--c-line)!important;
+  border-radius:20px!important;padding:11px 16px!important;box-shadow:var(--c-shadow)!important;line-height:1.55!important;font-size:15px;
+  -webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%)}
+html.wy-sky .msg.a .bub:empty{display:none}
+html.wy-sky .msg.a .bub{min-height:0!important}html.wy-sky .msg.a .bub.md{white-space:normal!important}html.wy-sky .msg.a .bub>:first-child{margin-top:0!important}html.wy-sky .msg.a .bub>:last-child{margin-bottom:0!important}
+html.wy-sky .msg.u .bub{
+  max-width:78%;background:rgba(27,26,36,.84)!important;color:#fff!important;border:0!important;border-radius:20px!important;
+  padding:10px 16px!important;box-shadow:0 6px 18px rgba(20,20,40,.18)!important;font-size:15px;
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+
+/* cards inside replies: code, thinking, files, tasks */
+html.wy-sky pre,html.wy-sky .md pre,html.wy-sky .fpreview{background:var(--c-card)!important;border:1px solid rgba(30,30,60,.06)!important;border-radius:16px!important;box-shadow:none!important;color:#1b1a24!important}
+html.wy-sky .msg.a .bub pre{background:rgba(255,255,255,.75)!important}
+html.wy-sky :not(pre)>code{background:rgba(30,30,60,.07)!important;border:0!important;border-radius:6px!important;padding:1px 5px!important}
+html.wy-sky .think{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none;padding:0!important;margin:0 0 6px!important}
+html.wy-sky .think summary{color:rgba(27,26,36,.5)!important;font-size:13px}
+html.wy-sky .fcard,html.wy-sky .ctask,html.wy-sky .card,html.wy-sky .artchip{background:var(--c-card)!important;border:1px solid var(--c-line)!important;border-radius:20px!important;box-shadow:var(--c-shadow)!important;color:#1b1a24!important}
+
+/* composer: slim translucent pill */
+html.wy-sky form#f{
+  max-width:var(--col)!important;margin:0 auto 4px!important;padding:5px 6px 5px 18px!important;min-height:0!important;
+  background:rgba(255,255,255,.62)!important;border:1px solid rgba(255,255,255,.8)!important;border-radius:26px!important;
+  box-shadow:0 1px 2px rgba(30,30,60,.05),0 10px 30px rgba(30,30,60,.10)!important;
+  -webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%)}
+html.wy-sky form#f::before,html.wy-sky form#f::after{display:none!important}
+html.wy-sky form#f:focus-within{background:rgba(255,255,255,.8)!important;box-shadow:0 1px 2px rgba(30,30,60,.05),0 12px 34px rgba(30,30,60,.14)!important}
+html.wy-sky form#f #q{height:40px!important;font-size:15px!important;color:#1b1a24!important}
+html.wy-sky form#f #q::placeholder{color:rgba(27,26,36,.42)!important}
+html.wy-sky form#f select#tier{height:30px!important;background:transparent!important;border:0!important;box-shadow:none!important;color:rgba(27,26,36,.6)!important;font-size:12.5px!important;padding:0 4px!important}
+html.wy-sky form#f .ctmode{background:rgba(30,30,60,.06)!important;border:0!important;border-radius:999px!important;padding:2px!important}
+html.wy-sky form#f .ctmode button{background:transparent!important;border:0!important;box-shadow:none!important;color:rgba(27,26,36,.55)!important;height:26px!important;font-size:12px!important;border-radius:999px!important}
+html.wy-sky form#f .ctmode button.on,html.wy-sky form#f .ctmode button[aria-pressed=true]{background:#fff!important;color:#1b1a24!important;box-shadow:0 1px 3px rgba(30,30,60,.12)!important}
+/* round dark send button with an arrow */
+html.wy-sky form#f #send{
+  width:36px!important;min-width:36px!important;height:36px!important;padding:0!important;border-radius:50%!important;border:0!important;
+  background:#1b1a24!important;color:transparent!important;font-size:0!important;box-shadow:0 4px 12px rgba(20,20,40,.22)!important;position:relative}
+html.wy-sky form#f #send::after{content:"";position:absolute;inset:0;margin:auto;width:16px;height:16px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 19V5M5 12l7-7 7 7'/%3E%3C/svg%3E") center/16px no-repeat}
+html.wy-sky form#f #send:disabled{background:rgba(27,26,36,.22)!important;box-shadow:none!important}
+html.wy-sky form#f #stop{width:36px!important;min-width:36px!important;height:36px!important;padding:0!important;border-radius:50%!important;background:#1b1a24!important;color:transparent!important;font-size:0!important;position:relative}
+html.wy-sky form#f #stop::after{content:"";position:absolute;inset:0;margin:auto;width:11px;height:11px;border-radius:2px;background:#fff}
+html.wy-sky .foot{color:var(--sky-ink-soft)!important;font-size:11px!important}
+
+/* history sidebar: one frosted sheet */
+html.wy-sky #histbar{background:rgba(255,255,255,.55)!important;border:0!important;border-right:1px solid rgba(255,255,255,.6)!important;box-shadow:none!important;border-radius:0!important;
+  -webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%)}
+html.wy-sky #histbar .hitem{background:transparent!important;color:#1b1a24!important;border-radius:12px!important}
+html.wy-sky #histbar .hitem.on{background:rgba(255,255,255,.85)!important;box-shadow:var(--c-shadow)!important}
+html.wy-sky #histbar .hnew{background:#1b1a24!important;color:#fff!important;border:0!important}
+
+/* dialogs, menus, settings: solid milky cards */
+html.wy-sky .wy-dialog,html.wy-sky .wy-settings,html.wy-sky .wy-menu{background:rgba(250,250,253,.86)!important;border:1px solid rgba(255,255,255,.9)!important;box-shadow:0 30px 80px rgba(20,20,50,.25)!important;border-radius:26px!important}
+html.wy-sky .wy-dialog::backdrop{background:rgba(20,22,40,.18)!important;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+html.wy-sky .wy-dialog .primary,html.wy-sky .wy-dialog .wy-go{background:#1b1a24!important;color:#fff!important;border:0!important;box-shadow:0 6px 16px rgba(20,20,40,.2)!important}
+
+@media(max-width:640px){
+  html.wy-sky .msg{padding:4px 12px!important}
+  html.wy-sky form#f{margin:0 10px 4px!important;width:auto!important}
+  html.wy-sky header{padding:8px 10px!important}
+}
+
+/* after dark: denser milk so replies stay crisp against the night sky */
+html.wy-sky-night .msg.a .bub{background:rgba(255,255,255,.84)!important}
+html.wy-sky-night form#f{background:rgba(255,255,255,.82)!important}
+html.wy-sky-night .msg.u .bub{background:rgba(10,10,20,.72)!important;box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 6px 18px rgba(0,0,0,.3)!important}
+html.wy-sky .wy-settings .pri,html.wy-sky .wy-sl .pri{background:#1b1a24!important;color:#fff!important;border:0!important;box-shadow:0 4px 12px rgba(20,20,40,.18)!important;font-weight:500}
+/* Pages' lightweight settings sheet */
+html.wy-sky .wy-sl{background:rgba(250,250,253,.92)!important;color:#1b1a24!important;border:1px solid rgba(255,255,255,.9)!important;border-radius:26px!important;box-shadow:0 30px 80px rgba(20,20,50,.25)!important;filter:none!important;
+  -webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%)}
+html.wy-sky .wy-sl::backdrop{background:rgba(20,22,40,.18)!important}
+html.wy-sky .wy-sl .row{border-bottom:1px solid rgba(30,30,60,.08)!important}
+html.wy-sky .wy-sl .t{color:#1b1a24!important;font-weight:500}html.wy-sky .wy-sl .sub,html.wy-sky .wy-sl .d{color:rgba(27,26,36,.55)!important}
+html.wy-sky .wy-sl .seg{border:0!important;background:rgba(30,30,60,.06)!important;padding:2px}
+html.wy-sky .wy-sl .seg button{background:transparent!important;color:rgba(27,26,36,.6)!important;border-radius:999px!important;box-shadow:none!important}
+html.wy-sky .wy-sl .seg button.on{background:#fff!important;color:#1b1a24!important;box-shadow:0 1px 3px rgba(30,30,60,.12)!important}
+html.wy-sky .wy-sl button.pri{all:unset;cursor:pointer;background:#1b1a24!important;color:#fff!important;border-radius:999px;height:32px;padding:0 16px;font-size:12.5px;font-weight:500;box-shadow:0 4px 12px rgba(20,20,40,.18)}
+html.wy-sky .wy-sl .x{background:rgba(30,30,60,.06)!important;color:#1b1a24!important;border:0!important;box-shadow:none!important}
+
+/* ===== chat kit (chatkit.js): composer attachments, model pill, stop, message actions, code blocks ===== */
+html.wy-sky form#f.wy-ck{position:relative;flex-wrap:wrap;align-items:center;gap:6px!important;padding:5px 6px 5px 6px!important}
+html.wy-sky form#f.wy-ck #q{flex:1 1 140px;min-width:0}
+html.wy-sky .wy-hidden-select{display:none!important}
+html.wy-sky .wy-attach{flex:none;width:34px!important;height:34px!important;min-width:34px;padding:0!important;border-radius:50%!important;border:0!important;background:transparent!important;color:rgba(27,26,36,.62)!important;display:inline-grid!important;place-items:center;box-shadow:none!important;cursor:pointer}
+html.wy-sky .wy-attach:hover{background:rgba(30,30,60,.07)!important;color:#1b1a24!important}
+html.wy-sky .wy-pillwrap{position:static;flex:none}
+html.wy-sky .wy-pill{display:inline-flex!important;align-items:center;gap:6px;height:30px!important;padding:0 8px 0 12px!important;border-radius:999px!important;border:0!important;background:rgba(30,30,60,.06)!important;color:#1b1a24!important;font-size:12.5px!important;font-weight:500!important;box-shadow:none!important;cursor:pointer;white-space:nowrap}
+html.wy-sky .wy-pill:hover{background:rgba(30,30,60,.1)!important}
+html.wy-sky .wy-pill .wy-pleft{color:rgba(27,26,36,.58);font-weight:400}
+html.wy-sky .wy-pill svg{opacity:.55;width:14px;height:14px}
+html.wy-sky .wy-pillmenu{position:absolute;right:8px;bottom:calc(100% + 8px);z-index:60;width:min(320px,calc(100vw - 32px));padding:6px;border-radius:20px;background:rgba(250,250,253,.97);border:1px solid rgba(255,255,255,.95);box-shadow:0 24px 60px rgba(20,20,50,.28);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%)}
+html.wy-sky .wy-pitem{all:unset;box-sizing:border-box;display:flex!important;align-items:center;gap:10px;width:100%;height:auto!important;padding:8px 12px!important;border-radius:14px!important;cursor:pointer;color:#1b1a24!important;border:0!important;background:transparent!important;box-shadow:none!important;text-align:left}
+html.wy-sky .wy-pitem:hover,html.wy-sky .wy-pitem:focus-visible{background:rgba(30,30,60,.06)!important}
+html.wy-sky .wy-pitem.on{background:#fff!important;box-shadow:0 1px 3px rgba(30,30,60,.14)!important}
+html.wy-sky .wy-pitem.on .wy-pl b::after{content:"  \2713";font-weight:600}
+html.wy-sky .wy-pl{display:flex;flex-direction:column;flex:1;min-width:0}.wy-pl b{font-weight:600;font-size:13.5px}.wy-pl small{font-size:12px;color:rgba(27,26,36,.6)}
+html.wy-sky .wy-pq{flex:none;font-size:11.5px;padding:2px 9px;border-radius:999px;background:rgba(40,120,80,.12);color:#1d5a3c;font-weight:500}
+html.wy-sky .wy-pq.out{background:rgba(160,90,20,.12);color:#7a4508}
+html.wy-sky .wy-tray{flex:1 1 100%;order:-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 6px 2px}
+html.wy-sky .wy-chip{position:relative;width:58px;height:58px;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 1px 4px rgba(30,30,60,.18)}
+html.wy-sky .wy-chip img{width:100%;height:100%;object-fit:cover;display:block}
+html.wy-sky .wy-chipx{all:unset;position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(20,20,30,.78);color:#fff;font-size:14px;line-height:20px;text-align:center;cursor:pointer}
+html.wy-sky .wy-traynote{flex:1 1 160px;font-size:12px;color:rgba(27,26,36,.66)}html.wy-sky .wy-traynote.bad{color:#8a3a10}
+html.wy-sky form#f.wy-drop{outline:2px dashed rgba(27,26,36,.35);outline-offset:3px;background:rgba(255,255,255,.9)!important}
+html.wy-sky .wy-imgs{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px;justify-content:flex-end}
+html.wy-sky .wy-imgs a{display:block;border-radius:12px;overflow:hidden;line-height:0}
+html.wy-sky .wy-imgs img{max-width:180px;max-height:180px;width:auto;height:auto;object-fit:cover;display:block}
+html.wy-sky .wy-imgs a:only-child img{max-width:min(280px,100%);max-height:280px}
+html.wy-sky form#f .wy-stop[hidden],html.wy-sky form#f #send[hidden]{display:none!important}
+/* message actions: small icon row under each bubble, shown on hover (desktop) or tap (touch) */
+html.wy-sky .msg{flex-wrap:wrap}
+html.wy-sky .wy-acts{flex:1 1 100%;order:5;display:flex;gap:2px;padding:2px 4px 0;opacity:0;transition:opacity .15s;min-height:28px}
+html.wy-sky .msg.u .wy-acts{justify-content:flex-end}
+html.wy-sky .msg:hover .wy-acts,html.wy-sky .msg.wy-show .wy-acts,html.wy-sky .wy-acts:focus-within{opacity:1}
+html.wy-sky .msg.a:not(.wy-last) .wy-regen{display:none}
+html.wy-sky .wy-act{all:unset;display:inline-grid;place-items:center;width:28px;height:28px;border-radius:9px;cursor:pointer;color:var(--sky-ink);opacity:.72}
+html.wy-sky .wy-act:hover,html.wy-sky .wy-act:focus-visible{opacity:1;background:rgba(127,127,160,.18)}
+html.wy-sky .wy-edit{flex:1 1 100%;max-width:100%;display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,.9);border-radius:18px;padding:10px;box-shadow:var(--c-shadow)}
+html.wy-sky .wy-edit textarea{width:100%;box-sizing:border-box;border:0;outline:none;resize:vertical;background:transparent;font:inherit;font-size:15px;color:#1b1a24}
+html.wy-sky .wy-editrow{display:flex;justify-content:flex-end;gap:6px}
+html.wy-sky .wy-editrow button{height:30px!important;border-radius:999px!important;padding:0 14px!important;font-size:12.5px!important;background:rgba(30,30,60,.07)!important;border:0!important;color:#1b1a24!important}
+html.wy-sky .wy-editrow .wy-primary{background:#1b1a24!important;color:#fff!important}
+html.wy-sky .wy-retry{display:inline-flex!important;align-items:center;gap:6px;margin-top:8px;height:30px!important;padding:0 14px!important;border-radius:999px!important;border:0!important;background:#1b1a24!important;color:#fff!important;font-size:12.5px!important;cursor:pointer}
+@media (hover:none){html.wy-sky .msg.a.wy-last .wy-acts{opacity:1}}
+/* thinking shimmer before the first token (dark ink so it reads on milky bubbles) */
+html.wy-sky .think:not(.done) .tlabel{background:linear-gradient(90deg,rgba(27,26,36,.45) 20%,rgba(27,26,36,.95) 50%,rgba(27,26,36,.45) 80%)!important;background-size:200% 100%!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;animation:tshine 1.6s linear infinite}
+html.wy-sky .tdot{background:#1b1a24!important}html.wy-sky .think.done .tdot{background:rgba(27,26,36,.3)!important}
+html.wy-sky .ttime,html.wy-sky .tchev{color:rgba(27,26,36,.55)!important}
+html.wy-sky .treason{color:rgba(27,26,36,.72)!important;border-top-color:rgba(30,30,60,.08)!important}
+html.wy-sky .step{color:rgba(27,26,36,.62)!important;border-left-color:rgba(30,30,60,.15)!important}html.wy-sky .step b{color:#1b1a24!important}
+html.wy-sky .msg.a .bub .warn{color:#8a4a08!important}
+/* code blocks: header with language + copy; light highlight palette */
+html.wy-sky .md pre.wy-code{padding:0!important;overflow:hidden;max-height:none}
+html.wy-sky .md pre.wy-code>code{display:block;overflow:auto;max-height:420px;padding:12px 14px!important;font-size:12.8px}
+html.wy-sky .wy-cbhead{display:flex;align-items:center;justify-content:space-between;padding:4px 6px 4px 14px;border-bottom:1px solid rgba(30,30,60,.07);background:rgba(30,30,60,.035);font-family:"Inter",sans-serif}
+html.wy-sky .wy-lang{font-size:11.5px;font-weight:500;color:rgba(27,26,36,.62);letter-spacing:.01em}
+html.wy-sky .wy-codecopy{all:unset;display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:8px;font-size:11.5px;color:rgba(27,26,36,.7);cursor:pointer}
+html.wy-sky .wy-codecopy:hover{background:rgba(30,30,60,.07);color:#1b1a24}html.wy-sky .wy-codecopy svg{width:13px;height:13px}
+html.wy-sky .md pre.wy-code .codedl{all:unset;position:absolute;top:4px;right:80px;height:24px;line-height:24px;padding:0 9px;border-radius:8px;font-size:11.5px;color:rgba(27,26,36,.7);cursor:pointer;opacity:0;transition:opacity .12s}
+html.wy-sky .md pre.wy-code:hover .codedl{opacity:1}html.wy-sky .md pre.wy-code .codedl:hover{background:rgba(30,30,60,.07)}
+html.wy-sky .hljs{color:#24292f;background:transparent}
+html.wy-sky .hljs-comment,html.wy-sky .hljs-quote{color:#6a737d;font-style:italic}
+html.wy-sky .hljs-keyword,html.wy-sky .hljs-selector-tag,html.wy-sky .hljs-literal,html.wy-sky .hljs-section,html.wy-sky .hljs-name,html.wy-sky .hljs-meta .hljs-keyword{color:#b4232f}
+html.wy-sky .hljs-string,html.wy-sky .hljs-template-tag,html.wy-sky .hljs-addition,html.wy-sky .hljs-regexp{color:#0a5c36}
+html.wy-sky .hljs-number,html.wy-sky .hljs-built_in,html.wy-sky .hljs-type,html.wy-sky .hljs-class .hljs-title,html.wy-sky .hljs-symbol{color:#0b4f9c}
+html.wy-sky .hljs-title,html.wy-sky .hljs-title.function_,html.wy-sky .hljs-function .hljs-title{color:#6639ba}
+html.wy-sky .hljs-attr,html.wy-sky .hljs-attribute,html.wy-sky .hljs-variable,html.wy-sky .hljs-tag,html.wy-sky .hljs-params{color:#7a3e00}
+html.wy-sky .hljs-meta,html.wy-sky .hljs-bullet{color:#57606a}html.wy-sky .hljs-deletion{color:#b4232f;background:#ffebe9}
+/* history sidebar: search + pinned */
+html.wy-sky .hsearch{margin:6px 8px 4px;position:relative}
+html.wy-sky .hsearch input{width:100%;box-sizing:border-box;height:32px;border-radius:999px;border:1px solid rgba(30,30,60,.1);background:rgba(255,255,255,.75);padding:0 12px;font:inherit;font-size:13px;color:#1b1a24;outline:none}
+html.wy-sky .hsearch input:focus{border-color:rgba(30,30,60,.3);background:#fff}html.wy-sky .hsearch input::placeholder{color:rgba(27,26,36,.5)}
+html.wy-sky .hgroup{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:rgba(27,26,36,.55);padding:10px 10px 4px}
+html.wy-sky #histbar .hitem .hpin{color:rgba(27,26,36,.6)}html.wy-sky #histbar .hitem.pinned .hpin{opacity:1;color:#1b1a24}
+html.wy-sky #histbar .hact button{color:rgba(27,26,36,.6)!important}
+
+/* markdown emphasis inherits the bubble ink (the old dark theme forced white, unreadable on milky bubbles) */
+html.wy-sky .msg.a .md strong,html.wy-sky .msg.a .md h1,html.wy-sky .msg.a .md h2,html.wy-sky .msg.a .md h3,html.wy-sky .msg.a .md h4{color:#1b1a24!important}
+html.wy-sky .msg.a .md a{color:#1b3f8a!important;text-decoration-color:rgba(27,63,138,.4)!important}
+html.wy-sky .msg.a .md blockquote{color:rgba(27,26,36,.7)!important}
+html.wy-sky .msg.a .md th{background:rgba(30,30,60,.05)!important;color:#1b1a24!important}html.wy-sky .msg.a .md th,html.wy-sky .msg.a .md td{border-color:rgba(30,30,60,.12)!important}
+
+/* ===== night contrast pass: everything that sits straight on the dark evening sky uses the light ink ===== */
+html.wy-sky-night #notice{background:rgba(255,255,255,.9)!important;color:#1b1a24!important}
+html.wy-sky-night .cthint{color:rgba(255,255,255,.82)!important}
+html.wy-sky-night #histbar{background:rgba(250,250,253,.86)!important}
+html.wy-sky-night header button:not(.wy-avatar),html.wy-sky-night header a.btn,html.wy-sky-night header a[href]:not(.logo),html.wy-sky-night .wy-hamb,html.wy-sky-night header #wy-gear{background:rgba(255,255,255,.86)!important}
+html.wy-sky-night .wy-act{opacity:.85}
+html.wy-sky-night .msg.a .bub{border-color:rgba(255,255,255,.9)!important}
+html.wy-sky-night .foot{color:rgba(255,255,255,.72)!important}
+@media(max-width:640px){html.wy-sky .wy-pill .wy-pleft{display:none}html.wy-sky .wy-pillmenu{right:4px}html.wy-sky form#f.wy-ck #q{flex:1 1 calc(100% - 48px)!important}html.wy-sky form#f.wy-ck #send,html.wy-sky form#f.wy-ck #stop{margin-left:auto}}
+
+/* ===== 2026-10 alignment pass with the LarkquillAI design layer (lq.css): editorial serif wordmark, ink-black
+   pills, frosted 24px bubbles with soft layered shadows, a blur(50px) composer, dusk-sky palette (sky.js). ===== */
+@font-face{font-family:"LQ Serif";src:url(fonts/newsreader-light.woff2) format("woff2");font-weight:300 400;font-style:normal;font-display:swap}
+@font-face{font-family:"LQ Serif";src:url(fonts/newsreader-light-italic.woff2) format("woff2");font-weight:300 400;font-style:italic;font-display:swap}
+html.wy-sky{--ink:#141414;--ink-soft:rgba(20,20,20,.55);--lq-ease:cubic-bezier(.24,.42,.42,.92);
+  --c-shadow:0 1px 2px rgba(29,29,31,.1),0 3px 8px rgba(29,29,31,.07),0 8px 40px rgba(29,29,31,.12);
+  --c-milk:rgba(255,255,255,.5);--c-line:transparent}
+html.wy-sky body{font-feature-settings:"ss01","cv11";letter-spacing:.0008em}
+/* wordmark: light serif, italic accent */
+html.wy-sky header h1{font-family:"LQ Serif","Iowan Old Style",Georgia,serif!important;font-weight:300!important;font-size:23px!important;letter-spacing:-.01em!important;line-height:1}
+html.wy-sky header h1 em{font-style:italic;opacity:.62}
+html.wy-sky header .logo{width:26px!important;height:26px!important;border-radius:8px!important;box-shadow:none!important;filter:none!important}
+html.wy-sky header .logo::after,html.wy-sky header .logo::before{display:none!important}
+/* header pills: quiet frosted tertiary, no outline; the gear and menu are round */
+html.wy-sky header button:not(.wy-avatar),html.wy-sky header select,html.wy-sky .wy-hamb,html.wy-sky header #wy-gear,html.wy-sky header a.btn,html.wy-sky header a[href]:not(.logo){
+  background:rgba(255,255,255,.42)!important;border:0!important;box-shadow:none!important;color:var(--ink)!important;height:34px!important;padding:0 15px!important;font-size:13.5px!important;
+  -webkit-backdrop-filter:blur(50px) saturate(160%);backdrop-filter:blur(50px) saturate(160%);transition:background-color .24s var(--lq-ease),transform .24s var(--lq-ease)}
+html.wy-sky header button:not(.wy-avatar):hover,html.wy-sky header a[href]:not(.logo):hover{background:rgba(255,255,255,.72)!important}
+html.wy-sky header button:active{transform:scale(.97)}
+html.wy-sky header #wy-gear,html.wy-sky .wy-hamb{width:34px!important;padding:0!important;justify-content:center}
+/* bubbles: Hark-style soft frosted shapes, 24px corners, layered shadow, no outline */
+html.wy-sky .msg.a .bub{background:rgba(247,247,244,.8)!important;border:0!important;border-radius:24px!important;padding:14px 18px!important;box-shadow:var(--c-shadow)!important;color:var(--ink)!important;
+  -webkit-backdrop-filter:blur(50px) saturate(170%);backdrop-filter:blur(50px) saturate(170%)}
+html.wy-sky .msg.u .bub{background:rgba(20,20,20,.86)!important;border-radius:24px!important;padding:12px 17px!important;box-shadow:0 1px 2px rgba(29,29,31,.12),0 8px 24px rgba(29,29,31,.16)!important}
+html.wy-sky .md pre,html.wy-sky .msg.a .bub pre{border-radius:18px!important;border:0!important;background:rgba(255,255,255,.72)!important}
+html.wy-sky .fcard,html.wy-sky .ctask,html.wy-sky .card,html.wy-sky .artchip{border:0!important;border-radius:24px!important;background:rgba(255,255,255,.82)!important}
+/* composer: one frosted capsule, ink send button */
+html.wy-sky form#f{background:rgba(255,255,255,.5)!important;border:0!important;border-radius:28px!important;box-shadow:var(--c-shadow)!important;
+  -webkit-backdrop-filter:blur(50px) saturate(180%);backdrop-filter:blur(50px) saturate(180%);transition:background-color .24s var(--lq-ease),box-shadow .24s var(--lq-ease)}
+html.wy-sky form#f:focus-within{background:rgba(255,255,255,.74)!important;box-shadow:0 0 0 2px rgba(20,20,20,.12),var(--c-shadow)!important}
+html.wy-sky form#f #q{color:var(--ink)!important}html.wy-sky form#f #q::placeholder{color:rgba(20,20,20,.42)!important}
+html.wy-sky form#f #send,html.wy-sky form#f #stop{background:var(--ink)!important;box-shadow:none!important;transition:transform .24s var(--lq-ease),opacity .24s var(--lq-ease)}
+html.wy-sky form#f #send:hover{transform:scale(1.04)}html.wy-sky form#f #send:disabled{background:rgba(20,20,20,.2)!important;transform:none}
+html.wy-sky .wy-pill,html.wy-sky form#f .ctmode{background:rgba(20,20,20,.06)!important}
+html.wy-sky .wy-pillmenu,html.wy-sky .wy-dialog,html.wy-sky .wy-settings,html.wy-sky .wy-menu,html.wy-sky .wy-sl{border:0!important;border-radius:24px!important;box-shadow:0 1px 2px rgba(29,29,31,.1),0 8px 40px rgba(29,29,31,.2)!important}
+html.wy-sky #histbar .hnew,html.wy-sky .wy-retry,html.wy-sky .wy-editrow .wy-primary,html.wy-sky .wy-sl button.pri,html.wy-sky .wy-settings .pri{background:var(--ink)!important}
+html.wy-sky #histbar{background:rgba(255,255,255,.42)!important;border-right:0!important;-webkit-backdrop-filter:blur(50px) saturate(170%);backdrop-filter:blur(50px) saturate(170%)}
+html.wy-sky #histbar .hitem.on{background:rgba(255,255,255,.8)!important;box-shadow:none!important}
+/* sign-in dialog: black pill buttons, soft fields, small legal line */
+html.wy-sky .wy-dialog .wy-dh{font-family:"LQ Serif","Iowan Old Style",Georgia,serif!important;font-weight:300!important;font-size:30px!important;letter-spacing:-.01em;line-height:1.12;color:var(--ink)!important}
+html.wy-sky .wy-dialog input{background:rgba(20,20,20,.05)!important;border:1px solid transparent!important;border-radius:14px!important;height:46px!important;color:var(--ink)!important;box-shadow:none!important}
+html.wy-sky .wy-dialog input:focus{background:#fff!important;box-shadow:0 0 0 2px rgba(20,20,20,.2)!important}
+html.wy-sky .wy-dialog button{border-radius:999px!important;transition:background-color .24s var(--lq-ease),transform .24s var(--lq-ease)}
+html.wy-sky .wy-dialog .primary,html.wy-sky .wy-dialog .wy-go,html.wy-sky .wy-dialog .wy-ok{background:var(--ink)!important;color:#fff!important;height:46px!important;font-weight:500!important;box-shadow:none!important}
+html.wy-sky .wy-dialog .primary:disabled,html.wy-sky .wy-dialog .wy-go:disabled{background:rgba(20,20,20,.18)!important;color:rgba(255,255,255,.9)!important}
+html.wy-sky .wy-dialog .wy-cancel{background:rgba(20,20,20,.05)!important;color:var(--ink)!important;border:0!important}
+html.wy-sky .wy-dialog .wy-or{color:rgba(20,20,20,.45)!important}
+html.wy-sky .wy-dialog .wy-legal,html.wy-sky .wy-dialog .wy-hint{color:rgba(20,20,20,.5)!important}
+/* night: Hark's evening scheme for your own messages (pale frosted glass, white type); replies stay milky for contrast */
+html.wy-sky-night .msg.u .bub{background:rgba(255,255,255,.16)!important;color:#fff!important;box-shadow:0 1px 2px rgba(0,0,0,.2),0 8px 30px rgba(0,0,0,.22)!important;-webkit-backdrop-filter:blur(50px) saturate(160%);backdrop-filter:blur(50px) saturate(160%)}
+html.wy-sky-night .msg.a .bub{background:rgba(247,247,244,.88)!important}
+html.wy-sky-night form#f{background:rgba(255,255,255,.8)!important}
+html.wy-sky-night header button:not(.wy-avatar),html.wy-sky-night header a[href]:not(.logo),html.wy-sky-night .wy-hamb,html.wy-sky-night header #wy-gear{background:rgba(255,255,255,.16)!important;color:#fff!important}
+html.wy-sky-night header button:not(.wy-avatar):hover,html.wy-sky-night header a[href]:not(.logo):hover{background:rgba(255,255,255,.26)!important}
+html.wy-sky-night header h1{color:#fff!important}
+@media(max-width:640px){html.wy-sky header h1{font-size:21px!important}html.wy-sky .msg.a .bub{padding:12px 15px!important}html.wy-sky .msg.u .bub{padding:11px 15px!important}}
+@media(max-width:640px){
+  html.wy-sky header{overflow-x:auto!important;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:6px!important}
+  html.wy-sky header::-webkit-scrollbar{display:none}
+  html.wy-sky header>*{flex:none}
+  html.wy-sky header button:not(.wy-avatar),html.wy-sky header a[href]:not(.logo){padding:0 12px!important;font-size:13px!important;height:32px!important}
+  html.wy-sky header #wy-gear,html.wy-sky .wy-hamb{width:32px!important}
+}
+/* focus: neutral ink ring instead of the old orange */
+html.wy-sky :focus-visible{outline:2px solid rgba(20,20,20,.35)!important;outline-offset:2px}
+html.wy-sky-night :focus-visible{outline-color:rgba(255,255,255,.6)!important}
+html.wy-sky .wy-dialog input:focus-visible,html.wy-sky form#f #q:focus-visible,html.wy-sky .wy-sl input:focus-visible{outline:none!important}
+html.wy-sky .wy-dialog .wy-methods{background:rgba(20,20,20,.05)!important;border:0!important}
+/* terminal: a dark frosted sheet with rounded top corners, warm prompt colours from term.js */
+html.wy-sky #panel{background:rgba(22,23,28,.94)!important;border:0!important;border-radius:24px 24px 0 0!important;margin:0 8px;overflow:hidden;box-shadow:0 -8px 40px rgba(20,20,40,.18)!important;
+  -webkit-backdrop-filter:blur(50px);backdrop-filter:blur(50px)}
+html.wy-sky .ptabs{border-bottom:1px solid rgba(255,255,255,.08)!important;color:rgba(255,255,255,.55)!important;height:42px!important;padding:0 10px 0 18px!important}
+html.wy-sky .ptabs b{color:#fff!important;border-bottom:0!important;font-weight:500!important;letter-spacing:.02em}
+html.wy-sky .ptabs button{background:rgba(255,255,255,.1)!important;color:#fff!important;border:0!important;border-radius:999px!important;height:28px!important;padding:0 12px!important;box-shadow:none!important}
+html.wy-sky .ptabs button:hover{background:rgba(255,255,255,.18)!important}
+html.wy-sky #xtree{background:transparent!important;border-right:1px solid rgba(255,255,255,.08)!important;color:rgba(255,255,255,.6)}
+html.wy-sky .xrow{color:rgba(255,255,255,.82)!important;border-radius:8px;margin:0 6px}html.wy-sky .xrow:hover{background:rgba(255,255,255,.08)!important}
+html.wy-sky .xterm,html.wy-sky .xterm-viewport,html.wy-sky .xterm-screen{background:transparent!important}
+html.wy-sky #viewer{background:rgba(250,250,248,.94)!important;border-left:0!important;-webkit-backdrop-filter:blur(50px);backdrop-filter:blur(50px);box-shadow:-8px 0 40px rgba(20,20,40,.12)}
+html.wy-sky #viewer .vhead{border-bottom:1px solid rgba(20,20,20,.08)!important}html.wy-sky #vcode{background:transparent!important;color:#141414!important}
+html.wy-sky #viewer .vhead button{border-radius:999px!important;background:rgba(20,20,20,.06)!important;color:#141414!important;border:0!important}
+html.wy-sky #viewer #vdl{background:#141414!important;color:#fff!important}
+html.wy-sky .ficon{background:rgba(20,20,20,.07)!important;color:#141414!important;border-radius:8px!important}
+html.wy-sky .fhead .primary,html.wy-sky .zipall{background:#141414!important;color:#fff!important;border-radius:999px!important}
+html.wy-sky{--accent:#e9a57e}
+html.wy-sky .wy-avatar{background:#141414!important;color:#fff!important;font-weight:500!important;box-shadow:none!important}
+html.wy-sky-night .wy-avatar{background:#fff!important;color:#141414!important}
+/* artifacts side panel (ide.js, desktop + Vercel chat): frosted sheet, ink pills, quiet selection */
+html.wy-sky #side{background:rgba(250,250,248,.9)!important;border:0!important;box-shadow:var(--c-shadow)!important;-webkit-backdrop-filter:blur(50px) saturate(170%);backdrop-filter:blur(50px) saturate(170%)}
+html.wy-sky #side .stool button,html.wy-sky #side button{border-radius:999px!important;border:0!important;box-shadow:none!important;background:rgba(20,20,20,.06)!important;color:#141414!important}
+html.wy-sky #side .stool .primary,html.wy-sky #side .brun{background:#141414!important;color:#fff!important}
+html.wy-sky #side .trow.tfile.on{background:rgba(20,20,20,.08)!important;color:#141414!important;border-radius:8px}
+html.wy-sky #side .stree{border-right-color:rgba(20,20,20,.08)!important;background:transparent!important}
+html.wy-sky #side .trow{color:#141414!important}html.wy-sky #side .trow.tdir{color:rgba(20,20,20,.5)!important}
+html.wy-sky header h1{white-space:nowrap}html.wy-sky header button,html.wy-sky header a{white-space:nowrap}

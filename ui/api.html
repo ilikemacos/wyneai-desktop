@@ -1,0 +1,193 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LarkquillAI API</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#111111">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#111111;--fg:#ececec;--muted:#9a9a9a;--rule:#2a2a2a;--card:#181818;--accent:#ff6a2b;--warn:#e0a03a;--bad:#e06a5a;--sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;font:15px/1.6 var(--sans);background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased}
+a{color:var(--fg);text-decoration:underline;text-decoration-color:#555;text-underline-offset:3px}a:hover{text-decoration-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--rule);min-height:56px;padding:10px 24px;display:flex;align-items:center;gap:10px}
+.logo{width:24px;height:24px;border-radius:5px}header h1{font-size:15px;margin:0;font-weight:600;letter-spacing:-.02em}.badge{font-size:13px;color:var(--muted)}
+header .who{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted)}
+main{max-width:860px;margin:0 auto;padding:28px 24px 80px}
+h2{font-size:14px;font-weight:600;margin:36px 0 12px;letter-spacing:-.01em}h2:first-child{margin-top:0}
+.sub{color:var(--muted);font-size:13px;margin:-6px 0 14px}
+button{background:transparent;color:var(--fg);border:1px solid #3a3a3a;border-radius:4px;height:32px;padding:0 12px;cursor:pointer;font:inherit;font-size:13px;font-weight:500}
+button:hover{background:var(--card);border-color:#555}button:disabled{opacity:.5;cursor:default}
+.primary{background:var(--accent);border:0;color:#111;font-weight:600}.primary:hover{background:#ff7d45}
+.danger:hover{border-color:var(--bad);color:var(--bad)}
+.card{border:1px solid var(--rule);border-radius:6px;background:var(--card);padding:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;color:var(--muted);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--rule)}
+td{padding:10px;border-bottom:1px solid var(--rule);vertical-align:middle}tr:last-child td{border-bottom:0}
+code,.mono{font-family:var(--mono);font-size:12px}
+.empty{color:var(--muted);font-size:13px;padding:14px 10px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input[type=text]{background:#0f0f0f;border:1px solid var(--rule);color:var(--fg);border-radius:4px;height:36px;padding:0 12px;font:inherit;outline:none;flex:1;min-width:180px}input:focus{border-color:#555}
+.newkey{border:1px solid var(--accent);border-radius:6px;padding:14px;margin-top:14px;background:#1a130f}
+.newkey .k{display:block;font-family:var(--mono);font-size:13px;word-break:break-all;background:#0c0c0c;border:1px solid var(--rule);border-radius:4px;padding:10px;margin:8px 0}
+.warn{color:var(--warn);font-size:13px}.err{color:var(--bad);font-size:13px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}@media(max-width:640px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{border:1px solid var(--rule);border-radius:6px;padding:12px;background:var(--card)}.tile .n{font-size:12px;color:var(--muted)}.tile .v{font-family:var(--mono);font-size:13px;margin-top:4px}
+.bar{height:4px;background:#262626;border-radius:2px;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--accent)}
+svg text{fill:var(--muted);font:10px var(--mono)}
+.tabs{display:flex;gap:4px;margin-bottom:8px}.tabs button{height:28px;font-size:12px}.tabs button.on{background:var(--card);border-color:#555}
+pre{font-family:var(--mono);background:#0c0c0c;border:1px solid var(--rule);border-radius:4px;padding:12px;font-size:12px;overflow:auto;margin:0;white-space:pre}
+.signin{text-align:center;padding:48px 16px}.signin p{color:var(--muted)}
+/* per-key usage, key reveal, curl */
+.spark{display:block}.keyrow{cursor:pointer}.keyrow.on td{background:rgba(127,127,160,.10)}
+.keytabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.keytabs button{height:28px;font-size:12px;border-radius:999px}.keytabs button.on{background:#1b1a24;color:#fff;border-color:#1b1a24}
+.newkey .k{display:flex;align-items:center;gap:8px}.newkey .k span{flex:1;min-width:0;word-break:break-all}
+.reveal-note{font-size:12px;color:var(--muted);margin-top:6px}
+.curlbox{position:relative;margin-top:12px}.curlbox pre{padding-right:84px}.curlbox button{position:absolute;top:8px;right:8px;height:26px;font-size:12px}
+</style><style>
+/* dashboard layout on the LarkquillAI design layer (lq.css) */
+main{max-width:920px}
+main>h2,#app>h2{margin:44px 0 6px!important}
+#app>h2:first-child{font-family:var(--lq-serif)!important;font-weight:300!important;font-size:44px!important;letter-spacing:-.01em!important;line-height:1.12;margin:20px 0 8px!important}
+.sub{font-size:14px!important;margin:0 0 16px!important}
+.newkey{margin-top:16px}.newkey strong{font-weight:500}
+.tiles{gap:12px!important}.tile .n{color:var(--lq-muted)!important}
+#conn th{width:auto}
+@media(max-width:640px){#conn,#conn tbody{display:block;overflow-x:auto}#app>h2:first-child{font-size:36px!important}header{padding:10px 16px!important}.card{padding:16px!important}}
+</style><link rel="stylesheet" href="lq.css"></head><body>
+<header><a href="index.html" style="display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none"><img class="logo" src="favicon.svg" alt=""><h1>Larkquill<em>AI</em></h1></a><span class="badge">API</span><span class="who" id="who"></span></header>
+<main>
+  <section id="signin" class="signin" hidden><h2>Sign in to manage API keys</h2><p>Sign in on LarkquillAI first, then come back to this page.</p><a href="index.html"><button class="primary">Open LarkquillAI</button></a></section>
+  <div id="app" hidden>
+    <h2>API keys</h2><p class="sub">Use a key to call LarkquillAI from your own code. Keys work like passwords, so keep them secret. Up to 5 active keys.</p>
+    <div class="card">
+      <form id="createForm" class="row"><input type="text" id="keyName" maxlength="60" placeholder="Key name, e.g. My game bot" aria-label="Key name"><button class="primary" id="createBtn">Create key</button></form>
+      <div id="createErr" class="err" hidden></div>
+      <div id="newKey" class="newkey" hidden><strong>Your new key</strong><div class="k"><span id="newKeyVal" class="mono"></span><button id="revealBtn" type="button">Reveal</button></div>
+        <div class="row"><button id="copyBtn" class="primary" type="button">Copy key</button><span class="warn" id="keyWarn">You'll only see this key once. Copy it now and keep it somewhere safe.</span><button id="doneBtn" type="button" style="margin-left:auto">Done</button></div>
+        <div class="curlbox"><pre id="newCurl"></pre><button id="copyCurl" type="button">Copy</button></div><div class="reveal-note">Ready to paste: a test request with your new key. It disappears when you press Done.</div></div>
+      <div style="margin-top:14px;overflow:auto"><table><thead><tr><th>Name</th><th>Key</th><th>Created</th><th>Last used</th><th>30-day use</th><th>Trend</th><th></th></tr></thead><tbody id="keys"></tbody></table></div>
+    </div>
+
+    <h2>Usage today</h2><p class="sub">API calls share your daily token limits with chat. They reset at 00:00 UTC<span id="resets"></span>.</p>
+    <div class="tiles" id="tiles"></div>
+
+    <h2>Last 30 days</h2><p class="sub">Tokens per day used by your API keys. Pick a key to see just its usage.</p>
+    <div class="card"><div class="keytabs" id="keyTabs"></div><svg id="chart" viewBox="0 0 800 200" width="100%" role="img" aria-label="Daily API token usage"></svg><div id="byModel" class="sub" style="margin:8px 0 0"></div></div>
+  </div>
+
+  <h2>Connection details</h2><p class="sub">Paste these into any app with an "OpenAI-compatible" or "Generic OpenAI" option, like AnythingLLM, LibreChat, Open WebUI, or the OpenAI SDKs.</p>
+  <div class="card" style="margin-bottom:24px"><table id="conn">
+    <tr><th style="width:180px">Base URL</th><td><code id="cBase"></code></td><td style="width:80px;text-align:right"><button data-copy="cBase">Copy</button></td></tr>
+    <tr><th>API key</th><td>Your <code>wby_...</code> key from the API keys section, sent as <code>Authorization: Bearer wby_...</code></td><td></td></tr>
+    <tr><th>Chat endpoint</th><td><code id="cChat"></code></td><td style="text-align:right"><button data-copy="cChat">Copy</button></td></tr>
+    <tr><th>Models endpoint</th><td><code id="cModels"></code></td><td style="text-align:right"><button data-copy="cModels">Copy</button></td></tr>
+    <tr><th>Streaming</th><td>Supported (<code>"stream": true</code>, server-sent events)</td><td></td></tr>
+  </table>
+  <table style="margin-top:12px"><thead><tr><th>Model name</th><th>Context window</th><th>Daily tokens</th></tr></thead><tbody id="cModelRows"><tr><td colspan="3" class="sub">Loading models…</td></tr></tbody></table></div>
+
+  <h2>Quickstart</h2><p class="sub">Copy, set <code>LARKQUILL_API_KEY</code>, and run.</p><div class="curlbox" style="margin-bottom:12px"><pre id="curlQuick"></pre><button id="copyQuick" type="button">Copy</button></div><p class="sub">The API is OpenAI-compatible. Base URL <code id="baseUrl"></code>. Models: <code>larkquill-chirp-1</code>, <code>larkquill-trill-1</code>, <code>larkquill-aria-1.5</code>, <code>larkquill-chorus-0.7</code>. Older <code>wrenby-*</code> IDs and the old base URL still work.</p>
+  <div class="tabs" id="tabs"><button data-t="curl" class="on">curl</button><button data-t="python">Python</button><button data-t="js">JavaScript</button><button data-t="anythingllm">AnythingLLM</button></div>
+  <pre id="code"></pre>
+  <p class="sub" style="margin-top:12px">Limits per key: 20 requests a minute and 300 a day (Chorus counts as 3, max 30 a day). Errors use the OpenAI format: 401 bad key, 400 bad request, 429 rate or token limit.</p>
+</main>
+<script type="module">
+const LS = "wy.token";
+const BASE = /\.vercel\.app$|(^|\.)chopstickshq\.com$/.test(location.hostname) ? "" : "https://larkquillai.vercel.app";
+// Public API base (the API runs on Vercel; GitHub Pages is static). Old bases (preset-ai-chat.vercel.app/v1, wrenbyai.chopstickshq.com/v1) still work.
+const API_BASE = "https://larkquillai.vercel.app/v1";
+const $ = id => document.getElementById(id);
+const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); for (const k of kids) e.append(k); return e; };
+const fmt = n => n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? Math.round(n / 1e3) + "k" : String(n);
+const when = d => d ? new Date(d).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "Never";
+function api(path, { method = "GET", body } = {}) {
+  const headers = {}; const tok = localStorage.getItem(LS);
+  if (tok) headers.authorization = "Bearer " + tok; if (body !== undefined) headers["content-type"] = "application/json";
+  return fetch(BASE + path, { method, headers, credentials: "include", body: body !== undefined ? JSON.stringify(body) : undefined });
+}
+
+// ---------- docs ----------
+const SNIP = {
+  curl: `curl ${API_BASE}/chat/completions \\\n  -H "Authorization: Bearer $LARKQUILL_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "model": "larkquill-chirp-1",\n    "messages": [{"role": "user", "content": "Give me a fun fact about GPUs"}]\n  }'`,
+  python: `# pip install openai\nfrom openai import OpenAI\n\nclient = OpenAI(api_key="wby_...", base_url="${API_BASE}")\n\nr = client.chat.completions.create(\n    model="larkquill-chirp-1",\n    messages=[{"role": "user", "content": "Give me a fun fact about GPUs"}],\n)\nprint(r.choices[0].message.content)\n\n# streaming\nfor chunk in client.chat.completions.create(model="wrenby-trill-1", messages=[{"role": "user", "content": "Write a haiku"}], stream=True):\n    if chunk.choices and chunk.choices[0].delta.content:\n        print(chunk.choices[0].delta.content, end="")`,
+  js: `const r = await fetch("${API_BASE}/chat/completions", {\n  method: "POST",\n  headers: { "Authorization": "Bearer " + LARKQUILL_API_KEY, "Content-Type": "application/json" },\n  body: JSON.stringify({\n    model: "larkquill-chirp-1",\n    messages: [{ role: "user", content: "Give me a fun fact about GPUs" }],\n  }),\n});\nconst data = await r.json();\nconsole.log(data.choices[0].message.content);`,
+  anythingllm: `AnythingLLM → Settings → AI Providers → LLM → "Generic OpenAI"\n\nBase URL              ${API_BASE}\nAPI Key               wby_... (your key)\nChat Model Name       larkquill-chirp-1\nToken context window  16000\nMax Tokens            4096\n\nAny app with an "OpenAI-compatible" or "Generic OpenAI" option takes the same three things:\nthe Base URL, your key, and a model (larkquill-chirp-1, wrenby-trill-1, wrenby-aria-1.5 or wrenby-chorus-0.7).`,
+};
+$("baseUrl").textContent = API_BASE;
+$("cBase").textContent = API_BASE; $("cChat").textContent = API_BASE + "/chat/completions"; $("cModels").textContent = API_BASE + "/models";
+document.querySelectorAll("[data-copy]").forEach(b => b.onclick = async () => { try { await navigator.clipboard.writeText($(b.dataset.copy).textContent); b.textContent = "Copied"; setTimeout(() => b.textContent = "Copy", 1500); } catch {} });
+fetch(API_BASE + "/models").then(r => r.json()).then(j => { const tb = $("cModelRows"); tb.replaceChildren();
+  for (const m of j.data || []) tb.append(el("tr", {}, el("td", {}, el("code", { textContent: m.id })), el("td", { textContent: Number(m.context_window).toLocaleString() + " tokens" }), el("td", { textContent: Number(m.daily_token_limit).toLocaleString() })));
+}).catch(() => { $("cModelRows").replaceChildren(el("tr", {}, el("td", { colSpan: 3, className: "sub", textContent: "Couldn't load the model list." }))); });
+const showTab = t => { $("code").textContent = SNIP[t]; for (const b of $("tabs").children) b.classList.toggle("on", b.dataset.t === t); };
+$("tabs").onclick = e => { if (e.target.dataset.t) showTab(e.target.dataset.t); }; showTab("curl");
+
+// ---------- keys + usage ----------
+async function load() {
+  let r; try { r = await api("/api/keys"); } catch { $("signin").hidden = false; return; }
+  if (r.status === 401) { $("signin").hidden = false; $("app").hidden = true; return; }
+  const j = await r.json(); if (!r.ok) { $("createErr").textContent = j.error || "Couldn't load keys."; $("createErr").hidden = false; return; }
+  $("signin").hidden = true; $("app").hidden = false;
+  try { const me = await (await api("/api/auth/me")).json(); if (me?.user?.email) $("who").textContent = me.user.email; } catch {}
+  KEYS = j.keys; DAILY = j.daily || []; renderKeys(j.keys); renderTiles(j.limits); renderKeyTabs(); renderChart(DAILY.filter(r => !SEL || r.key_id === SEL));
+}
+let KEYS = [], DAILY = [], SEL = null;
+const last30 = () => { const out = [], now = new Date(); for (let i = 29; i >= 0; i--) out.push(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - i)).toISOString().slice(0, 10)); return out; };
+function sparkFor(id) { const days = last30(), per = Object.fromEntries(days.map(d => [d, 0])); for (const r of DAILY) if (r.key_id === id && r.day in per) per[r.day] += r.tokens;
+  const v = days.map(d => per[d]), mx = Math.max(1, ...v), W = 90, H = 22, ns = "http://www.w3.org/2000/svg", s = document.createElementNS(ns, "svg");
+  s.setAttribute("viewBox", `0 0 ${W} ${H}`); s.setAttribute("width", W); s.setAttribute("height", H); s.setAttribute("class", "spark"); s.setAttribute("role", "img"); s.setAttribute("aria-label", "30-day token trend");
+  const pl = document.createElementNS(ns, "polyline"); pl.setAttribute("points", v.map((x, i) => `${(i * (W - 2)) / 29 + 1},${H - 2 - (x / mx) * (H - 4)}`).join(" ")); pl.setAttribute("fill", "none"); pl.setAttribute("stroke", v.some(Boolean) ? "currentColor" : "#bbb"); pl.setAttribute("stroke-width", "1.6"); s.append(pl); return s; }
+function renderKeyTabs() { const t = $("keyTabs"); t.replaceChildren(); if (!KEYS.length) return; if (SEL && !KEYS.some(k => k.id === SEL)) SEL = null;
+  for (const k of [{ id: null, name: "All keys" }, ...KEYS]) { const b = el("button", { type: "button", textContent: k.name, className: SEL === k.id ? "on" : "" }); b.onclick = () => selectKey(k.id); t.append(b); } }
+function selectKey(id) { SEL = id; renderKeyTabs(); document.querySelectorAll(".keyrow").forEach(r => r.classList.toggle("on", r.dataset.id === id)); renderChart(DAILY.filter(r => !SEL || r.key_id === SEL)); }
+function renderKeys(keys) {
+  const tb = $("keys"); tb.replaceChildren();
+  if (!keys.length) { tb.append(el("tr", {}, el("td", { colSpan: 7, className: "empty", textContent: "No keys yet. Create one above." }))); }
+  for (const k of keys) {
+    const del = el("button", { className: "danger", textContent: "Revoke" });
+    del.onclick = async () => { if (!confirm(`Revoke "${k.name}"? Apps using it will stop working right away.`)) return; del.disabled = true;
+      const r = await api("/api/keys?id=" + encodeURIComponent(k.id), { method: "DELETE" }); if (r.ok) load(); else { del.disabled = false; alert("Couldn't revoke the key."); } };
+    const tr = el("tr", { className: "keyrow" + (SEL === k.id ? " on" : ""), title: "Show this key's usage in the chart" }, el("td", { textContent: k.name }), el("td", { className: "mono", textContent: k.prefix + "…" }), el("td", { textContent: when(k.created_at) }),
+      el("td", { textContent: when(k.last_used_at) }), el("td", { className: "mono", textContent: `${k.requests_30d} req · ${fmt(k.tokens_30d)} tok` }), el("td", {}, sparkFor(k.id)), el("td", { style: "text-align:right" }, del));
+    tr.dataset.id = k.id; tr.onclick = e => { if (!e.target.closest("button")) selectKey(SEL === k.id ? null : k.id); }; tb.append(tr);
+  }
+  $("createBtn").disabled = keys.length >= 5; $("keyName").placeholder = keys.length >= 5 ? "Revoke a key to create another" : "Key name, e.g. My game bot";
+}
+function renderTiles(limits) {
+  const t = $("tiles"); t.replaceChildren(); if (!limits?.modes) return;
+  $("resets").textContent = limits.resetsIn ? ", in " + limits.resetsIn : "";
+  for (const m of Object.values(limits.modes)) { const pct = Math.min(100, (m.used / m.limit) * 100);
+    const bar = el("div", { className: "bar" }, el("i", { style: `width:${pct.toFixed(1)}%` }));
+    t.append(el("div", { className: "tile" }, el("div", { className: "n", textContent: m.name }), el("div", { className: "v", textContent: `${fmt(m.used)} / ${fmt(m.limit)}` }), bar)); }
+}
+function renderChart(daily) {
+  const svg = $("chart"), W = 800, H = 200, P = { l: 44, r: 10, t: 10, b: 24 }; svg.replaceChildren();
+  const days = last30();
+  const per = Object.fromEntries(days.map(d => [d, 0])), byMode = {};
+  for (const r of daily || []) { if (r.day in per) per[r.day] += r.tokens; byMode[r.mode] = (byMode[r.mode] || 0) + r.tokens; }
+  const vals = days.map(d => per[d]), max = Math.max(1, ...vals), ns = "http://www.w3.org/2000/svg";
+  const mk = (tag, attrs, text) => { const e = document.createElementNS(ns, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (text != null) e.textContent = text; svg.append(e); return e; };
+  const x = i => P.l + (i * (W - P.l - P.r)) / (days.length - 1), y = v => H - P.b - (v / max) * (H - P.t - P.b);
+  for (const f of [0, .5, 1]) { mk("line", { x1: P.l, x2: W - P.r, y1: y(max * f), y2: y(max * f), stroke: "rgba(127,127,160,.25)" }); mk("text", { x: P.l - 6, y: y(max * f) + 3, "text-anchor": "end" }, fmt(Math.round(max * f))); }
+  const pts = vals.map((v, i) => `${x(i)},${y(v)}`).join(" ");
+  mk("polygon", { points: `${x(0)},${y(0)} ${pts} ${x(days.length - 1)},${y(0)}`, fill: "currentColor", "fill-opacity": .08 });
+  mk("polyline", { points: pts, fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linejoin": "round" });
+  for (const i of [0, 10, 20, 29]) mk("text", { x: x(i), y: H - 6, "text-anchor": i === 0 ? "start" : i === 29 ? "end" : "middle" }, days[i].slice(5));
+  const total = vals.reduce((a, b) => a + b, 0);
+  $("byModel").textContent = total ? "By model: " + Object.entries(byMode).map(([m, n]) => `${({ spark: "Chirp 1", turbo: "Trill 1", forge: "Aria 1.5", zenith: "Chorus 0.7" })[m] || m} ${fmt(n)}`).join(" · ") : (SEL ? "No usage for this key in the last 30 days." : "No API usage yet.");
+}
+
+$("createForm").onsubmit = async e => { e.preventDefault(); $("createErr").hidden = true; $("createBtn").disabled = true;
+  try { const r = await api("/api/keys", { method: "POST", body: { name: $("keyName").value } }); const j = await r.json();
+    if (!r.ok) { $("createErr").textContent = j.error || "Couldn't create the key."; $("createErr").hidden = false; return; }
+    showNewKey(j.key); $("keyName").value = ""; await load();
+  } catch { $("createErr").textContent = "Network error. Try again."; $("createErr").hidden = false; } finally { $("createBtn").disabled = false; } };
+// Copy-once reveal: the full key lives only in this closure until Done; it's masked unless revealed, and never re-fetchable.
+let NEWKEY = "", shown = false;
+const mask = k => k.slice(0, 8) + "•".repeat(20) + k.slice(-4);
+const curlFor = k => `curl ${API_BASE}/chat/completions \\\n  -H "Authorization: Bearer ${k}" \\\n  -H "Content-Type: application/json" \\\n  -d '{"model": "larkquill-chirp-1", "messages": [{"role": "user", "content": "Say hello"}]}'`;
+function showNewKey(k) { NEWKEY = k; shown = false; $("newKeyVal").textContent = mask(k); $("revealBtn").textContent = "Reveal"; $("copyBtn").textContent = "Copy key";
+  $("newCurl").textContent = curlFor(mask(k)); $("newKey").hidden = false; }
+$("revealBtn").onclick = () => { if (!NEWKEY) return; shown = !shown; $("newKeyVal").textContent = shown ? NEWKEY : mask(NEWKEY); $("newCurl").textContent = curlFor(shown ? NEWKEY : mask(NEWKEY)); $("revealBtn").textContent = shown ? "Hide" : "Reveal"; };
+$("copyBtn").onclick = async () => { if (!NEWKEY) return; try { await navigator.clipboard.writeText(NEWKEY); $("copyBtn").textContent = "Copied"; $("keyWarn").textContent = "Copied. Store it now: once you press Done it's gone from this page for good."; } catch { $("copyBtn").textContent = "Copy failed"; } };
+$("copyCurl").onclick = async () => { if (!NEWKEY) return; try { await navigator.clipboard.writeText(curlFor(NEWKEY)); $("copyCurl").textContent = "Copied"; setTimeout(() => $("copyCurl").textContent = "Copy", 1500); } catch {} };
+$("doneBtn").onclick = () => { NEWKEY = ""; shown = false; $("newKeyVal").textContent = ""; $("newCurl").textContent = ""; $("newKey").hidden = true; };
+$("curlQuick").textContent = `curl ${API_BASE}/chat/completions \\\n  -H "Authorization: Bearer $LARKQUILL_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"model": "larkquill-chirp-1", "messages": [{"role": "user", "content": "Say hello"}]}'`;
+$("copyQuick").onclick = async () => { try { await navigator.clipboard.writeText($("curlQuick").textContent); $("copyQuick").textContent = "Copied"; setTimeout(() => $("copyQuick").textContent = "Copy", 1500); } catch {} };
+load();
+</script></body></html>
