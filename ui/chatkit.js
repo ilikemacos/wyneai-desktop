@@ -8,7 +8,7 @@ const wyMode = v => { const s = String(v || "").toLowerCase(); if (!s) return v;
 // Styles live in sky.css (it is kept as the last stylesheet, so they win over older themes).
 export const MODELS = [
   { id: "spark",  name: "Quill Wren 1.2",      hint: "Fastest · Hobby" },
-  { id: "turbo",  name: "Quill Scribe 1",    hint: "Balanced · Hobby · default" },
+  { id: "turbo",  name: "Quill Scribe 1.1",    hint: "Balanced · Hobby · default" },
   { id: "forge",  name: "Quill Sage 1.5",      hint: "Smarter · Pro" },
   { id: "zenith", name: "Quill Sovereign 0.5", hint: "Most capable · Max" },
 ];

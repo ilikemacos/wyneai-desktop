@@ -90,7 +90,7 @@ main>h2,#app>h2,#admin>h2{margin:44px 0 6px!important}
   </table>
   <table style="margin-top:12px"><thead><tr><th>Model name</th><th>Context window</th><th>Daily tokens</th><th>Plan</th></tr></thead><tbody id="cModelRows"><tr><td colspan="4" class="sub">Loading models…</td></tr></tbody></table></div>
 
-  <h2>Quickstart</h2><p class="sub">Copy, set <code>LARKQUILL_API_KEY</code>, and run.</p><div class="curlbox" style="margin-bottom:12px"><pre id="curlQuick"></pre><button id="copyQuick" type="button">Copy</button></div><p class="sub">The API is OpenAI-compatible. Base URL <code id="baseUrl"></code>. Models: <code>quill-wren</code> (Quill Wren 1.2, fast and lightweight), <code>quill-scribe</code> (Quill Scribe 1, everyday default), <code>quill-sage</code> (Quill Sage 1.5, advanced reasoning, Pro), <code>quill-sovereign</code> (Quill Sovereign 0.5, most capable flagship, Max). Older IDs (<code>larkquill-chirp-1.1</code>, <code>larkquill-trill-1</code>, <code>larkquill-aria-1.5</code>, <code>larkquill-chorus-0.7</code>, <code>wrenby-*</code>) and the old base URL still work.</p>
+  <h2>Quickstart</h2><p class="sub">Copy, set <code>LARKQUILL_API_KEY</code>, and run.</p><div class="curlbox" style="margin-bottom:12px"><pre id="curlQuick"></pre><button id="copyQuick" type="button">Copy</button></div><p class="sub">The API is OpenAI-compatible. Base URL <code id="baseUrl"></code>. Models: <code>quill-wren</code> (Quill Wren 1.2, fast and lightweight), <code>quill-scribe</code> (Quill Scribe 1.1, everyday default), <code>quill-sage</code> (Quill Sage 1.5, advanced reasoning, Pro), <code>quill-sovereign</code> (Quill Sovereign 0.5, most capable flagship, Max). Older IDs (<code>larkquill-chirp-1.1</code>, <code>larkquill-trill-1</code>, <code>larkquill-aria-1.5</code>, <code>larkquill-chorus-0.7</code>, <code>wrenby-*</code>) and the old base URL still work.</p>
   <div class="tabs" id="tabs"><button data-t="curl" class="on">curl</button><button data-t="python">Python</button><button data-t="js">JavaScript</button><button data-t="anythingllm">AnythingLLM</button></div>
   <pre id="code"></pre>
   <p class="sub" style="margin-top:12px">Limits per key: 20 requests a minute and 300 a day (Quill Sovereign 0.5 counts as 3, max 30 a day). Errors use the OpenAI format: 401 bad key, 400 bad request, 429 rate or token limit.</p>
@@ -139,7 +139,7 @@ async function load() {
 let KEYS = [], DAILY = [], SEL = null;
 // ---------- plan + owner admin (POST /api/billing) ----------
 const bill = body => api("/api/billing", { method: "POST", body });
-const PN = { hobby: "Hobby", pro: "Pro", max: "Max" }, PM = { hobby: "Quill Wren 1.2 and Quill Scribe 1", pro: "Quill Wren 1.2, Quill Scribe 1 and Quill Sage 1.5", max: "every model, including Quill Sovereign 0.5" };
+const PN = { hobby: "Hobby", pro: "Pro", max: "Max" }, PM = { hobby: "Quill Wren 1.2 and Quill Scribe 1.1", pro: "Quill Wren 1.2, Quill Scribe 1.1 and Quill Sage 1.5", max: "every model, including Quill Sovereign 0.5" };
 async function loadPlan() {
   try { const j = await (await bill({ action: "plan" })).json(); if (!j.ok) return;
     $("planName").textContent = `LarkquillAI ${j.name}${j.owner ? " · owner" : ""}`; $("planModels").textContent = "Includes " + PM[j.plan] + ".";
@@ -219,7 +219,7 @@ function renderChart(daily) {
   mk("polyline", { points: pts, fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linejoin": "round" });
   for (const i of [0, 10, 20, 29]) mk("text", { x: x(i), y: H - 6, "text-anchor": i === 0 ? "start" : i === 29 ? "end" : "middle" }, days[i].slice(5));
   const total = vals.reduce((a, b) => a + b, 0);
-  $("byModel").textContent = total ? "By model: " + Object.entries(byMode).map(([m, n]) => `${({ spark: "Quill Wren 1.2", turbo: "Quill Scribe 1", forge: "Quill Sage 1.5", zenith: "Quill Sovereign 0.5" })[m] || m} ${fmt(n)}`).join(" · ") : (SEL ? "No usage for this key in the last 30 days." : "No API usage yet.");
+  $("byModel").textContent = total ? "By model: " + Object.entries(byMode).map(([m, n]) => `${({ spark: "Quill Wren 1.2", turbo: "Quill Scribe 1.1", forge: "Quill Sage 1.5", zenith: "Quill Sovereign 0.5" })[m] || m} ${fmt(n)}`).join(" · ") : (SEL ? "No usage for this key in the last 30 days." : "No API usage yet.");
 }
 
 $("createForm").onsubmit = async e => { e.preventDefault(); $("createErr").hidden = true; $("createBtn").disabled = true;
