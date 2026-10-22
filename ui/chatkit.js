@@ -1,17 +1,19 @@
+// Stored model preferences may hold an old ID or name (larkquill-chirp-1.1, Chirp 1.1, quill-wren): map them to mode keys.
+const wyMode = v => { const s = String(v || "").toLowerCase(); if (!s) return v; if (["spark", "turbo", "forge", "zenith"].includes(s)) return s; const n = s.replace(/^(larkquill|wrenby|quill)(ai)?[\s/-]+/, "").replace(/[\s-]*[\d.]+$/, ""); return ({ chirp: "spark", wren: "spark", trill: "turbo", scribe: "turbo", aria: "forge", sage: "forge", chorus: "zenith", sovereign: "zenith" })[n] || v; };
 // LarkquillAI chat kit: shared composer + message UI for the Vercel app and the GitHub Pages copy.
 //  - image attachments (button, paste, drag and drop) with client-side downscale (max side 1568px) + WebP/JPEG compression
-//  - model pill (Chirp/Trill/Aria/Chorus), persisted per user
+//  - model pill (Quill Wren/Quill Scribe/Quill Sage/Quill Sovereign), persisted per user
 //  - Stop button while streaming, Retry buttons, message actions (copy / regenerate / edit and resend)
 //  - code blocks: language label + copy button + highlight.js (vendored in ./md/) with a light sky palette
 // Styles live in sky.css (it is kept as the last stylesheet, so they win over older themes).
 export const MODELS = [
-  { id: "spark",  name: "Chirp 1",       hint: "Fastest, short answers" },
-  { id: "turbo",  name: "Trill 1",       hint: "Fast, longer answers" },
-  { id: "forge",  name: "Aria 1.5",      hint: "Balanced, big memory" },
-  { id: "zenith", name: "Chorus 0.7",    hint: "Deepest, slower, uses the most" },
+  { id: "spark",  name: "Quill Wren",      hint: "Fast and lightweight" },
+  { id: "turbo",  name: "Quill Scribe",    hint: "Everyday default" },
+  { id: "forge",  name: "Quill Sage",      hint: "Advanced reasoning" },
+  { id: "zenith", name: "Quill Sovereign", hint: "Most capable flagship" },
 ];
 export const QUOTA_TIERS = new Set([]);
-// Plans (enforced server-side; this only paints locks): Hobby = Chirp + Trill, Pro adds Aria, Max = every model.
+// Plans (enforced server-side; this only paints locks): Hobby = Quill Wren + Quill Scribe, Pro adds Quill Sage, Max = every model.
 export const MODE_PLAN = { spark: "hobby", turbo: "hobby", forge: "pro", zenith: "max" };
 const PLAN_RANK = { hobby: 0, pro: 1, max: 2 }, PLAN_NAME = { hobby: "Hobby", pro: "Pro", max: "Max" };
 export const UPGRADE_PAGE = "https://ilikemacos.github.io/larkquillai/plans.html";
@@ -167,7 +169,7 @@ export function initChatKit(o) {
     try { const tok = localStorage.getItem("wy.token"); const r = await fetch(o.apiBase + "/api/billing?action=plan", { headers: tok ? { authorization: "Bearer " + tok } : {}, credentials: "include" });
       const p = r.status === 401 ? "hobby" : r.ok ? (await r.json()).plan : null; if (!p || !PLAN_RANK.hasOwnProperty(p)) return;
       st.plan = p; if (!planAllows(p, st.tier)) setTier(bestAllowed(), false); paintPill(); if (!menu.hidden) paintMenu(); o.onPlan?.(p); } catch {} }
-  const saved = localStorage.getItem("wy.model") || (sel && sel.value) || "forge"; setTier(MODELS.some(m => m.id === saved) ? saved : "forge", false); refreshQuota(); refreshPlan();
+  const saved = wyMode(localStorage.getItem("wy.model")) || (sel && sel.value) || "forge"; setTier(MODELS.some(m => m.id === saved) ? saved : "forge", false); refreshQuota(); refreshPlan();
   return {
     get tier() { return st.tier; }, get plan() { return st.plan; }, refreshPlan, get images() { return st.images; }, get signedIn() { return st.signedIn; }, isQuotaTier: id => QUOTA_TIERS.has(id ?? st.tier),
     takeImages() { const a = st.images; st.images = []; paintTray(); return a; },

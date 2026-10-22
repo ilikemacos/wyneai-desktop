@@ -90,10 +90,10 @@ main>h2,#app>h2,#admin>h2{margin:44px 0 6px!important}
   </table>
   <table style="margin-top:12px"><thead><tr><th>Model name</th><th>Context window</th><th>Daily tokens</th><th>Plan</th></tr></thead><tbody id="cModelRows"><tr><td colspan="4" class="sub">Loading models…</td></tr></tbody></table></div>
 
-  <h2>Quickstart</h2><p class="sub">Copy, set <code>LARKQUILL_API_KEY</code>, and run.</p><div class="curlbox" style="margin-bottom:12px"><pre id="curlQuick"></pre><button id="copyQuick" type="button">Copy</button></div><p class="sub">The API is OpenAI-compatible. Base URL <code id="baseUrl"></code>. Models: <code>larkquill-chirp-1</code>, <code>larkquill-trill-1</code>, <code>larkquill-aria-1.5</code>, <code>larkquill-chorus-0.7</code>. Older <code>wrenby-*</code> IDs and the old base URL still work.</p>
+  <h2>Quickstart</h2><p class="sub">Copy, set <code>LARKQUILL_API_KEY</code>, and run.</p><div class="curlbox" style="margin-bottom:12px"><pre id="curlQuick"></pre><button id="copyQuick" type="button">Copy</button></div><p class="sub">The API is OpenAI-compatible. Base URL <code id="baseUrl"></code>. Models: <code>quill-wren</code> (Quill Wren, fast and lightweight), <code>quill-scribe</code> (Quill Scribe, everyday default), <code>quill-sage</code> (Quill Sage, advanced reasoning, Pro), <code>quill-sovereign</code> (Quill Sovereign, most capable flagship, Max). Older IDs (<code>larkquill-chirp-1.1</code>, <code>larkquill-chirp-1</code>, <code>larkquill-trill-1</code>, <code>larkquill-aria-1.5</code>, <code>larkquill-chorus-0.7</code>, <code>wrenby-*</code>) and the old base URL still work.</p>
   <div class="tabs" id="tabs"><button data-t="curl" class="on">curl</button><button data-t="python">Python</button><button data-t="js">JavaScript</button><button data-t="anythingllm">AnythingLLM</button></div>
   <pre id="code"></pre>
-  <p class="sub" style="margin-top:12px">Limits per key: 20 requests a minute and 300 a day (Chorus counts as 3, max 30 a day). Errors use the OpenAI format: 401 bad key, 400 bad request, 429 rate or token limit.</p>
+  <p class="sub" style="margin-top:12px">Limits per key: 20 requests a minute and 300 a day (Quill Sovereign counts as 3, max 30 a day). Errors use the OpenAI format: 401 bad key, 400 bad request, 429 rate or token limit.</p>
 </main>
 <script type="module">
 const LS = "wy.token";
@@ -112,10 +112,10 @@ function api(path, { method = "GET", body } = {}) {
 
 // ---------- docs ----------
 const SNIP = {
-  curl: `curl ${API_BASE}/chat/completions \\\n  -H "Authorization: Bearer $LARKQUILL_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "model": "larkquill-chirp-1",\n    "messages": [{"role": "user", "content": "Give me a fun fact about GPUs"}]\n  }'`,
-  python: `# pip install openai\nfrom openai import OpenAI\n\nclient = OpenAI(api_key="wby_...", base_url="${API_BASE}")\n\nr = client.chat.completions.create(\n    model="larkquill-chirp-1",\n    messages=[{"role": "user", "content": "Give me a fun fact about GPUs"}],\n)\nprint(r.choices[0].message.content)\n\n# streaming\nfor chunk in client.chat.completions.create(model="wrenby-trill-1", messages=[{"role": "user", "content": "Write a haiku"}], stream=True):\n    if chunk.choices and chunk.choices[0].delta.content:\n        print(chunk.choices[0].delta.content, end="")`,
-  js: `const r = await fetch("${API_BASE}/chat/completions", {\n  method: "POST",\n  headers: { "Authorization": "Bearer " + LARKQUILL_API_KEY, "Content-Type": "application/json" },\n  body: JSON.stringify({\n    model: "larkquill-chirp-1",\n    messages: [{ role: "user", content: "Give me a fun fact about GPUs" }],\n  }),\n});\nconst data = await r.json();\nconsole.log(data.choices[0].message.content);`,
-  anythingllm: `AnythingLLM → Settings → AI Providers → LLM → "Generic OpenAI"\n\nBase URL              ${API_BASE}\nAPI Key               wby_... (your key)\nChat Model Name       larkquill-chirp-1\nToken context window  16000\nMax Tokens            4096\n\nAny app with an "OpenAI-compatible" or "Generic OpenAI" option takes the same three things:\nthe Base URL, your key, and a model (larkquill-chirp-1, wrenby-trill-1, wrenby-aria-1.5 or wrenby-chorus-0.7).`,
+  curl: `curl ${API_BASE}/chat/completions \\\n  -H "Authorization: Bearer $LARKQUILL_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "model": "quill-wren",\n    "messages": [{"role": "user", "content": "Give me a fun fact about GPUs"}]\n  }'`,
+  python: `# pip install openai\nfrom openai import OpenAI\n\nclient = OpenAI(api_key="wby_...", base_url="${API_BASE}")\n\nr = client.chat.completions.create(\n    model="quill-wren",\n    messages=[{"role": "user", "content": "Give me a fun fact about GPUs"}],\n)\nprint(r.choices[0].message.content)\n\n# streaming\nfor chunk in client.chat.completions.create(model="wrenby-trill-1", messages=[{"role": "user", "content": "Write a haiku"}], stream=True):\n    if chunk.choices and chunk.choices[0].delta.content:\n        print(chunk.choices[0].delta.content, end="")`,
+  js: `const r = await fetch("${API_BASE}/chat/completions", {\n  method: "POST",\n  headers: { "Authorization": "Bearer " + LARKQUILL_API_KEY, "Content-Type": "application/json" },\n  body: JSON.stringify({\n    model: "quill-wren",\n    messages: [{ role: "user", content: "Give me a fun fact about GPUs" }],\n  }),\n});\nconst data = await r.json();\nconsole.log(data.choices[0].message.content);`,
+  anythingllm: `AnythingLLM → Settings → AI Providers → LLM → "Generic OpenAI"\n\nBase URL              ${API_BASE}\nAPI Key               wby_... (your key)\nChat Model Name       quill-wren\nToken context window  16000\nMax Tokens            4096\n\nAny app with an "OpenAI-compatible" or "Generic OpenAI" option takes the same three things:\nthe Base URL, your key, and a model (quill-wren, wrenby-trill-1, wrenby-aria-1.5 or wrenby-chorus-0.7).`,
 };
 $("baseUrl").textContent = API_BASE;
 $("cBase").textContent = API_BASE; $("cChat").textContent = API_BASE + "/chat/completions"; $("cModels").textContent = API_BASE + "/models";
@@ -139,7 +139,7 @@ async function load() {
 let KEYS = [], DAILY = [], SEL = null;
 // ---------- plan + owner admin (POST /api/billing) ----------
 const bill = body => api("/api/billing", { method: "POST", body });
-const PN = { hobby: "Hobby", pro: "Pro", max: "Max" }, PM = { hobby: "Chirp 1 and Trill 1", pro: "Chirp 1, Trill 1 and Aria 1.5", max: "every model, including Chorus 0.7" };
+const PN = { hobby: "Hobby", pro: "Pro", max: "Max" }, PM = { hobby: "Quill Wren and Quill Scribe", pro: "Quill Wren, Quill Scribe and Quill Sage", max: "every model, including Quill Sovereign" };
 async function loadPlan() {
   try { const j = await (await bill({ action: "plan" })).json(); if (!j.ok) return;
     $("planName").textContent = `LarkquillAI ${j.name}${j.owner ? " · owner" : ""}`; $("planModels").textContent = "Includes " + PM[j.plan] + ".";
@@ -219,7 +219,7 @@ function renderChart(daily) {
   mk("polyline", { points: pts, fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linejoin": "round" });
   for (const i of [0, 10, 20, 29]) mk("text", { x: x(i), y: H - 6, "text-anchor": i === 0 ? "start" : i === 29 ? "end" : "middle" }, days[i].slice(5));
   const total = vals.reduce((a, b) => a + b, 0);
-  $("byModel").textContent = total ? "By model: " + Object.entries(byMode).map(([m, n]) => `${({ spark: "Chirp 1", turbo: "Trill 1", forge: "Aria 1.5", zenith: "Chorus 0.7" })[m] || m} ${fmt(n)}`).join(" · ") : (SEL ? "No usage for this key in the last 30 days." : "No API usage yet.");
+  $("byModel").textContent = total ? "By model: " + Object.entries(byMode).map(([m, n]) => `${({ spark: "Quill Wren", turbo: "Quill Scribe", forge: "Quill Sage", zenith: "Quill Sovereign" })[m] || m} ${fmt(n)}`).join(" · ") : (SEL ? "No usage for this key in the last 30 days." : "No API usage yet.");
 }
 
 $("createForm").onsubmit = async e => { e.preventDefault(); $("createErr").hidden = true; $("createBtn").disabled = true;
@@ -230,14 +230,14 @@ $("createForm").onsubmit = async e => { e.preventDefault(); $("createErr").hidde
 // Copy-once reveal: the full key lives only in this closure until Done; it's masked unless revealed, and never re-fetchable.
 let NEWKEY = "", shown = false;
 const mask = k => k.slice(0, 8) + "•".repeat(20) + k.slice(-4);
-const curlFor = k => `curl ${API_BASE}/chat/completions \\\n  -H "Authorization: Bearer ${k}" \\\n  -H "Content-Type: application/json" \\\n  -d '{"model": "larkquill-chirp-1", "messages": [{"role": "user", "content": "Say hello"}]}'`;
+const curlFor = k => `curl ${API_BASE}/chat/completions \\\n  -H "Authorization: Bearer ${k}" \\\n  -H "Content-Type: application/json" \\\n  -d '{"model": "quill-wren", "messages": [{"role": "user", "content": "Say hello"}]}'`;
 function showNewKey(k) { NEWKEY = k; shown = false; $("newKeyVal").textContent = mask(k); $("revealBtn").textContent = "Reveal"; $("copyBtn").textContent = "Copy key";
   $("newCurl").textContent = curlFor(mask(k)); $("newKey").hidden = false; }
 $("revealBtn").onclick = () => { if (!NEWKEY) return; shown = !shown; $("newKeyVal").textContent = shown ? NEWKEY : mask(NEWKEY); $("newCurl").textContent = curlFor(shown ? NEWKEY : mask(NEWKEY)); $("revealBtn").textContent = shown ? "Hide" : "Reveal"; };
 $("copyBtn").onclick = async () => { if (!NEWKEY) return; try { await navigator.clipboard.writeText(NEWKEY); $("copyBtn").textContent = "Copied"; $("keyWarn").textContent = "Copied. Store it now: once you press Done it's gone from this page for good."; } catch { $("copyBtn").textContent = "Copy failed"; } };
 $("copyCurl").onclick = async () => { if (!NEWKEY) return; try { await navigator.clipboard.writeText(curlFor(NEWKEY)); $("copyCurl").textContent = "Copied"; setTimeout(() => $("copyCurl").textContent = "Copy", 1500); } catch {} };
 $("doneBtn").onclick = () => { NEWKEY = ""; shown = false; $("newKeyVal").textContent = ""; $("newCurl").textContent = ""; $("newKey").hidden = true; };
-$("curlQuick").textContent = `curl ${API_BASE}/chat/completions \\\n  -H "Authorization: Bearer $LARKQUILL_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"model": "larkquill-chirp-1", "messages": [{"role": "user", "content": "Say hello"}]}'`;
+$("curlQuick").textContent = `curl ${API_BASE}/chat/completions \\\n  -H "Authorization: Bearer $LARKQUILL_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"model": "quill-wren", "messages": [{"role": "user", "content": "Say hello"}]}'`;
 $("copyQuick").onclick = async () => { try { await navigator.clipboard.writeText($("curlQuick").textContent); $("copyQuick").textContent = "Copied"; setTimeout(() => $("copyQuick").textContent = "Copy", 1500); } catch {} };
 load();
 </script></body></html>
