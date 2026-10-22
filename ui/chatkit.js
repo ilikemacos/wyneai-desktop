@@ -7,10 +7,10 @@ const wyMode = v => { const s = String(v || "").toLowerCase(); if (!s) return v;
 //  - code blocks: language label + copy button + highlight.js (vendored in ./md/) with a light sky palette
 // Styles live in sky.css (it is kept as the last stylesheet, so they win over older themes).
 export const MODELS = [
-  { id: "spark",  name: "Quill Wren 1.1",      hint: "Fastest · Hobby" },
+  { id: "spark",  name: "Quill Wren 1.2",      hint: "Fastest · Hobby" },
   { id: "turbo",  name: "Quill Scribe 1",    hint: "Balanced · Hobby · default" },
-  { id: "forge",  name: "Quill Sage 1.4",      hint: "Smarter · Pro" },
-  { id: "zenith", name: "Quill Sovereign 0.4", hint: "Most capable · Max" },
+  { id: "forge",  name: "Quill Sage 1.5",      hint: "Smarter · Pro" },
+  { id: "zenith", name: "Quill Sovereign 0.5", hint: "Most capable · Max" },
 ];
 export const QUOTA_TIERS = new Set([]);
 // Plans (enforced server-side; this only paints locks): Hobby = Quill Wren + Quill Scribe, Pro adds Quill Sage, Max = every model.
