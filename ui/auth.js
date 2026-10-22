@@ -319,6 +319,14 @@ async function offerBio(viaPasskey) {
   d.querySelector(".wy-cancel").onclick = () => d.close();
   d.querySelector(".wy-go").onclick = () => { d.close(); addPasskey(); };
 }
+// Terms agreement: required by the server only when the request would create a new account.
+const termsOk = (dlg) => !!dlg.querySelector(".wy-terms-in")?.checked;
+function termsError(dlg, err, j) {
+  if (!j || j.code !== "terms_required") return false;
+  err.textContent = j.error || "Please agree to the Terms and Conditions and Privacy Policy to create your account.";
+  const t = dlg.querySelector(".wy-terms"); t.classList.remove("wy-need"); void t.offsetWidth; t.classList.add("wy-need");
+  dlg.querySelector(".wy-terms-in").focus(); return true;
+}
 async function mountGoogle(dlg, err) {
   const cid = S.feat.googleClientId; if (!cid) return;
   const wrap = dlg.querySelector(".wy-google"); wrap.hidden = false;
@@ -328,8 +336,9 @@ async function mountGoogle(dlg, err) {
     callback: async ({ credential }) => {
       err.textContent = "";
       try {
-        const r = await api("/api/auth/google", { method: "POST", body: { credential, recaptcha: await captcha("google_signin") } });
+        const r = await api("/api/auth/google", { method: "POST", body: { credential, acceptTerms: termsOk(dlg), recaptcha: await captcha("google_signin") } });
         const j = await r.json().catch(() => ({}));
+        if (termsError(dlg, err, j)) return;
         if (!r.ok) { err.textContent = j.error || "Google sign-in failed."; return; }
         await finishSignin(j, dlg);
       } catch { err.textContent = "Something went wrong. Try again."; }
@@ -349,6 +358,8 @@ function openSignin() {
     <input class="wy-code-in" type="text" inputmode="numeric" maxlength="6" placeholder="6-digit code" hidden>
     <input class="wy-pw-in" type="password" placeholder="Password" autocomplete="current-password" hidden>
     <div class="wy-pwlinks"><a href="#" class="wy-pw-forgot" hidden>Forgot password?</a></div>
+    <label class="wy-terms"><input type="checkbox" class="wy-terms-in" required> <span>I agree to the <a href="https://chopstickshq.com/terms/" target="_blank" rel="noopener">Terms and Conditions</a> and <a href="https://chopstickshq.com/privacy/" target="_blank" rel="noopener">Privacy Policy</a></span></label>
+    <div class="wy-terms-note">Required to create a new account.</div>
     <div class="wy-err"></div>
     <div class="wy-legal" hidden>Protected by reCAPTCHA. Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a> &amp; <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms</a> apply.</div>
     <div class="wy-df"><button class="wy-cancel">Cancel</button><button class="primary wy-go">Send code</button></div></div>`;
@@ -444,8 +455,9 @@ function openSignin() {
           if (!r.ok) { err.textContent = (await r.json().catch(() => ({}))).error || "Could not send code."; go.disabled = false; return; }
           stage = "reset-code"; emailIn.disabled = true; codeIn.hidden = false; pwIn.hidden = false; codeIn.focus(); go.textContent = "Set password";
         } else {
-          const r = await api("/api/auth/password?action=reset", { method: "POST", body: { email, code: codeIn.value.trim(), password: pwIn.value, recaptcha: await captcha("password_reset") } });
+          const r = await api("/api/auth/password?action=reset", { method: "POST", body: { email, code: codeIn.value.trim(), password: pwIn.value, acceptTerms: termsOk(dlg), recaptcha: await captcha("password_reset") } });
           const j = await r.json().catch(() => ({}));
+          if (termsError(dlg, err, j)) { go.disabled = false; return; }
           if (!r.ok) { err.textContent = j.error || "Could not set password."; go.disabled = false; return; }
           await finishSignin(j, dlg); return;
         }
@@ -457,8 +469,9 @@ function openSignin() {
         stage = "code"; emailIn.disabled = true; codeIn.hidden = false; codeIn.focus(); go.textContent = "Verify";
       } else {
         const code = codeIn.value.trim();
-        const r = await api("/api/auth/verify", { method: "POST", body: { email, code, recaptcha: await captcha("verify_code") } });
+        const r = await api("/api/auth/verify", { method: "POST", body: { email, code, acceptTerms: termsOk(dlg), recaptcha: await captcha("verify_code") } });
         const j = await r.json().catch(() => ({}));
+        if (termsError(dlg, err, j)) { go.disabled = false; return; }
         if (!r.ok) { err.textContent = j.error || "Incorrect code."; go.disabled = false; otp.classList.remove("shake"); void otp.offsetWidth; otp.classList.add("shake"); codeIn.value = ""; paint(); codeIn.focus(); return; }
         await finishSignin(j, dlg); return;
       }
@@ -513,6 +526,7 @@ function injectStyle() {
 .wy-dialog input{width:100%;background:var(--bg);border:1px solid var(--rule);color:var(--fg);border-radius:4px;height:40px;padding:0 12px;font:inherit;outline:none;margin-bottom:10px}
 .wy-dialog input:focus{border-color:#555}.wy-dialog input:disabled{opacity:.6}
 .wy-err{color:#e06a5a;font-size:12px;min-height:16px;margin-bottom:8px}
+.wy-terms{display:flex;gap:8px;align-items:flex-start;margin:10px 0 2px;font-size:13px;line-height:1.4;cursor:pointer}.wy-terms input{margin-top:2px;flex:none}.wy-terms a{color:inherit;text-decoration:underline}.wy-terms-note{font-size:12px;opacity:.65;margin:0 0 6px 24px}.wy-terms.wy-need{outline:2px solid #e5484d;outline-offset:3px;border-radius:4px}
 .wy-google{margin-bottom:12px}.wy-gbtn{display:flex;justify-content:center;min-height:40px}
 .wy-or{text-align:center;font-size:12px;color:var(--muted);margin-top:10px}
 .grecaptcha-badge{visibility:hidden}.wy-legal{font-size:10px;color:var(--muted);margin-bottom:10px}.wy-legal a{color:var(--muted)}

@@ -87,3 +87,6 @@ export const openItem = path => invoke("open_target", { target: String(path || "
 export function installDesktop(agent) { registerTools(DEFS); Object.assign(agent.tools, desktopTools()); agent.max = 20; agent.extraPrompt = desktopPrompt; }
 export const writeExport = async (json, exe) => { const name = (exe || "preset").replace(/\.exe$/i, "") + ".framefx.json";
   if (!await ask("write", "Save the preset file?", `${settings.workspace}/${name}`)) return false; await invoke("write_file", { path: name, content: json, append: false, root: settings.workspace, sandbox: true }); return true; };
+
+// Terms checkbox: the shared dialog input styles (auth.js, glass.css, sky.css) size every input like a text field; keep this one a normal checkbox.
+{ const st = document.createElement("style"); st.textContent = `.wy-dialog .wy-terms input.wy-terms-in,html.wy-sky .wy-dialog .wy-terms input.wy-terms-in{width:16px!important;min-width:16px!important;max-width:16px!important;height:16px!important;padding:0!important;margin:2px 0 0!important;flex:none!important;border-radius:3px!important;box-shadow:none!important;background:none!important;accent-color:#111}`; document.head.appendChild(st); }
