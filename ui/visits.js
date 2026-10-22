@@ -1,7 +1,7 @@
 // Larkquill edge visits: while a response is generating, the little guy sometimes pops in from a
 // random window edge, idles (blink, bob, wave, look around) and slides back out.
 // Hook: dispatch "wrenby:gen-start" / "wrenby:gen-end" on window. Debug: ?wrenby=always.
-import { getCompanion, svgFor, BALL } from "./companion.js";
+import { getCompanion, svgFor, BALL, companionMenu, companionHidden } from "./companion.js";
 const Q = new URLSearchParams(location.search);
 const ALWAYS = Q.get("wrenby") === "always";
 const CFG = { chance: 0.38, cooldown: 25000, delay: [1500, 7000], hold: [1800, 4200], peekChance: 0.35, size: 64 };
@@ -13,6 +13,7 @@ const ease = { out: t => 1 - Math.pow(1 - t, 3), in: t => t * t * t, back: t => 
 const CSS = `
 .wy-visits{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:60;contain:strict}
 .wy-visits *{pointer-events:none!important;user-select:none}
+.wy-visits .wy-visit{pointer-events:auto!important;cursor:pointer}
 html.wy-inv .wy-visits{filter:invert(1) hue-rotate(180deg)}
 .wy-visit{position:absolute;width:${CFG.size}px;height:${CFG.size}px;will-change:transform,opacity}
 .wy-visit svg{display:block;width:100%;height:100%;image-rendering:pixelated;shape-rendering:crispEdges}
@@ -40,12 +41,14 @@ function overlay() {
 function teardown() { if (ov && !visiting) { ov.remove(); ov = null; } }
 
 export async function visit(opts = {}) {
-  if (visiting || document.querySelector(".wy-intro-ov")) return;
+  if (visiting || companionHidden() || document.querySelector(".wy-intro-ov")) return;
   visiting = true; lastVisit = performance.now();
   const S = CFG.size, W = innerWidth, H = innerHeight;
   const edge = opts.edge || pick(["left", "right", "top", "bottom"]);
   const peek = opts.peek ?? Math.random() < CFG.peekChance;
   const el = document.createElement("div"); el.className = "wy-visit"; const comp = opts.companion || getCompanion(); el.dataset.edge = edge; el.dataset.comp = comp; el.innerHTML = svgFor(comp); overlay().appendChild(el);
+  let held = null; el.addEventListener("click", e => { e.stopPropagation(); companionMenu(e.clientX, e.clientY); held = held || new Promise(r => { const chk = () => document.querySelector(".wy-cmenu") ? setTimeout(chk, 200) : r(); setTimeout(chk, 200); }); });
+  addEventListener("wrenby:companion-hide", () => { el.remove(); }, { once: true });
   const svg = el.querySelector("svg"), body = svg.querySelector(".g-body"), arm = svg.querySelector(".arm");
   const ballg = svg.querySelector(".ballg"), tailg = svg.querySelector(".tailg"), ear = svg.querySelector(".er");
   const eyes = [...svg.querySelectorAll(".eye")], l1 = svg.querySelector(".l1"), l2 = svg.querySelector(".l2");
@@ -84,13 +87,14 @@ export async function visit(opts = {}) {
       const acts = (comp === "milyy" ? [blink, swish, bounce, twitch, look] : [blink, look, wave, bob]).sort(() => Math.random() - 0.5);
       if (comp === "milyy") acts.unshift(bat);   // she always plays with her ball first
       let t = 0; for (const a of acts) { if (t > hold) break; const s = performance.now(); await a(); await wait(R(180, 420)); t += performance.now() - s; }
+      if (held) await held;                         // stay while the menu is open
       await tween(R(450, 650), k => set(out * k), ease.in);
     }
   } finally { el.remove(); visiting = false; if (!active) teardown(); }
 }
 
 function schedule() {
-  if (!active || pending || visiting) return;
+  if (!active || pending || visiting || companionHidden()) return;
   const now = performance.now();
   if (!ALWAYS && (now - lastVisit < CFG.cooldown || Math.random() >= CFG.chance)) return;
   const token = { cancel: false }; pending = token;

@@ -19,7 +19,6 @@ const FLAG = id => "wy.onboarded." + (id || "anon");
 
 const CSS = `
 html.wy-intro body>main,html.wy-intro #histbar{visibility:hidden}
-html.wy-intro #wy-static{opacity:1!important}
 .wy-intro-ov{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#fff}
 html.wy-inv .wy-intro-ov{filter:invert(1) hue-rotate(180deg)}
 .wy-intro-stage{position:relative;width:min(560px,92vw);display:flex;flex-direction:column;align-items:center;gap:18px}

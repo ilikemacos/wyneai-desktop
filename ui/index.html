@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="favicon.ico" sizes="48x48"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="theme-color" content="#111111"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180"><meta name="theme-color" content="#111111"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="./md/highlight.min.js"></script><script src="./md/fflate.min.js"></script><title>LarkquillAI</title><link rel="canonical" href="https://ilikemacos.github.io/larkquillai/"><meta property="og:site_name" content="LarkquillAI"><meta property="og:title" content="LarkquillAI"><meta property="og:url" content="https://ilikemacos.github.io/larkquillai/"><meta property="og:image" content="https://ilikemacos.github.io/larkquillai/icon-512.png">
 <style>
 :root{--bg:#111111;--fg:#ececec;--muted:#9a9a9a;--rule:#2a2a2a;--card:#181818;--accent:#ff6a2b;--warn:#e0a03a;--sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}
@@ -31,6 +31,7 @@ dialog input[type=text]{width:100%;background:#0c0c0c;border:1px solid var(--rul
 .btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}.primary{background:var(--accent);border:0;color:#111}.primary:hover{background:#ff7d45}
 .kind{font-family:var(--mono);font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.06em}
 .plan{font-family:var(--mono);font-size:12px;border:1px solid var(--rule);border-radius:4px;padding:8px 12px;margin:0 0 8px;max-width:560px}.plan div{color:var(--muted)}.plan .doing{color:var(--fg)}.plan .done{text-decoration:line-through}
+.wy-slow{display:flex;align-items:center;gap:10px;margin:0 0 8px;font-size:12.5px;color:var(--muted)}.wy-slow[hidden]{display:none}.wy-slow-x{font:inherit;font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--rule);background:transparent;color:inherit;cursor:pointer}.wy-slow-x:hover{color:var(--fg)}
 .think{border:1px solid var(--rule);border-radius:4px;margin:0 0 10px;max-width:620px;background:#141414}
 .think>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:13px;color:var(--muted)}
 .think>summary::-webkit-details-marker{display:none}
@@ -275,18 +276,25 @@ async function handle(t, images = []) {
   const toWeb = () => { setDir("right"); dirTimer = setTimeout(() => { if (!answering) mtrack.dataset.dir = "left"; }, 1800); };
   const wrap = document.createElement("div"); wrap.className = "dots"; bub.append(think, wrap);
   let presetShown = false, answering = false, done = false; const t0 = Date.now();
+  // Live status while nothing arrives: after ~8 s of silence name the model, count seconds, offer Cancel (aborts the request).
+  const slow = document.createElement("div"); slow.className = "wy-slow"; slow.hidden = true; slow.setAttribute("role", "status");
+  slow.innerHTML = '<span class="wy-slow-t"></span><button type="button" class="wy-slow-x">Cancel</button>'; bub.insertBefore(slow, wrap);
+  slow.querySelector(".wy-slow-x").onclick = () => { slow.hidden = true; if (window.agent) window.agent.stopped = true; curCtrl?.abort(); };
+  let lastAct = Date.now(), retried = false; const act = () => { lastAct = Date.now(); slow.hidden = true; };
+  const paintSlow = () => { if (done || answering || Date.now() - lastAct < 8000) return; slow.hidden = false;
+    slow.querySelector(".wy-slow-t").textContent = modelName(tier) + (retried ? " didn't answer, retrying once, still working\u2026 " : " is busy, still working\u2026 ") + Math.round((Date.now() - t0) / 1000) + "s"; };
   const mkPaint = () => { let pend = null, sched = false; return (el, md) => { pend = [el, md]; if (sched || done) return; sched = true; setTimeout(() => { sched = false; if (done) return; renderMD(pend[0], pend[1], false); }, 90); }; };
   const paintAns = mkPaint(), paintThink = mkPaint();
-  const timer = setInterval(() => { if (!answering) think.querySelector(".ttime").textContent = Math.round((Date.now() - t0) / 1000) + "s"; }, 250);
-  const finishThink = () => { if (answering) return; answering = true; clearInterval(timer); const secs = Math.round((Date.now() - t0) / 1000);
+  const timer = setInterval(() => { if (!answering) { think.querySelector(".ttime").textContent = Math.round((Date.now() - t0) / 1000) + "s"; paintSlow(); } }, 250);
+  const finishThink = () => { slow.hidden = true; if (answering) return; answering = true; clearInterval(timer); const secs = Math.round((Date.now() - t0) / 1000);
     think.classList.add("done"); think.open = false; think.querySelector(".tlabel").textContent = "Thought for " + secs + "s"; think.querySelector(".ttime").textContent = ""; };
   const on = {
     maxTokens: TIERS[tier].max, tier,
-    continued: (n, kind) => { const d = document.createElement("div"); d.className = "step"; d.textContent = kind === "retry" ? "No answer came back \u00b7 retrying once" : "Continuing the long reply \u00b7 part " + (n + 1); steps.appendChild(d); log.scrollTop = 1e9; },
-    reasoning: buf => { if (answering) return; reason.hidden = false; paintThink(reason, scrub(buf)); },
-    search: ev => { toWeb(); const d = document.createElement("div"); d.className = "step"; d.textContent = "Searched the web \u00b7 " + ev.count + " result" + (ev.count === 1 ? "" : "s"); steps.appendChild(d); log.scrollTop = 1e9; },
-    step: (c, r) => { toWeb(); steps.appendChild(stepRow(c, r)); if (r.preset_changed) presetShown = true; if (r.ok && (c.name === "create_file" || c.name === "write_file")) { fileCard(bub, c, r); const fs = c.name === "create_file" ? (r._items || (r._content != null ? [{ name: r.file.name, content: r._content }] : null)) : (c.arguments && c.arguments.content != null ? [{ name: String((r.path || (r.file && r.file.path) || "file")).split(/[\\/]/).pop(), content: c.arguments.content }] : null); if (fs) ideSetFiles(fs); } log.scrollTop = 1e9; },
-    token: buf => { if (/<tool_call|^\s*[{`]/.test(buf)) { wrap.classList.add("dots"); wrap.textContent = ""; return; } setDir("left"); finishThink(); wrap.classList.remove("dots"); paintAns(wrap, scrub(buf)); },
+    continued: (n, kind) => { if (kind === "retry") retried = true; else act(); const d = document.createElement("div"); d.className = "step"; d.textContent = kind === "retry" ? "No answer came back \u00b7 retrying once" : "Continuing the long reply \u00b7 part " + (n + 1); steps.appendChild(d); log.scrollTop = 1e9; },
+    reasoning: buf => { act(); if (answering) return; reason.hidden = false; paintThink(reason, scrub(buf)); },
+    search: ev => { act(); toWeb(); const d = document.createElement("div"); d.className = "step"; d.textContent = "Searched the web \u00b7 " + ev.count + " result" + (ev.count === 1 ? "" : "s"); steps.appendChild(d); log.scrollTop = 1e9; },
+    step: (c, r) => { act(); toWeb(); steps.appendChild(stepRow(c, r)); if (r.preset_changed) presetShown = true; if (r.ok && (c.name === "create_file" || c.name === "write_file")) { fileCard(bub, c, r); const fs = c.name === "create_file" ? (r._items || (r._content != null ? [{ name: r.file.name, content: r._content }] : null)) : (c.arguments && c.arguments.content != null ? [{ name: String((r.path || (r.file && r.file.path) || "file")).split(/[\\/]/).pop(), content: c.arguments.content }] : null); if (fs) ideSetFiles(fs); } log.scrollTop = 1e9; },
+    token: buf => { act(); if (/<tool_call|^\s*[{`]/.test(buf)) { wrap.classList.add("dots"); wrap.textContent = ""; return; } setDir("left"); finishThink(); wrap.classList.remove("dots"); paintAns(wrap, scrub(buf)); },
     clear: () => { wrap.textContent = ""; wrap.classList.add("dots"); }, error: e => console.warn("agent LLM error", e),
     quota: j => kit?.setQuota(j.model, j.left),
     notice: j => { const d = document.createElement("div"); d.className = "step"; d.textContent = j.text; steps.appendChild(d); } };
@@ -308,7 +316,7 @@ async function handle(t, images = []) {
       notice(tl ? e.message : e.status === 429 ? "Rate limited: please wait a minute. Basic mode is used meanwhile." : "LarkquillAI is unavailable right now; using basic mode (presets and FrameFX help still work).");
       agent.llm = null; if (window.bot.route(t)) { const x = await window.bot.send(t); r = { text: msg + "\n" + x.text }; } else { r = await agent.deterministic(t, on); r.text = msg + "\n" + (r.text || "I couldn't do that in basic mode."); } } } }
   if (!String(r && r.text || "").trim()) r = { ...(r || {}), text: "\u26a0\ufe0f LarkquillAI didn't send an answer this time. Please try again." };
-  done = true; finishThink(); wrap.classList.remove("dots"); renderMD(wrap, scrub(r.text || ""), true); harvest(wrap);
+  done = true; slow.remove(); finishThink(); wrap.classList.remove("dots"); renderMD(wrap, scrub(r.text || ""), true); harvest(wrap);
   if (!steps.children.length) steps.remove(); if (reason.hidden) reason.remove();
   if (!think.querySelector(".treason") && !think.querySelector(".steps")) think.remove();
   if (presetShown && window.bot.last) card(bub);

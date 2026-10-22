@@ -29,8 +29,6 @@ html::before{content:"";position:fixed;inset:-20vmax;z-index:-2;pointer-events:n
   filter:blur(30px);animation:gAurora 38s ease-in-out infinite alternate}
 @keyframes gAurora{0%{transform:translate3d(0,0,0) rotate(0) scale(1)}50%{transform:translate3d(3vmax,-2vmax,0) rotate(8deg) scale(1.06)}100%{transform:translate3d(-3vmax,2vmax,0) rotate(-6deg) scale(1.02)}}
 @media (prefers-reduced-motion:reduce){html::before{animation:none}}
-/* Let the colours tint the "digital static" pixels and keep them gentle. */
-html #wy-static{mix-blend-mode:overlay;opacity:.7!important}
 
 /* ---------- shared glass surfaces ---------- */
 header,#histbar,form#f,#side,.wy-menu,.wy-dialog,.wy-settings,
@@ -224,7 +222,7 @@ html.wy-inv::before{background:
     radial-gradient(30vmax 26vmax at 10% 90%,rgba(255,110,170,.6),transparent 62%),
     radial-gradient(40vmax 26vmax at 50% 46%,rgba(190,170,255,.45),transparent 70%)}
 html.wy-inv .ctmode,html.wy-inv .ctmode button{border-color:rgba(30,20,60,.12)!important}
-html.wy-inv #wy-static{mix-blend-mode:multiply;opacity:.1!important}
+
 /* drop the old whole-panel inversion */
 html.wy-inv body>main,html.wy-inv .wy-dialog,html.wy-inv .wy-settings,html.wy-inv .wy-menu,html.wy-inv #histbar,
 html.wy-inv body>main img,html.wy-inv .wy-dialog img,html.wy-inv .wy-gbtn,html.wy-inv .wy-pick-ov,html.wy-inv .wy-intro-ov{filter:none!important}

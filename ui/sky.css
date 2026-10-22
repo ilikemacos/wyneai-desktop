@@ -9,7 +9,6 @@ html.wy-sky{
 }
 html.wy-sky:root{background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 55%,var(--sky3) 100%) fixed!important;transition:background 2s}
 html.wy-sky::before{display:none!important}
-html.wy-sky #wy-static{display:none!important}
 html.wy-sky body{font-family:"Inter",-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif!important;letter-spacing:-.006em}
 
 /* header: no bar, just floating type and small pills */

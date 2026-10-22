@@ -46,7 +46,6 @@ export function refreshWalkers(root = document) {
 // ---- picker shown right after a brand-new account is created ----
 const PCSS = `
 html.wy-picker body>main,html.wy-picker #histbar{visibility:hidden}
-html.wy-picker #wy-static{opacity:1!important}
 .wy-pick-ov{position:fixed;inset:0;z-index:96;display:flex;align-items:center;justify-content:center;font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#fff}
 html.wy-inv .wy-pick-ov{filter:invert(1) hue-rotate(180deg)}
 .wy-pick{background:#000;border:2px solid #fff;border-radius:16px;padding:26px 24px;width:min(560px,92vw);text-align:center}
@@ -89,3 +88,31 @@ export function initCompanion() {
   refreshWalkers();
   new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1 && (n.matches?.("svg.mob") || n.querySelector?.("svg.mob"))) { refreshWalkers(n.parentNode || document); } }).observe(document.body, { childList: true, subtree: true });
 }
+// ---- tiny menu when you click a companion (edge visit or the Thinking walker) ----
+const HIDE = "wy.compHidden";                                   // sessionStorage: no visits / walker for this session
+export const companionHidden = () => { try { return sessionStorage.getItem(HIDE) === "1"; } catch { return false; } };
+const MCSS = `
+.wy-cmenu{position:fixed;z-index:97;min-width:170px;padding:6px;border-radius:12px;background:#fff;color:#111;box-shadow:0 8px 30px rgba(0,0,0,.25);font:500 13px "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wy-cmenu button{display:block;width:100%;text-align:left;font:inherit;padding:7px 10px;border:0;border-radius:8px;background:none;color:inherit;cursor:pointer}
+.wy-cmenu button:hover,.wy-cmenu button:focus-visible{background:rgba(0,0,0,.07);outline:none}
+html.wy-comp-hidden .walk .mob{visibility:hidden}
+`;
+export function companionMenu(x, y) {
+  document.querySelector(".wy-cmenu")?.remove();
+  if (!document.getElementById("wy-cmenu-css")) { const s = document.createElement("style"); s.id = "wy-cmenu-css"; s.textContent = MCSS; document.head.appendChild(s); }
+  const other = getCompanion() === "milyy" ? "wrenby" : "milyy";
+  const m = document.createElement("div"); m.className = "wy-cmenu"; m.setAttribute("role", "menu");
+  m.innerHTML = `<button type="button" role="menuitem" data-a="switch">Switch to ${COMPANIONS[other]}</button><button type="button" role="menuitem" data-a="hide">Hide for now</button>`;
+  document.body.appendChild(m);
+  const r = m.getBoundingClientRect(); m.style.left = Math.max(8, Math.min(x, innerWidth - r.width - 8)) + "px"; m.style.top = Math.max(8, Math.min(y, innerHeight - r.height - 8)) + "px";
+  const close = () => { m.remove(); removeEventListener("pointerdown", away, true); removeEventListener("keydown", esc, true); };
+  const away = e => { if (!m.contains(e.target)) close(); }, esc = e => { if (e.key === "Escape") close(); };
+  setTimeout(() => { addEventListener("pointerdown", away, true); addEventListener("keydown", esc, true); });
+  m.querySelector('[data-a="switch"]').onclick = () => { close(); setCompanion(other); };
+  m.querySelector('[data-a="hide"]').onclick = () => { close(); try { sessionStorage.setItem(HIDE, "1"); } catch {} document.documentElement.classList.add("wy-comp-hidden"); dispatchEvent(new Event("wrenby:companion-hide")); };
+  m.querySelector("button").focus();
+}
+if (companionHidden()) document.documentElement.classList.add("wy-comp-hidden");
+// Thinking walker: click the little figure for the same menu.
+addEventListener("click", e => { const mob = e.target.closest?.(".walk svg.mob"); if (!mob) return; e.preventDefault(); e.stopPropagation(); companionMenu(e.clientX, e.clientY); }, true);
+
