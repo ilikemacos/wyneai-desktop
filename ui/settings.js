@@ -58,6 +58,10 @@ async function renderAccount(b, me) {
   b.append(el("h2", "", "Account"));
   const u = me?.user; if (!u) { b.append(el("p", "sub", "You're not signed in."), row("Sign in", "Save chats, run cloud tasks and see your usage.", (() => { const x = el("button", "pri", "Sign in"); x.onclick = () => { close(); [...document.querySelectorAll("button")].find(y => y.textContent.trim() === "Sign in")?.click(); }; return x; })())); return; }
   b.append(el("p", "sub", u.email));
+  { const PN = { hobby: "Hobby", pro: "Pro", max: "Max" }, PM = { hobby: "Chirp 1 and Trill 1", pro: "Chirp 1, Trill 1 and Aria 1.5", max: "Every model, including Chorus 0.7" };
+    const plan = PN[u.plan] ? u.plan : "hobby", pb = el("button", plan === "max" ? "" : "pri", plan === "max" ? "See plans" : plan === "pro" ? "Upgrade to Max" : "Upgrade"); pb.type = "button";
+    pb.onclick = () => import("./chatkit.js").then(m => m.openUpgrade(plan === "pro" ? "max" : null)).catch(() => window.open("https://ilikemacos.github.io/larkquillai/plans.html", "_blank", "noopener"));
+    const t = el("div", "l"); const r = el("div", "row"); t.append(el("div", "t", "Plan: LarkquillAI " + PN[plan]), el("div", "d", PM[plan] + ". One-time purchase, tied to this account.")); r.append(t, pb); b.append(r); }
   const m = el("div"); m.append(el("span", "pill ok", "Email code"), el("span", "pill" + (u.hasPassword ? " ok" : ""), u.hasPassword ? "Password set" : "No password"));
   if (me.googleClientId) m.append(el("span", "pill", "Google (same email)"));
   b.append(row("Sign-in methods", DESKTOP ? "Google opens your browser. Passkeys aren't available in the desktop app." : "Google works when your Google account uses this email.", m));

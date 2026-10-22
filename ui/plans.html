@@ -1,0 +1,129 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plans · LarkquillAI</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#ffffff">
+<meta name="description" content="LarkquillAI plans: Hobby is free, Pro and Max are one-time payments that unlock more models forever.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0}
+main{max-width:1040px;margin:0 auto;padding:0 24px 80px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}@media(max-width:860px){.plans{grid-template-columns:1fr}}
+.plan{display:flex;flex-direction:column;gap:14px;position:relative}
+.plan .nm{font:500 15px var(--lq-sans);display:flex;align-items:center;gap:8px}
+.plan .pr{font-family:var(--lq-serif);font-weight:300;font-size:44px;line-height:1;letter-spacing:-.01em}.plan .pr small{font:400 14px var(--lq-sans);color:var(--lq-muted);margin-left:6px}
+.plan ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;font-size:14px}.plan li{display:flex;gap:8px;align-items:flex-start}
+.plan li .ok{flex:none;width:18px;height:18px;border-radius:50%;background:var(--lq-tert);display:inline-flex;align-items:center;justify-content:center;font-size:11px;margin-top:2px}
+.plan li.off{color:var(--lq-muted)}.plan li.off .ok{opacity:.5}
+.plan .sp{flex:1}.plan button{width:100%;height:44px}
+.plan.feat{background:var(--lq-sky)!important;color:#fff!important;border:0!important}.plan.feat .pr small,.plan.feat li,.plan.feat .nm{color:#fff}.plan.feat li .ok{background:rgba(255,255,255,.22)}
+.plan.feat button.primary{background:#fff!important;color:#141414!important;border-color:#fff!important}.plan.feat button:not(.primary){background:rgba(255,255,255,.18)!important;color:#fff!important}
+.cur{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;background:var(--lq-ink);color:var(--lq-on-ink);font-size:11.5px;font-weight:500}.plan.feat .cur{background:#fff;color:#141414}
+.pbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:14px;color:var(--lq-muted)}
+#checkout{margin-top:28px}#checkout h2{margin:0 0 6px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}@media(max-width:860px){.steps{grid-template-columns:1fr}}
+.step{background:var(--lq-surface);border-radius:18px;padding:16px}.step .n{font-size:12px;color:var(--lq-muted);margin-bottom:6px}.step p{margin:6px 0 0;font-size:13px}
+.code{display:flex;align-items:center;gap:8px;margin-top:8px}.code code{flex:1;font-size:15px!important;background:var(--lq-bg)!important;border-radius:12px;padding:10px 12px!important;word-break:break-all}
+.status{margin-top:16px;display:flex;gap:10px;align-items:center;font-size:14px}.dot{width:9px;height:9px;border-radius:50%;background:var(--lq-warn);flex:none;animation:p 1.6s infinite}.status.ok .dot{background:#2f9e62;animation:none}.status.bad .dot{background:var(--lq-bad);animation:none}
+@keyframes p{50%{opacity:.35}}
+.faq{margin-top:44px;display:grid;grid-template-columns:repeat(2,1fr);gap:20px 32px}@media(max-width:860px){.faq{grid-template-columns:1fr}}.faq h3{font:500 14px var(--lq-sans);margin:0 0 4px}.faq p{margin:0;font-size:14px}
+</style><link rel="stylesheet" href="lq.css"></head><body>
+<main>
+  <div class="lq-top"><a class="lq-word" href="index.html"><img src="favicon.svg" alt="">Larkquill<em>AI</em></a><span class="lq-sp"></span><a class="lq-btn lq-ghost" href="index.html" style="height:36px;font-size:14px!important">Open chat</a></div>
+  <h1 class="lq-display">Pick a plan, <em>keep it forever</em></h1>
+  <p class="lq-lede">Hobby is free. Pro and Max are one-time payments through Buy Me a Coffee, tied to your LarkquillAI account. No subscription.</p>
+  <div class="pbar" id="who">Loading your plan…</div>
+
+  <section class="plans" id="plans">
+    <div class="plan lq-card" data-plan="hobby"><div class="nm">Hobby</div><div class="pr">Free</div>
+      <ul><li><span class="ok">✓</span>Larkquill Chirp 1</li><li><span class="ok">✓</span>Larkquill Trill 1</li><li><span class="ok">✓</span>Chat history, cloud tools, API keys</li><li class="off"><span class="ok">–</span>Aria 1.5</li><li class="off"><span class="ok">–</span>Chorus 0.7</li></ul>
+      <span class="sp"></span><button type="button" data-act="hobby" disabled>Included</button></div>
+    <div class="plan lq-card" data-plan="pro"><div class="nm">Pro</div><div class="pr">$7.99<small>forever</small></div>
+      <ul><li><span class="ok">✓</span>Everything in Hobby</li><li><span class="ok">✓</span>Larkquill Aria 1.5 (128k context)</li><li><span class="ok">✓</span>Aria in cloud tasks and the API</li><li class="off"><span class="ok">–</span>Chorus 0.7</li></ul>
+      <span class="sp"></span><button type="button" class="primary" data-act="pro">Get Pro · $7.99</button></div>
+    <div class="plan lq-card feat" data-plan="max"><div class="nm">Max</div><div class="pr">$12.99<small>forever</small></div>
+      <ul><li><span class="ok">✓</span>Everything in Pro</li><li><span class="ok">✓</span>Larkquill Chorus 0.7 (200k context)</li><li><span class="ok">✓</span>Every model added later</li><li><span class="ok">✓</span>Already on Pro? Pay the $5 difference</li></ul>
+      <span class="sp"></span><button type="button" class="primary" data-act="max">Get Max · $12.99</button></div>
+  </section>
+
+  <section id="checkout" class="lq-card" hidden>
+    <h2 id="coTitle">Upgrade</h2><p class="sub" id="coSub"></p>
+    <div class="steps">
+      <div class="step"><div class="n">1 · Copy your claim code</div><div class="code"><code id="coMsg"></code><button type="button" id="coCopy">Copy</button></div><p>It links the payment to your account. Paste it into the tip's message.</p></div>
+      <div class="step"><div class="n">2 · Tip on Buy Me a Coffee</div><a class="lq-btn" id="coOpen" href="https://buymeacoffee.com/chopstickshq" target="_blank" rel="noopener" style="margin-top:8px">Tip <span id="coAmt"></span></a><p>Enter <b id="coAmt2"></b> (or the next whole dollar) in US dollars, and paste the code in the message box.</p></div>
+      <div class="step"><div class="n">3 · We confirm it</div><p id="coWait">Matching tips unlock within a minute. Anything else is checked by hand, usually within a few hours. This page updates by itself.</p></div>
+    </div>
+    <div class="status" id="coStatus"><span class="dot"></span><span id="coStatusT">Waiting for your tip…</span></div>
+    <div class="pbar"><button type="button" id="coCheck">Check now</button><span id="coErr" class="err"></span></div>
+  </section>
+
+  <section class="faq">
+    <div><h3>Is it really one-time?</h3><p>Yes. Pro and Max are paid once and stay on your account. There is nothing to cancel.</p></div>
+    <div><h3>Does it work in the API and the desktop app?</h3><p>Yes. Your plan is checked on the server, so the web chat, the desktop app and every API key you create get the same models.</p></div>
+    <div><h3>What if I already have Pro?</h3><p>Max costs only the difference: $5.</p></div>
+    <div><h3>My tip hasn't unlocked anything</h3><p>Keep the claim code. Tips are confirmed automatically when the code and amount match, otherwise by hand within a few hours. If something looks wrong, message chopstickshq on Buy Me a Coffee with your code.</p></div>
+  </section>
+  <footer class="lq-foot"><span>LarkquillAI by Chopsticks HQ</span><a href="index.html">Chat</a><a href="api.html">API</a><a href="https://buymeacoffee.com/chopstickshq" target="_blank" rel="noopener">Buy Me a Coffee</a></footer>
+</main>
+<script type="module">
+const BASE = /\.vercel\.app$|(^|\.)chopstickshq\.com$/.test(location.hostname) ? "" : "https://larkquillai.vercel.app";
+const $ = id => document.getElementById(id);
+const NAME = { hobby: "Hobby", pro: "Pro", max: "Max" }, RANK = { hobby: 0, pro: 1, max: 2 };
+const api = (body) => { const t = localStorage.getItem("wy.token"); return fetch(BASE + "/api/billing", { method: "POST", credentials: "include", headers: { "content-type": "application/json", ...(t ? { authorization: "Bearer " + t } : {}) }, body: JSON.stringify(body) }); };
+let state = null, claim = null, timer = null, started = 0;
+
+function paint() {
+  const plan = state?.plan || "hobby";
+  for (const card of document.querySelectorAll(".plan")) {
+    const p = card.dataset.plan, b = card.querySelector("button"); card.querySelector(".cur")?.remove();
+    if (state && p === plan) card.querySelector(".nm").insertAdjacentHTML("beforeend", '<span class="cur">Your plan</span>');
+    if (p === "hobby") { b.textContent = plan === "hobby" ? "Your plan" : "Included"; continue; }
+    if (!state) { b.disabled = false; b.textContent = `Sign in to get ${NAME[p]}`; continue; }
+    const price = state.prices?.[p] || 0;
+    b.disabled = !price; b.textContent = !price ? (RANK[plan] >= RANK[p] ? (p === plan ? "Your plan" : "Included") : "") : `${plan === "pro" && p === "max" ? "Upgrade" : "Get"} ${NAME[p]} · $${price.toFixed(2)}`;
+  }
+}
+function setStatus(t, kind) { $("coStatusT").textContent = t; $("coStatus").className = "status" + (kind ? " " + kind : ""); }
+function showCheckout(c) {
+  claim = c; $("checkout").hidden = false; $("coTitle").textContent = `Get LarkquillAI ${NAME[c.plan]}`;
+  $("coSub").textContent = `One-time $${Number(c.amount).toFixed(2)}${state?.plan === "pro" && c.plan === "max" ? " (the difference from Pro)" : ""}. Unlocks on ${state?.email || "your account"}.`;
+  $("coMsg").textContent = c.message; $("coAmt").textContent = "$" + Number(c.amount).toFixed(2); $("coAmt2").textContent = "$" + Number(c.amount).toFixed(2);
+  $("coOpen").href = c.checkoutUrl || "https://buymeacoffee.com/chopstickshq";
+  setStatus(c.status === "rejected" ? (c.note ? "Not approved: " + c.note : "Not approved. Message chopstickshq on Buy Me a Coffee with your code.") : "Waiting for your tip… after paying, keep this page open.", c.status === "rejected" ? "bad" : "");
+  startPoll();
+}
+async function check(manual) {
+  if (!claim) return; $("coErr").textContent = "";
+  try { const r = await api({ action: "checkUpgrade", claimId: claim.claimId }); const j = await r.json();
+    if (j.ok) { stopPoll(); setStatus(`Done. You're on ${j.name}. Enjoy the new models.`, "ok"); await load(); return; }
+    if (j.status === "rejected") { stopPoll(); setStatus(j.error, "bad"); return; }
+    if (j.status === "pending") setStatus("Waiting for confirmation. Payments are usually confirmed within a few hours. You can close this page and come back.");
+    else if (manual) $("coErr").textContent = j.error || "Couldn't check right now.";
+  } catch { if (manual) $("coErr").textContent = "Network error. Trying again shortly."; }
+}
+// Polls every 15s for the first 10 minutes, then every minute, for as long as the page is open.
+function startPoll() { stopPoll(); started = Date.now(); const tick = () => { check(false); timer = setTimeout(tick, Date.now() - started < 600_000 ? 15_000 : 60_000); }; timer = setTimeout(tick, 15_000); }
+function stopPoll() { if (timer) clearTimeout(timer); timer = null; }
+
+async function load() {
+  try { const r = await api({ action: "plan" });
+    if (r.status === 401) { state = null; $("who").innerHTML = 'You\'re on Hobby. <a href="index.html">Sign in on LarkquillAI</a> to upgrade; plans are tied to your account.'; paint(); return; }
+    const j = await r.json(); if (!j.ok) throw new Error(j.error);
+    state = j; const me = await fetch(BASE + "/api/auth/me", { credentials: "include", headers: localStorage.getItem("wy.token") ? { authorization: "Bearer " + localStorage.getItem("wy.token") } : {} }).then(r => r.json()).catch(() => ({}));
+    state.email = me?.user?.email || null;
+    $("who").textContent = `Signed in${state.email ? " as " + state.email : ""} · current plan: ${j.name}${j.owner ? " (owner)" : ""}`;
+    paint();
+    if (j.pending && !claim) showCheckout(j.pending);
+  } catch { $("who").textContent = "Couldn't load your plan. Refresh to try again."; }
+}
+document.querySelectorAll(".plan button[data-act]").forEach(b => b.onclick = async () => {
+  const p = b.dataset.act; if (p === "hobby") return;
+  if (!state) { location.href = "index.html"; return; }
+  b.disabled = true; try { const j = await (await api({ action: "prepareUpgrade", plan: p })).json();
+    if (j.mode === "already") { await load(); return; } if (!j.ok) throw new Error(j.error);
+    showCheckout({ ...j, status: "pending" }); $("checkout").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) { $("who").textContent = e.message || "Couldn't start checkout."; } finally { b.disabled = false; paint(); }
+});
+$("coCopy").onclick = async () => { try { await navigator.clipboard.writeText($("coMsg").textContent); $("coCopy").textContent = "Copied"; setTimeout(() => $("coCopy").textContent = "Copy", 1200); } catch {} };
+$("coCheck").onclick = () => check(true);
+addEventListener("visibilitychange", () => { if (!document.hidden && claim && timer) check(false); });
+await load();
+const want = new URLSearchParams(location.search).get("want"); if (want && state && state.prices?.[want] && !claim) document.querySelector(`.plan[data-plan="${want}"]`)?.scrollIntoView({ block: "center" });
+</script></body></html>

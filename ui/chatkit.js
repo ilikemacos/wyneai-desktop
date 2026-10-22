@@ -11,6 +11,21 @@ export const MODELS = [
   { id: "zenith", name: "Chorus 0.7",    hint: "Deepest, slower, uses the most" },
 ];
 export const QUOTA_TIERS = new Set([]);
+// Plans (enforced server-side; this only paints locks): Hobby = Chirp + Trill, Pro adds Aria, Max = every model.
+export const MODE_PLAN = { spark: "hobby", turbo: "hobby", forge: "pro", zenith: "max" };
+const PLAN_RANK = { hobby: 0, pro: 1, max: 2 }, PLAN_NAME = { hobby: "Hobby", pro: "Pro", max: "Max" };
+export const UPGRADE_PAGE = "https://ilikemacos.github.io/larkquillai/plans.html";
+export const planAllows = (plan, id) => !plan || (PLAN_RANK[MODE_PLAN[id] || "max"] ?? 2) <= (PLAN_RANK[plan] ?? 0);
+export function openUpgrade(want, url) {
+  const T = window.__TAURI__, base = url || (T?.core || !/^https?:$/.test(location.protocol) ? UPGRADE_PAGE : new URL("plans.html", location.href).href);
+  const u = base + (want ? (base.includes("?") ? "&" : "?") + "want=" + want : "");
+  if (T?.core) { (T.opener?.openUrl ? T.opener.openUrl(u) : T.core.invoke("plugin:opener|open_url", { url: u })).catch(() => window.open(u, "_blank", "noopener")); return; }
+  window.open(u, "_blank", "noopener");
+}
+const PLAN_CSS = `.wy-pitem.wy-locked{opacity:.92}.wy-pitem.wy-locked .wy-pl b,.wy-pitem.wy-locked .wy-pl small{opacity:.55}
+.wy-plock{display:inline-flex;align-items:center;gap:6px;flex:none}.wy-plock svg{opacity:.6}
+.wy-pup{all:unset;cursor:pointer;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;background:#1b1a24;color:#fff}.wy-pup:hover{opacity:.85}
+.wy-pplan{font-size:11px;color:#6b6f80;padding:6px 12px 2px;display:flex;justify-content:space-between;gap:8px}.wy-pplan a{color:inherit}`;
 export const modelName = id => (MODELS.find(m => m.id === id) || {}).name || id;
 const MAX_IMAGES = 4, MAX_SIDE = 1568, TOTAL_CHARS = 3_900_000, PER_IMAGE_CHARS = 950_000;
 const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
@@ -22,6 +37,7 @@ const ICON = {
   redo: svg('<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>'),
   edit: svg('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'),
   chev: svg('<path d="M6 9l6 6 6-6"/>'),
+  lock: svg('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'),
 };
 
 // ---------- images ----------
@@ -63,22 +79,28 @@ export function enhanceCode(root) {
 // ---------- the kit ----------
 export function initChatKit(o) {
   const form = o.form, q = o.input, send = o.send, sel = o.tierSelect, log = o.log;
-  const st = { images: [], busy: false, abort: null, user: null, quota: null, signedIn: false, tier: sel?.value || "forge" };
+  const st = { images: [], busy: false, abort: null, user: null, quota: null, signedIn: false, plan: null, tier: sel?.value || "forge" };
+  if (!document.getElementById("wy-plan-css")) { const c = el("style"); c.id = "wy-plan-css"; c.textContent = PLAN_CSS; document.head.append(c); }
   // --- model pill ---
   for (const m of MODELS) if (sel && !sel.querySelector(`option[value="${m.id}"]`)) { const op = el("option", "", m.name); op.value = m.id; sel.append(op); }
   const pill = el("button", "wy-pill"); pill.type = "button"; pill.setAttribute("aria-haspopup", "listbox"); pill.title = "Choose a model";
   const menu = el("div", "wy-pillmenu"); menu.hidden = true; menu.setAttribute("role", "listbox");
   const leftText = id => { const s = st.quota?.[id]; if (!st.signedIn) return "Sign in to use"; if (!s) return ""; if (s.available === false) return "Unavailable"; return s.left > 0 ? `${s.left} left today` : "Resets tomorrow"; };
   const paintPill = () => { pill.innerHTML = ""; pill.append(el("span", "wy-pname", modelName(st.tier))); if (QUOTA_TIERS.has(st.tier) && st.signedIn && st.quota?.[st.tier]) pill.append(el("span", "wy-pleft", leftText(st.tier))); pill.insertAdjacentHTML("beforeend", ICON.chev); };
-  const paintMenu = () => { menu.innerHTML = ""; for (const m of MODELS) { const it = el("button", "wy-pitem" + (m.id === st.tier ? " on" : "")); it.type = "button"; it.setAttribute("role", "option"); it.setAttribute("aria-selected", m.id === st.tier); it.dataset.id = m.id;
+  const paintMenu = () => { menu.innerHTML = ""; for (const m of MODELS) { const lk = !planAllows(st.plan, m.id); const it = el("button", "wy-pitem" + (m.id === st.tier ? " on" : "") + (lk ? " wy-locked" : "")); it.type = "button"; it.setAttribute("role", "option"); it.setAttribute("aria-selected", m.id === st.tier); it.dataset.id = m.id;
       const l = el("span", "wy-pl"); l.append(el("b", "", m.name), el("small", "", m.hint)); it.append(l); if (m.quota) it.append(el("span", "wy-pq" + (st.quota?.[m.id]?.left === 0 ? " out" : ""), leftText(m.id)));
-      it.onclick = () => { setTier(m.id, true); closeMenu(); q?.focus(); }; menu.append(it); } };
+      if (lk) { const need = MODE_PLAN[m.id]; it.title = `${m.name} needs LarkquillAI ${PLAN_NAME[need]}`; it.setAttribute("aria-disabled", "true");
+        const w = el("span", "wy-plock"); w.innerHTML = ICON.lock; const up = el("span", "wy-pup", "Upgrade"); up.setAttribute("role", "button"); up.title = `Upgrade to ${PLAN_NAME[need]}`; w.append(up); it.append(w); }
+      it.onclick = () => { if (lk) { closeMenu(); openUpgrade(MODE_PLAN[m.id], o.upgradeUrl); return; } setTier(m.id, true); closeMenu(); q?.focus(); }; menu.append(it); }
+    if (st.plan) { const f = el("div", "wy-pplan"); f.append(el("span", "", "Plan: " + PLAN_NAME[st.plan]));
+      if (st.plan !== "max") { const a = el("a", "", "See plans"); a.href = "#"; a.onclick = e => { e.preventDefault(); closeMenu(); openUpgrade(null, o.upgradeUrl); }; f.append(a); } menu.append(f); } };
   const closeMenu = () => { menu.hidden = true; pill.setAttribute("aria-expanded", "false"); };
-  pill.onclick = e => { e.stopPropagation(); if (menu.hidden) { paintMenu(); menu.hidden = false; pill.setAttribute("aria-expanded", "true"); refreshQuota(); } else closeMenu(); };
+  pill.onclick = e => { e.stopPropagation(); if (menu.hidden) { paintMenu(); menu.hidden = false; pill.setAttribute("aria-expanded", "true"); refreshQuota(); refreshPlan(); } else closeMenu(); };
   document.addEventListener("click", e => { if (!menu.hidden && !menu.contains(e.target)) closeMenu(); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !menu.hidden) closeMenu(); });
   const prefKey = () => "wy.model" + (st.user ? ":" + st.user : "");
-  function setTier(id, persist) { if (!MODELS.some(m => m.id === id)) return; st.tier = id; if (sel) { sel.value = id; sel.dispatchEvent(new Event("change")); } if (persist) { localStorage.setItem(prefKey(), id); localStorage.setItem("wy.model", id); } paintPill(); paintTray(); }
+  const bestAllowed = () => [...MODELS].reverse().find(m => planAllows(st.plan, m.id) && m.id !== "zenith")?.id || "spark";
+  function setTier(id, persist) { if (!MODELS.some(m => m.id === id)) return; if (!planAllows(st.plan, id)) { if (persist) return openUpgrade(MODE_PLAN[id], o.upgradeUrl); id = bestAllowed(); } st.tier = id; if (sel) { sel.value = id; sel.dispatchEvent(new Event("change")); } if (persist) { localStorage.setItem(prefKey(), id); localStorage.setItem("wy.model", id); } paintPill(); paintTray(); }
   const wrap = el("div", "wy-pillwrap"); wrap.append(pill, menu);
   // --- attachments ---
   const tray = el("div", "wy-tray"); tray.hidden = true;
@@ -140,11 +162,16 @@ export function initChatKit(o) {
   async function refreshQuota() {
     try { const tok = localStorage.getItem("wy.token"); const r = await fetch(o.apiBase + "/api/chat?_r=models", { headers: tok ? { authorization: "Bearer " + tok } : {}, credentials: "include" });
       if (!r.ok) return; const j = await r.json(); st.quota = j.models; st.signedIn = !!j.signedIn; paintPill(); if (!menu.hidden) paintMenu(); paintTray(); } catch {} }
-  const saved = localStorage.getItem("wy.model") || (sel && sel.value) || "forge"; setTier(MODELS.some(m => m.id === saved) ? saved : "forge", false); refreshQuota();
+  // --- plan (Hobby when signed out); a locked current model switches to the best allowed one ---
+  async function refreshPlan() {
+    try { const tok = localStorage.getItem("wy.token"); const r = await fetch(o.apiBase + "/api/billing?action=plan", { headers: tok ? { authorization: "Bearer " + tok } : {}, credentials: "include" });
+      const p = r.status === 401 ? "hobby" : r.ok ? (await r.json()).plan : null; if (!p || !PLAN_RANK.hasOwnProperty(p)) return;
+      st.plan = p; if (!planAllows(p, st.tier)) setTier(bestAllowed(), false); paintPill(); if (!menu.hidden) paintMenu(); o.onPlan?.(p); } catch {} }
+  const saved = localStorage.getItem("wy.model") || (sel && sel.value) || "forge"; setTier(MODELS.some(m => m.id === saved) ? saved : "forge", false); refreshQuota(); refreshPlan();
   return {
-    get tier() { return st.tier; }, get images() { return st.images; }, get signedIn() { return st.signedIn; }, isQuotaTier: id => QUOTA_TIERS.has(id ?? st.tier),
+    get tier() { return st.tier; }, get plan() { return st.plan; }, refreshPlan, get images() { return st.images; }, get signedIn() { return st.signedIn; }, isQuotaTier: id => QUOTA_TIERS.has(id ?? st.tier),
     takeImages() { const a = st.images; st.images = []; paintTray(); return a; },
-    setUser(id) { st.user = id || null; const v = id && localStorage.getItem(prefKey()); if (v && MODELS.some(m => m.id === v)) setTier(v, false); refreshQuota(); },
+    setUser(id) { st.user = id || null; const v = id && localStorage.getItem(prefKey()); if (v && MODELS.some(m => m.id === v)) setTier(v, false); refreshQuota(); refreshPlan(); },
     setQuota(model, left) { st.quota ||= {}; st.quota[model] = { ...(st.quota[model] || {}), left }; paintPill(); paintTray(); },
     refreshQuota, setTier,
     setBusy(on, abort) { st.busy = on; st.abort = on ? abort : null; send.hidden = on; stop.hidden = !on; form.classList.toggle("wy-busy", on); if (!on) refreshQuota(); },
