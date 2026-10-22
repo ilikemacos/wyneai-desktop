@@ -58,7 +58,7 @@ async function renderAccount(b, me) {
   b.append(el("h2", "", "Account"));
   const u = me?.user; if (!u) { b.append(el("p", "sub", "You're not signed in."), row("Sign in", "Save chats, run cloud tasks and see your usage.", (() => { const x = el("button", "pri", "Sign in"); x.onclick = () => { close(); [...document.querySelectorAll("button")].find(y => y.textContent.trim() === "Sign in")?.click(); }; return x; })())); return; }
   b.append(el("p", "sub", u.email));
-  { const PN = { hobby: "Hobby", pro: "Pro", max: "Max" }, PM = { hobby: "Quill Wren and Quill Scribe", pro: "Quill Wren, Quill Scribe and Quill Sage", max: "Every model, including Quill Sovereign" };
+  { const PN = { hobby: "Hobby", pro: "Pro", max: "Max" }, PM = { hobby: "Quill Wren 1.1 and Quill Scribe 1", pro: "Quill Wren 1.1, Quill Scribe 1 and Quill Sage 1.4", max: "Every model, including Quill Sovereign 0.4" };
     const plan = PN[u.plan] ? u.plan : "hobby", pb = el("button", plan === "max" ? "" : "pri", plan === "max" ? "See plans" : plan === "pro" ? "Upgrade to Max" : "Upgrade"); pb.type = "button";
     pb.onclick = () => import("./chatkit.js").then(m => m.openUpgrade(plan === "pro" ? "max" : null)).catch(() => window.open("https://ilikemacos.github.io/larkquillai/plans.html", "_blank", "noopener"));
     const t = el("div", "l"); const r = el("div", "row"); t.append(el("div", "t", "Plan: LarkquillAI " + PN[plan]), el("div", "d", PM[plan] + ". One-time purchase, tied to this account.")); r.append(t, pb); b.append(r); }
@@ -84,11 +84,11 @@ async function renderUsage(b, me) {
     for (const m of Object.values(u.tokens.modes)) b.append(card(m.name + " tokens", `${fk(m.used)} / ${fk(m.limit)} today`, bar(m.used, m.limit), el("div", "muted", `${fk(m.context)} context per message. Counts input and output.`)));
     b.append(el("p", "sub", `Token limits reset at ${u.tokens.resets} (in ${u.tokens.resetsIn}). Older messages are trimmed to fit a mode's context.`)); }
   const ct = u.cloudTasks;
-  b.append(card("Cloud tasks", `${ct.used} / ${ct.limit} in the last 24 hours`, bar(ct.used, ct.limit), el("div", "muted", `Quill Sovereign tasks count as ${ct.zenithWeight}. ${ct.tasks} task${ct.tasks === 1 ? "" : "s"} started in the last 24 hours, ${ct.month} this month.`)));
-  b.append(card("Running now", `${ct.running} / ${ct.concurrentLimit}`, bar(ct.running, ct.concurrentLimit), el("div", "muted", `Up to ${ct.stepLimit.forge} steps on Quill Sage and ${ct.stepLimit.zenith} on Quill Sovereign, ${ct.maxMinutes} minutes per task.`)));
+  b.append(card("Cloud tasks", `${ct.used} / ${ct.limit} in the last 24 hours`, bar(ct.used, ct.limit), el("div", "muted", `Quill Sovereign 0.4 tasks count as ${ct.zenithWeight}. ${ct.tasks} task${ct.tasks === 1 ? "" : "s"} started in the last 24 hours, ${ct.month} this month.`)));
+  b.append(card("Running now", `${ct.running} / ${ct.concurrentLimit}`, bar(ct.running, ct.concurrentLimit), el("div", "muted", `Up to ${ct.stepLimit.forge} steps on Quill Sage 1.4 and ${ct.stepLimit.zenith} on Quill Sovereign 0.4, ${ct.maxMinutes} minutes per task.`)));
   const kv = el("div", "kv"); for (const [k, v] of [["Today", u.messages.today], ["This month", u.messages.month], ["All time", u.messages.total], ["Chats", u.chats]]) kv.append(el("span", "", k), el("span", "", String(v)));
   b.append(card("Messages", "saved to your history", kv, el("div", "muted", "Counts messages you sent in saved chats.")));
-  const cl = u.chatLimits; b.append(card("Chat limits", cl.scope, el("div", "muted", `${cl.perMinute} messages a minute and ${cl.perDay} a day. Quill Sovereign counts as ${cl.zenithWeight}, with up to ${cl.zenithPerDay} Quill Sovereign messages a day. These are counted per network address, so they aren't shown as a bar.`)));
+  const cl = u.chatLimits; b.append(card("Chat limits", cl.scope, el("div", "muted", `${cl.perMinute} messages a minute and ${cl.perDay} a day. Quill Sovereign 0.4 counts as ${cl.zenithWeight}, with up to ${cl.zenithPerDay} Quill Sovereign 0.4 messages a day. These are counted per network address, so they aren't shown as a bar.`)));
 }
 async function renderUpdates(b) {
   b.append(el("h2", "", "Updates"));
