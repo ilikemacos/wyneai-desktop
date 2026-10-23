@@ -7,18 +7,18 @@ const wyMode = v => { const s = String(v || "").toLowerCase(); if (!s) return v;
 //  - code blocks: language label + copy button + highlight.js (vendored in ./md/) with a light sky palette
 // Styles live in sky.css (it is kept as the last stylesheet, so they win over older themes).
 export const MODELS = [
-  { id: "spark",  name: "Quill Wren 1.2",      hint: "Fastest · Hobby" },
-  { id: "turbo",  name: "Quill Scribe 1.1",    hint: "Balanced · Hobby · default" },
-  { id: "forge",  name: "Quill Sage 1.5",      hint: "Smarter · Pro" },
-  { id: "zenith", name: "Quill Sovereign 0.5", hint: "Most capable · Max" },
-  { id: "monarch", name: "Quill Monarch 0.3", hint: "Frontier · Ultra" },
+  { id: "spark",  name: "Quill Wren 1.2",      hint: "Fastest · 128k/day" },
+  { id: "turbo",  name: "Quill Scribe 1.1",    hint: "Balanced · 200k/day · default" },
+  { id: "forge",  name: "Quill Sage 1.5",      hint: "Smarter · 3.4M/day" },
+  { id: "zenith", name: "Quill Sovereign 0.5", hint: "Most capable · 6.8M/day" },
+  { id: "monarch", name: "Quill Monarch 0.3", hint: "Frontier · 27.2M/day" },
 ];
 export const QUOTA_TIERS = new Set([]);
-// Plans (enforced server-side; this only paints locks): Hobby = Quill Wren + Quill Scribe, Pro adds Quill Sage, Max = every model.
+// Plans are free feature labels only; every mode is available. Daily token limits still apply server-side.
 export const MODE_PLAN = { spark: "hobby", turbo: "hobby", forge: "pro", zenith: "max", monarch: "ultra" };
-const PLAN_RANK = { hobby: 0, pro: 1, max: 2 }, PLAN_NAME = { hobby: "Hobby", pro: "Pro", max: "Max" };
+const PLAN_RANK = { hobby: 0, pro: 1, max: 2, ultra: 3 }, PLAN_NAME = { hobby: "Hobby", pro: "Pro", max: "Max", ultra: "Ultra" };
 export const UPGRADE_PAGE = "https://ilikemacos.github.io/larkquillai/plans.html";
-export const planAllows = (plan, id) => !plan || (PLAN_RANK[MODE_PLAN[id] || "max"] ?? 2) <= (PLAN_RANK[plan] ?? 0);
+export const planAllows = (plan, id) => true;
 export function openUpgrade(want, url) {
   const T = window.__TAURI__, base = url || (T?.core || !/^https?:$/.test(location.protocol) ? UPGRADE_PAGE : new URL("plans.html", location.href).href);
   const u = base + (want ? (base.includes("?") ? "&" : "?") + "want=" + want : "");

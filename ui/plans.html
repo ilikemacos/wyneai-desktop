@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Plans · LarkquillAI</title><link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180"><meta name="theme-color" content="#ffffff">
-<meta name="description" content="LarkquillAI plans: Hobby is free. Pro, Max, and Ultra are monthly memberships through Buy Me a Coffee.">
+<meta name="description" content="LarkquillAI models and daily usage. Every Quill model is free — pick the one that fits the work.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}[hidden]{display:none!important}body{margin:0}
@@ -13,124 +13,70 @@ main{max-width:1180px;margin:0 auto;padding:0 24px 80px}
 .plan ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;font-size:14px}.plan li{display:flex;gap:8px;align-items:flex-start}
 .plan li .ok{flex:none;width:18px;height:18px;border-radius:50%;background:var(--lq-tert);display:inline-flex;align-items:center;justify-content:center;font-size:11px;margin-top:2px}
 .plan li.off{color:var(--lq-muted)}.plan li.off .ok{opacity:.5}
-.plan .sp{flex:1}.plan button{width:100%;height:44px}
+.plan .sp{flex:1}.plan a.cta,.plan button{width:100%;height:44px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 .plan.feat{background:var(--lq-sky)!important;color:#fff!important;border:0!important}.plan.feat .pr small,.plan.feat li,.plan.feat .nm{color:#fff}.plan.feat li .ok{background:rgba(255,255,255,.22)}
-.plan.feat button.primary{background:#fff!important;color:#141414!important;border-color:#fff!important}.plan.feat button:not(.primary){background:rgba(255,255,255,.18)!important;color:#fff!important}
-.cur{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;background:var(--lq-ink);color:var(--lq-on-ink);font-size:11.5px;font-weight:500}.plan.feat .cur{background:#fff;color:#141414}
+.plan.feat a.cta,.plan.feat button.primary{background:#fff!important;color:#141414!important;border-color:#fff!important}
 .note{margin-top:18px;font-size:13px;color:var(--lq-muted);line-height:1.45;padding:12px 14px;border-radius:14px;background:var(--lq-surface)}
 .pbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:14px;color:var(--lq-muted)}
-#checkout{margin-top:28px}#checkout h2{margin:0 0 6px}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}@media(max-width:860px){.steps{grid-template-columns:1fr}}
-.step{background:var(--lq-surface);border-radius:18px;padding:16px}.step .n{font-size:12px;color:var(--lq-muted);margin-bottom:6px}.step p{margin:6px 0 0;font-size:13px}
-.code{display:flex;align-items:center;gap:8px;margin-top:8px}.code code{flex:1;font-size:15px!important;background:var(--lq-bg)!important;border-radius:12px;padding:10px 12px!important;word-break:break-all}
-.status{margin-top:16px;display:flex;gap:10px;align-items:center;font-size:14px}.dot{width:9px;height:9px;border-radius:50%;background:var(--lq-warn);flex:none;animation:p 1.6s infinite}.status.ok .dot{background:#2f9e62;animation:none}.status.bad .dot{background:var(--lq-bad);animation:none}
-@keyframes p{50%{opacity:.35}}
 .faq{margin-top:44px;display:grid;grid-template-columns:repeat(2,1fr);gap:20px 32px}@media(max-width:860px){.faq{grid-template-columns:1fr}}.faq h3{font:500 14px var(--lq-sans);margin:0 0 4px}.faq p{margin:0;font-size:14px}
-  li .muted{opacity:.62;font-weight:400}
+li .muted{opacity:.62;font-weight:400}
+.models{margin-top:36px}.models h2{font:500 18px var(--lq-sans);margin:0 0 12px}
+.mt{width:100%;border-collapse:collapse;font-size:14px}.mt th,.mt td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--lq-rule,#e8e8e6)}.mt th{color:var(--lq-muted);font-weight:500;font-size:12px}
 </style><link rel="stylesheet" href="lq.css"></head><body>
 <main>
   <div class="lq-top"><a class="lq-word" href="index.html"><img src="favicon.svg" alt="">Larkquill<em>AI</em></a><span class="lq-sp"></span><a class="lq-btn lq-ghost" href="index.html" style="height:36px;font-size:14px!important">Open chat</a></div>
-  <h1 class="lq-display">Plans that scale with <em>how you work</em></h1>
-  <p class="lq-lede">Hobby is free. Pro, Max, and Ultra are monthly memberships through Buy Me a Coffee, tied to your LarkquillAI account.</p>
-  <div class="pbar" id="who">Loading your plan…</div>
+  <h1 class="lq-display">Models that scale with <em>how you work</em></h1>
+  <p class="lq-lede">Every Quill model is free. Pick the one that fits the task — daily token limits keep usage fair for everyone.</p>
+  <div class="pbar" id="who">All models included · no sign-up purchase</div>
 
   <section class="plans" id="plans">
-    <div class="plan lq-card" data-plan="hobby"><div class="nm">Hobby</div><div class="ds">Get started with everyday chat</div><div class="pr">Free</div>
-      <ul><li><span class="ok">✓</span>Quill Wren 1.2 <span class="muted">· Fast and lightweight</span></li><li><span class="ok">✓</span>Quill Scribe 1.1 <span class="muted">· Everyday default</span></li><li><span class="ok">✓</span>Chat history, cloud tools, API keys</li><li class="off"><span class="ok">–</span>Quill Sage 1.5</li><li class="off"><span class="ok">–</span>Quill Sovereign 0.5</li><li class="off"><span class="ok">–</span>Quill Monarch 0.3</li></ul>
-      <span class="sp"></span><button type="button" data-act="hobby" disabled>Included</button></div>
-    <div class="plan lq-card" data-plan="pro"><div class="nm">Pro</div><div class="ds">For people who use LarkquillAI every day</div><div class="pr">$11.99<small>/mo</small></div>
-      <ul><li><span class="ok">✓</span>Everything in Hobby</li><li><span class="ok">✓</span>17× more usage</li><li><span class="ok">✓</span>Quill Sage 1.5 <span class="muted">· Advanced reasoning, 128k context</span></li><li><span class="ok">✓</span>Quill Sage 1.5 in cloud tasks and the API</li><li class="off"><span class="ok">–</span>Quill Sovereign 0.5</li><li class="off"><span class="ok">–</span>Quill Monarch 0.3</li></ul>
-      <span class="sp"></span><button type="button" class="primary" data-act="pro">Get Pro · $11.99/mo</button></div>
-    <div class="plan lq-card" data-plan="max"><div class="nm">Max</div><div class="ds">For heavy use and the biggest tasks</div><div class="pr">$29.99<small>/mo</small></div>
-      <ul><li><span class="ok">✓</span>Everything in Pro</li><li><span class="ok">✓</span>2× the usage of Pro</li><li><span class="ok">✓</span>Quill Sovereign 0.5 <span class="muted">· Most capable flagship, 200k context</span></li><li><span class="ok">✓</span>Quill Sovereign in cloud tasks and the API</li><li class="off"><span class="ok">–</span>Quill Monarch 0.3</li></ul>
-      <span class="sp"></span><button type="button" class="primary" data-act="max">Get Max · $29.99/mo</button></div>
-    <div class="plan lq-card feat" data-plan="ultra"><div class="nm">Ultra</div><div class="ds">Frontier reasoning for the hardest work</div><div class="pr">$37.99<small>/mo</small></div>
-      <ul><li><span class="ok">✓</span>Everything in Max</li><li><span class="ok">✓</span>4× the usage of Max on Monarch</li><li><span class="ok">✓</span>Quill Monarch 0.3 <span class="muted">· 200k context, 27.2M tokens/day</span></li><li><span class="ok">✓</span>Monarch in chat and the API</li><li><span class="ok">✓</span>Cancel anytime on Buy Me a Coffee</li></ul>
-      <span class="sp"></span><button type="button" class="primary" data-act="ultra">Get Ultra · $37.99/mo</button></div>
+    <div class="plan lq-card" data-plan="hobby"><div class="nm">Everyday</div><div class="ds">Fast chat and light work</div><div class="pr">Free</div>
+      <ul><li><span class="ok">✓</span>Quill Wren 1.2 <span class="muted">· 128k tokens/day</span></li><li><span class="ok">✓</span>Quill Scribe 1.1 <span class="muted">· 200k tokens/day · default</span></li><li><span class="ok">✓</span>Chat history, cloud tools, API keys</li></ul>
+      <span class="sp"></span><a class="lq-btn cta" href="index.html">Open chat</a></div>
+    <div class="plan lq-card" data-plan="pro"><div class="nm">Advanced</div><div class="ds">Deeper reasoning for daily use</div><div class="pr">Free</div>
+      <ul><li><span class="ok">✓</span>Everything in Everyday</li><li><span class="ok">✓</span>Quill Sage 1.5 <span class="muted">· 3.4M tokens/day · 128k context</span></li><li><span class="ok">✓</span>Sage in cloud tasks and the API</li></ul>
+      <span class="sp"></span><a class="lq-btn cta primary" href="index.html">Open chat</a></div>
+    <div class="plan lq-card" data-plan="max"><div class="nm">Flagship</div><div class="ds">Biggest contexts and heavy tasks</div><div class="pr">Free</div>
+      <ul><li><span class="ok">✓</span>Everything in Advanced</li><li><span class="ok">✓</span>Quill Sovereign 0.5 <span class="muted">· 6.8M tokens/day · 200k context</span></li><li><span class="ok">✓</span>Sovereign in cloud tasks and the API</li></ul>
+      <span class="sp"></span><a class="lq-btn cta primary" href="index.html">Open chat</a></div>
+    <div class="plan lq-card feat" data-plan="ultra"><div class="nm">Frontier</div><div class="ds">Hardest work and frontier reasoning</div><div class="pr">Free</div>
+      <ul><li><span class="ok">✓</span>Everything in Flagship</li><li><span class="ok">✓</span>Quill Monarch 0.3 <span class="muted">· 27.2M tokens/day · 200k context</span></li><li><span class="ok">✓</span>Monarch in chat and the API</li></ul>
+      <span class="sp"></span><a class="lq-btn cta primary" href="index.html">Open chat</a></div>
   </section>
   <p class="note">Under heavy load, Quill Monarch 0.3 may briefly queue or slow down so everyone keeps a fair share. Your 27.2M daily token budget is unchanged.</p>
 
-  <section id="checkout" class="lq-card" hidden>
-    <h2 id="coTitle">Upgrade</h2><p class="sub" id="coSub"></p>
-    <div class="steps">
-      <div class="step"><div class="n">1 · Copy your claim code</div><div class="code"><code id="coMsg"></code><button type="button" id="coCopy">Copy</button></div><p>It links the membership to your account. Paste it into the membership message.</p></div>
-      <div class="step"><div class="n">2 · Join on Buy Me a Coffee</div><a class="lq-btn" id="coOpen" href="https://buymeacoffee.com/chopstickshq/membership" target="_blank" rel="noopener" style="margin-top:8px">Join <span id="coAmt"></span>/mo</a><p>Pick the matching membership at <b id="coAmt2"></b>/mo (USD), and paste the code in the message box.</p></div>
-      <div class="step"><div class="n">3 · We confirm it</div><p id="coWait">Matching memberships unlock within a minute. Anything else is checked by hand, usually within a few hours. This page updates by itself.</p></div>
-    </div>
-    <div class="status" id="coStatus"><span class="dot"></span><span id="coStatusT">Waiting for your membership…</span></div>
-    <div class="pbar"><button type="button" id="coCheck">Check now</button><span id="coErr" class="err"></span></div>
+  <section class="models">
+    <h2>Daily limits by model</h2>
+    <table class="mt">
+      <thead><tr><th>Model</th><th>Context</th><th>Tokens / day</th></tr></thead>
+      <tbody>
+        <tr><td>Quill Wren 1.2</td><td>16k</td><td>128k</td></tr>
+        <tr><td>Quill Scribe 1.1</td><td>64k</td><td>200k</td></tr>
+        <tr><td>Quill Sage 1.5</td><td>128k</td><td>3.4M</td></tr>
+        <tr><td>Quill Sovereign 0.5</td><td>200k</td><td>6.8M</td></tr>
+        <tr><td>Quill Monarch 0.3</td><td>200k</td><td>27.2M</td></tr>
+      </tbody>
+    </table>
   </section>
 
   <section class="faq">
-    <div><h3>Is this a subscription?</h3><p>Yes. Pro, Max, and Ultra are monthly Buy Me a Coffee memberships. Cancel anytime on Buy Me a Coffee; access stays through the paid period.</p></div>
-    <div><h3>I already bought forever Pro or Max</h3><p>Those one-time purchases stay on your account forever. Forever Max does not include Quill Monarch 0.3 — join Ultra for Monarch.</p></div>
-    <div><h3>Does it work in the API and the desktop app?</h3><p>Yes. Your plan is checked on the server, so the web chat, the desktop app and every API key you create get the same models.</p></div>
-    <div><h3>My membership hasn't unlocked anything</h3><p>Keep the claim code. Memberships are confirmed automatically when the code and amount match, otherwise by hand within a few hours. If something looks wrong, message chopstickshq on Buy Me a Coffee with your code.</p></div>
+    <div><h3>Do I need to pay?</h3><p>No. Every Quill model is free. Daily token limits keep shared capacity fair.</p></div>
+    <div><h3>Does it work in the API and the desktop app?</h3><p>Yes. The same models and daily limits apply on the web chat, the desktop app, and API keys you create.</p></div>
+    <div><h3>I used to have a paid plan</h3><p>Paid unlocks are no longer required. You already have every model; pick Monarch (or any other) in the picker anytime.</p></div>
+    <div><h3>Why might Monarch queue?</h3><p>Under heavy load we may briefly queue Monarch so everyone keeps a fair share. The 27.2M daily budget is unchanged.</p></div>
   </section>
-  <footer class="lq-foot"><span>LarkquillAI by Chopsticks HQ</span><a href="index.html">Chat</a><a href="api.html">API</a><a href="plans.html">Plans</a><a href="https://buymeacoffee.com/chopstickshq" target="_blank" rel="noopener">Buy Me a Coffee</a></footer>
+  <footer class="lq-foot"><span>LarkquillAI by Chopsticks HQ</span><a href="index.html">Chat</a><a href="api.html">API</a><a href="plans.html">Plans</a></footer>
 </main>
 <script type="module">
 const BASE = /\.vercel\.app$|(^|\.)chopstickshq\.com$/.test(location.hostname) ? "" : "https://larkquillai.vercel.app";
 const $ = id => document.getElementById(id);
-const NAME = { hobby: "Hobby", pro: "Pro", max: "Max", ultra: "Ultra" }, RANK = { hobby: 0, pro: 1, max: 2, ultra: 3 };
-const api = (body) => { const t = localStorage.getItem("wy.token"); return fetch(BASE + "/api/billing", { method: "POST", credentials: "include", headers: { "content-type": "application/json", ...(t ? { authorization: "Bearer " + t } : {}) }, body: JSON.stringify(body) }); };
-let state = null, claim = null, timer = null, started = 0;
-
-function paint() {
-  const plan = state?.plan || "hobby";
-  for (const card of document.querySelectorAll(".plan")) {
-    const p = card.dataset.plan, b = card.querySelector("button"); card.querySelector(".cur")?.remove();
-    if (state && p === plan) card.querySelector(".nm").insertAdjacentHTML("beforeend", '<span class="cur">Your plan</span>');
-    if (p === "hobby") { b.textContent = plan === "hobby" ? "Your plan" : "Included"; continue; }
-    if (!state) { b.disabled = false; b.textContent = `Sign in to get ${NAME[p]}`; continue; }
-    const price = state.prices?.[p] || 0;
-    b.disabled = !price; b.textContent = !price ? (RANK[plan] >= RANK[p] ? (p === plan ? "Your plan" : "Included") : "") : `${RANK[plan] > 0 && RANK[p] > RANK[plan] ? "Upgrade to" : "Get"} ${NAME[p]} · $${price.toFixed(2)}/mo`;
+try {
+  const t = localStorage.getItem("wy.token");
+  const r = await fetch(BASE + "/api/auth/me", { credentials: "include", headers: t ? { authorization: "Bearer " + t } : {} });
+  if (r.ok) {
+    const j = await r.json();
+    const email = j?.user?.email;
+    $("who").textContent = email ? `Signed in as ${email} · every model included` : "Every model included · sign in to sync history and API keys";
   }
-}
-function setStatus(t, kind) { $("coStatusT").textContent = t; $("coStatus").className = "status" + (kind ? " " + kind : ""); }
-function showCheckout(c) {
-  claim = c; $("checkout").hidden = false; $("coTitle").textContent = `Get LarkquillAI ${NAME[c.plan]}`;
-  $("coSub").textContent = `$${Number(c.amount).toFixed(2)}/mo membership. Unlocks on ${state?.email || "your account"}.`;
-  $("coMsg").textContent = c.message; $("coAmt").textContent = "$" + Number(c.amount).toFixed(2); $("coAmt2").textContent = "$" + Number(c.amount).toFixed(2);
-  $("coOpen").href = c.checkoutUrl || "https://buymeacoffee.com/chopstickshq/membership";
-  $("coOpen").textContent = `Join $${Number(c.amount).toFixed(2)}/mo`;
-  setStatus(c.status === "rejected" ? (c.note ? "Not approved: " + c.note : "Not approved. Message chopstickshq on Buy Me a Coffee with your code.") : "Waiting for your membership… after joining, keep this page open.", c.status === "rejected" ? "bad" : "");
-  startPoll();
-}
-async function check(manual) {
-  if (!claim) return; $("coErr").textContent = "";
-  try { const r = await api({ action: "checkUpgrade", claimId: claim.claimId }); const j = await r.json();
-    if (j.ok) { stopPoll(); setStatus(`Done. You're on ${j.name}. Enjoy the new models.`, "ok"); await load(); return; }
-    if (j.status === "rejected") { stopPoll(); setStatus(j.error, "bad"); return; }
-    if (j.status === "pending") setStatus("Waiting for confirmation. Memberships are usually confirmed within a few hours. You can close this page and come back.");
-    else if (manual) $("coErr").textContent = j.error || "Couldn't check right now.";
-  } catch { if (manual) $("coErr").textContent = "Network error. Trying again shortly."; }
-}
-function startPoll() { stopPoll(); started = Date.now(); const tick = () => { check(false); timer = setTimeout(tick, Date.now() - started < 600_000 ? 15_000 : 60_000); }; timer = setTimeout(tick, 15_000); }
-function stopPoll() { if (timer) clearTimeout(timer); timer = null; }
-
-async function load() {
-  try { const r = await api({ action: "plan" });
-    if (r.status === 401) { state = null; $("who").innerHTML = 'You\'re on Hobby. <a href="index.html">Sign in on LarkquillAI</a> to upgrade; plans are tied to your account.'; paint(); return; }
-    const j = await r.json(); if (!j.ok) throw new Error(j.error);
-    state = j; const me = await fetch(BASE + "/api/auth/me", { credentials: "include", headers: localStorage.getItem("wy.token") ? { authorization: "Bearer " + localStorage.getItem("wy.token") } : {} }).then(r => r.json()).catch(() => ({}));
-    state.email = me?.user?.email || null;
-    $("who").textContent = `Signed in${state.email ? " as " + state.email : ""} · current plan: ${j.name}${j.owner ? " (owner)" : ""}`;
-    paint();
-    if (j.pending && !claim) showCheckout(j.pending);
-  } catch { $("who").textContent = "Couldn't load your plan. Refresh to try again."; }
-}
-document.querySelectorAll(".plan button[data-act]").forEach(b => b.onclick = async () => {
-  const p = b.dataset.act; if (p === "hobby") return;
-  if (!state) { location.href = "index.html"; return; }
-  b.disabled = true; try { const j = await (await api({ action: "prepareUpgrade", plan: p })).json();
-    if (j.mode === "already") { await load(); return; } if (!j.ok) throw new Error(j.error);
-    showCheckout({ ...j, status: "pending" }); $("checkout").scrollIntoView({ behavior: "smooth", block: "start" });
-  } catch (e) { $("who").textContent = e.message || "Couldn't start checkout."; } finally { b.disabled = false; paint(); }
-});
-$("coCopy").onclick = async () => { try { await navigator.clipboard.writeText($("coMsg").textContent); $("coCopy").textContent = "Copied"; setTimeout(() => $("coCopy").textContent = "Copy", 1200); } catch {} };
-$("coCheck").onclick = () => check(true);
-addEventListener("visibilitychange", () => { if (!document.hidden && claim && timer) check(false); });
-await load();
-const want = new URLSearchParams(location.search).get("want"); if (want && state && state.prices?.[want] && !claim) document.querySelector(`.plan[data-plan="${want}"]`)?.scrollIntoView({ block: "center" });
+} catch { /* keep default lede */ }
 </script></body></html>
