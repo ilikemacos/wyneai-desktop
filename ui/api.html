@@ -75,7 +75,7 @@ main>h2,#app>h2,#admin>h2{margin:44px 0 6px!important}
 
     <section id="admin" hidden>
       <h2>Payments to confirm <span class="lq-chip" style="margin-left:6px">Owner only</span></h2>
-      <p class="sub" id="adminSub">Buy Me a Coffee tips with a claim code (Fathom Pro). Approve issues the Fathom Pro key; Reject shows the buyer your note. LarkquillAI models are free — no plan purchases.</p>
+      <p class="sub" id="adminSub">Old Buy Me a Coffee claims. Fathom Pro is no longer sold, so its claims can only be rejected. LarkquillAI models are free — no plan purchases.</p>
       <div class="card"><div class="keytabs" id="adminTabs"></div><div style="overflow:auto"><table><thead><tr><th>When</th><th>Product</th><th>Buyer</th><th>Amount</th><th>Tip message</th><th>BMC check</th><th></th></tr></thead><tbody id="adminRows"><tr><td colspan="7" class="empty">Loading…</td></tr></tbody></table></div><div id="adminErr" class="err" hidden></div></div>
     </section>
   </div>
@@ -154,7 +154,7 @@ async function loadAdmin() {
   const tb = $("adminRows"); $("adminErr").hidden = true;
   let j; try { j = await (await bill({ action: "adminList", status: ADMIN_ST })).json(); } catch { j = { ok: false, error: "Network error." }; }
   if (!j.ok) { $("adminErr").textContent = j.error || "Couldn't load claims."; $("adminErr").hidden = false; return; }
-  $("adminSub").textContent = (j.verify === "bmc" ? "Automatic check: on (Buy Me a Coffee API). Matching tips are approved by themselves; the rest wait here." : "Automatic check: off (no BMC_TOKEN). Every claim waits here for you.") + (j.bmcError ? ` BMC API error: ${j.bmcError}.` : "") + " Approve issues the Fathom Pro key; Reject shows the buyer your note. LarkquillAI models are free.";
+  $("adminSub").textContent = (j.verify === "bmc" ? "Automatic check: on (Buy Me a Coffee API). Matching tips are approved by themselves; the rest wait here." : "Automatic check: off (no BMC_TOKEN). Every claim waits here for you.") + (j.bmcError ? ` BMC API error: ${j.bmcError}.` : "") + " Fathom Pro is no longer sold: its claims can only be rejected (Reject shows the buyer your note). LarkquillAI models are free.";
   tb.replaceChildren(); if (!j.claims.length) { tb.append(el("tr", {}, el("td", { colSpan: 7, className: "empty", textContent: ADMIN_ST === "pending" ? "Nothing waiting." : "None." }))); return; }
   for (const c of j.claims) {
     const t = new Date(c.submitted_at || c.created_at), whenTxt = t.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
@@ -165,14 +165,13 @@ async function loadAdmin() {
       ok.onclick = async () => { if (!confirm(`Approve ${c.product} for ${c.who} (${c.amountText})?`)) return; ok.disabled = no.disabled = true;
         const r = await (await bill({ action: "adminApprove", code: c.code, ref: c.bmc?.reason === "match" ? c.bmc.ref : undefined })).json();
         if (!r.ok) { alert(r.error || "Couldn't approve."); ok.disabled = no.disabled = false; return; }
-        if (r.key) prompt(`Approved. Fathom Pro key for ${c.who} (the buyer's page shows it too):`, r.key); loadAdmin(); };
+        loadAdmin(); };
       no.onclick = async () => { const note = prompt(`Reject ${c.product} for ${c.who}? Optional note for the buyer:`, "No matching tip found"); if (note === null) return; ok.disabled = no.disabled = true;
         const r = await (await bill({ action: "adminReject", code: c.code, note })).json(); if (!r.ok) alert(r.error || "Couldn't reject."); loadAdmin(); };
-      acts.append(ok, no);
-    } else if (c.key) { const cp = el("button", { type: "button", textContent: "Copy key" }); cp.onclick = async () => { try { await navigator.clipboard.writeText(c.key); cp.textContent = "Copied"; } catch { prompt("Key:", c.key); } }; acts.append(el("span", { className: "sub", textContent: c.status + " · " }), cp); }
-    else acts.append(el("span", { className: "sub", textContent: c.status + (c.note ? ": " + c.note : "") }));
+      if (c.kind === "fathom") acts.append(no); else acts.append(ok, no);  // discontinued product: reject only
+    } else acts.append(el("span", { className: "sub", textContent: c.status + (c.note ? ": " + c.note : "") }));
     tb.append(el("tr", {}, el("td", { textContent: whenTxt + (c.buyerSaysPaid ? "" : " · not checked yet"), title: c.buyerSaysPaid ? "The buyer has checked for their unlock (they say they paid)" : "Claim created; the buyer hasn't checked back yet" }),
-      el("td", { textContent: c.product }), el("td", { textContent: c.who + (c.kind === "fathom" && c.email ? " · " + c.email : "") }), el("td", { textContent: c.amountText }),
+      el("td", { textContent: c.product }), el("td", { textContent: c.who }), el("td", { textContent: c.amountText }),
       el("td", {}, el("code", { textContent: c.message })), el("td", { textContent: bm }), acts));
   }
 }
