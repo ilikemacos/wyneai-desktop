@@ -85,7 +85,7 @@ async function renderUsage(b, me) {
   const u = me?.user?.usage; if (!me?.user) { b.append(el("p", "sub", "Sign in to see your usage.")); return; }
   if (!u) { b.append(el("p", "sub", "Usage isn't available right now.")); return; }
   b.append(el("p", "sub", "Plan: " + u.plan + ". Numbers come from your account on the server."));
-  if (u.tokens) { const fk = n => n >= 1000 ? (n / 1000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n);
+  if (u.tokens) { const fk = n => n >= 1e6 ? (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M" : n >= 1000 ? (n / 1000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n);
     for (const m of Object.values(u.tokens.modes)) b.append(card(m.name + " tokens", `${fk(m.used)} / ${fk(m.limit)} today`, bar(m.used, m.limit), el("div", "muted", `${fk(m.context)} context per message. Counts input and output.`)));
     b.append(el("p", "sub", `Token limits reset at ${u.tokens.resets} (in ${u.tokens.resetsIn}). Older messages are trimmed to fit a mode's context.`)); }
   const ct = u.cloudTasks;
