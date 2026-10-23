@@ -75,7 +75,7 @@ main>h2,#app>h2,#admin>h2{margin:44px 0 6px!important}
 
     <section id="admin" hidden>
       <h2>Payments to confirm <span class="lq-chip" style="margin-left:6px">Owner only</span></h2>
-      <p class="sub" id="adminSub">Buy Me a Coffee tips with a claim code. Approve issues the Fathom Pro key or sets the LarkquillAI plan; Reject shows the buyer your note.</p>
+      <p class="sub" id="adminSub">Buy Me a Coffee memberships or tips with a claim code. Approve issues the Fathom Pro key or sets the LarkquillAI plan; Reject shows the buyer your note.</p>
       <div class="card"><div class="keytabs" id="adminTabs"></div><div style="overflow:auto"><table><thead><tr><th>When</th><th>Product</th><th>Buyer</th><th>Amount</th><th>Tip message</th><th>BMC check</th><th></th></tr></thead><tbody id="adminRows"><tr><td colspan="7" class="empty">Loading…</td></tr></tbody></table></div><div id="adminErr" class="err" hidden></div></div>
     </section>
   </div>
@@ -90,7 +90,7 @@ main>h2,#app>h2,#admin>h2{margin:44px 0 6px!important}
   </table>
   <table style="margin-top:12px"><thead><tr><th>Model name</th><th>Context window</th><th>Daily tokens</th><th>Plan</th></tr></thead><tbody id="cModelRows"><tr><td colspan="4" class="sub">Loading models…</td></tr></tbody></table></div>
 
-  <h2>Quickstart</h2><p class="sub">Copy, set <code>LARKQUILL_API_KEY</code>, and run.</p><div class="curlbox" style="margin-bottom:12px"><pre id="curlQuick"></pre><button id="copyQuick" type="button">Copy</button></div><p class="sub">The API is OpenAI-compatible. Base URL <code id="baseUrl"></code>. Models: <code>quill-wren</code> (Quill Wren 1.2, fast and lightweight), <code>quill-scribe</code> (Quill Scribe 1.1, everyday default), <code>quill-sage</code> (Quill Sage 1.5, advanced reasoning, Pro), <code>quill-sovereign</code> (Quill Sovereign 0.5, most capable flagship, Max). Older IDs (<code>larkquill-chirp-1.1</code>, <code>larkquill-trill-1</code>, <code>larkquill-aria-1.5</code>, <code>larkquill-chorus-0.7</code>, <code>wrenby-*</code>) and the old base URL still work.</p>
+  <h2>Quickstart</h2><p class="sub">Copy, set <code>LARKQUILL_API_KEY</code>, and run.</p><div class="curlbox" style="margin-bottom:12px"><pre id="curlQuick"></pre><button id="copyQuick" type="button">Copy</button></div><p class="sub">The API is OpenAI-compatible. Base URL <code id="baseUrl"></code>. Models: <code>quill-wren</code> (Quill Wren 1.2, fast and lightweight), <code>quill-scribe</code> (Quill Scribe 1.1, everyday default), <code>quill-sage</code> (Quill Sage 1.5, advanced reasoning, Pro), <code>quill-sovereign</code> (Quill Sovereign 0.5, most capable flagship, Max), <code>quill-monarch</code> (Quill Monarch 0.3, frontier reasoning, Ultra). Older IDs (<code>larkquill-chirp-1.1</code>, <code>larkquill-trill-1</code>, <code>larkquill-aria-1.5</code>, <code>larkquill-chorus-0.7</code>, <code>wrenby-*</code>) and the old base URL still work.</p>
   <div class="tabs" id="tabs"><button data-t="curl" class="on">curl</button><button data-t="python">Python</button><button data-t="js">JavaScript</button><button data-t="anythingllm">AnythingLLM</button></div>
   <pre id="code"></pre>
   <p class="sub" style="margin-top:12px">Limits per key: 20 requests a minute and 300 a day (Quill Sovereign 0.5 counts as 3, max 30 a day). Errors use the OpenAI format: 401 bad key, 400 bad request, 429 rate or token limit.</p>
@@ -121,7 +121,7 @@ $("baseUrl").textContent = API_BASE;
 $("cBase").textContent = API_BASE; $("cChat").textContent = API_BASE + "/chat/completions"; $("cModels").textContent = API_BASE + "/models";
 document.querySelectorAll("[data-copy]").forEach(b => b.onclick = async () => { try { await navigator.clipboard.writeText($(b.dataset.copy).textContent); b.textContent = "Copied"; setTimeout(() => b.textContent = "Copy", 1500); } catch {} });
 fetch(API_BASE + "/models").then(r => r.json()).then(j => { const tb = $("cModelRows"); tb.replaceChildren();
-  for (const m of j.data || []) tb.append(el("tr", {}, el("td", {}, el("code", { textContent: m.id })), el("td", { textContent: Number(m.context_window).toLocaleString() + " tokens" }), el("td", { textContent: Number(m.daily_token_limit).toLocaleString() }), el("td", { textContent: ({ hobby: "Hobby (free)", pro: "Pro", max: "Max" })[m.required_plan] || "" })));
+  for (const m of j.data || []) tb.append(el("tr", {}, el("td", {}, el("code", { textContent: m.id })), el("td", { textContent: Number(m.context_window).toLocaleString() + " tokens" }), el("td", { textContent: Number(m.daily_token_limit).toLocaleString() }), el("td", { textContent: ({ hobby: "Hobby (free)", pro: "Pro", max: "Max", ultra: "Ultra" })[m.required_plan] || "" })));
 }).catch(() => { $("cModelRows").replaceChildren(el("tr", {}, el("td", { colSpan: 3, className: "sub", textContent: "Couldn't load the model list." }))); });
 const showTab = t => { $("code").textContent = SNIP[t]; for (const b of $("tabs").children) b.classList.toggle("on", b.dataset.t === t); };
 $("tabs").onclick = e => { if (e.target.dataset.t) showTab(e.target.dataset.t); }; showTab("curl");
@@ -139,11 +139,11 @@ async function load() {
 let KEYS = [], DAILY = [], SEL = null;
 // ---------- plan + owner admin (POST /api/billing) ----------
 const bill = body => api("/api/billing", { method: "POST", body });
-const PN = { hobby: "Hobby", pro: "Pro", max: "Max" }, PM = { hobby: "Quill Wren 1.2 and Quill Scribe 1.1", pro: "Quill Wren 1.2, Quill Scribe 1.1 and Quill Sage 1.5", max: "every model, including Quill Sovereign 0.5" };
+const PN = { hobby: "Hobby", pro: "Pro", max: "Max", ultra: "Ultra" }, PM = { hobby: "Quill Wren 1.2 and Quill Scribe 1.1", pro: "Quill Wren 1.2, Quill Scribe 1.1 and Quill Sage 1.5", max: "Quill Wren 1.2 through Quill Sovereign 0.5", ultra: "every model, including Quill Monarch 0.3" };
 async function loadPlan() {
   try { const j = await (await bill({ action: "plan" })).json(); if (!j.ok) return;
     $("planName").textContent = `LarkquillAI ${j.name}${j.owner ? " · owner" : ""}`; $("planModels").textContent = "Includes " + PM[j.plan] + ".";
-    $("planBtn").textContent = j.plan === "max" ? "See plans" : j.plan === "pro" ? "Upgrade to Max · $5" : "Upgrade";
+    $("planBtn").textContent = j.plan === "ultra" ? "See plans" : j.plan === "max" ? "Upgrade to Ultra" : j.plan === "pro" ? "Upgrade to Max" : "Upgrade";
     if (j.pending) { $("planPending").hidden = false; $("planPending").textContent = j.pending.status === "rejected" ? `Your ${PN[j.pending.plan]} claim (${j.pending.message}) wasn't approved${j.pending.note ? ": " + j.pending.note : ""}.` : `Your ${PN[j.pending.plan]} upgrade (${j.pending.message}) is waiting for confirmation, usually within a few hours.`; }
     if (j.owner) { $("admin").hidden = false; loadAdmin(); }
   } catch {}
@@ -219,7 +219,7 @@ function renderChart(daily) {
   mk("polyline", { points: pts, fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linejoin": "round" });
   for (const i of [0, 10, 20, 29]) mk("text", { x: x(i), y: H - 6, "text-anchor": i === 0 ? "start" : i === 29 ? "end" : "middle" }, days[i].slice(5));
   const total = vals.reduce((a, b) => a + b, 0);
-  $("byModel").textContent = total ? "By model: " + Object.entries(byMode).map(([m, n]) => `${({ spark: "Quill Wren 1.2", turbo: "Quill Scribe 1.1", forge: "Quill Sage 1.5", zenith: "Quill Sovereign 0.5" })[m] || m} ${fmt(n)}`).join(" · ") : (SEL ? "No usage for this key in the last 30 days." : "No API usage yet.");
+  $("byModel").textContent = total ? "By model: " + Object.entries(byMode).map(([m, n]) => `${({ spark: "Quill Wren 1.2", turbo: "Quill Scribe 1.1", forge: "Quill Sage 1.5", zenith: "Quill Sovereign 0.5", monarch: "Quill Monarch 0.3" })[m] || m} ${fmt(n)}`).join(" · ") : (SEL ? "No usage for this key in the last 30 days." : "No API usage yet.");
 }
 
 $("createForm").onsubmit = async e => { e.preventDefault(); $("createErr").hidden = true; $("createBtn").disabled = true;

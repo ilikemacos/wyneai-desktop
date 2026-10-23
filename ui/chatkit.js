@@ -1,5 +1,5 @@
 // Stored model preferences may hold an old ID or name (larkquill-chirp-1.1, Chirp 1.1, quill-wren): map them to mode keys.
-const wyMode = v => { const s = String(v || "").toLowerCase(); if (!s) return v; if (["spark", "turbo", "forge", "zenith"].includes(s)) return s; const n = s.replace(/^(larkquill|wrenby|quill)(ai)?[\s/-]+/, "").replace(/[\s-]*[\d.]+$/, ""); return ({ chirp: "spark", wren: "spark", trill: "turbo", scribe: "turbo", aria: "forge", sage: "forge", chorus: "zenith", sovereign: "zenith" })[n] || v; };
+const wyMode = v => { const s = String(v || "").toLowerCase(); if (!s) return v; if (["spark", "turbo", "forge", "zenith", "monarch"].includes(s)) return s; const n = s.replace(/^(larkquill|wrenby|quill)(ai)?[\s/-]+/, "").replace(/[\s-]*[\d.]+$/, ""); return ({ chirp: "spark", wren: "spark", trill: "turbo", scribe: "turbo", aria: "forge", sage: "forge", chorus: "zenith", sovereign: "zenith", monarch: "monarch" })[n] || v; };
 // LarkquillAI chat kit: shared composer + message UI for the Vercel app and the GitHub Pages copy.
 //  - image attachments (button, paste, drag and drop) with client-side downscale (max side 1568px) + WebP/JPEG compression
 //  - model pill (Quill Wren/Quill Scribe/Quill Sage/Quill Sovereign), persisted per user
@@ -11,10 +11,11 @@ export const MODELS = [
   { id: "turbo",  name: "Quill Scribe 1.1",    hint: "Balanced · Hobby · default" },
   { id: "forge",  name: "Quill Sage 1.5",      hint: "Smarter · Pro" },
   { id: "zenith", name: "Quill Sovereign 0.5", hint: "Most capable · Max" },
+  { id: "monarch", name: "Quill Monarch 0.3", hint: "Frontier · Ultra" },
 ];
 export const QUOTA_TIERS = new Set([]);
 // Plans (enforced server-side; this only paints locks): Hobby = Quill Wren + Quill Scribe, Pro adds Quill Sage, Max = every model.
-export const MODE_PLAN = { spark: "hobby", turbo: "hobby", forge: "pro", zenith: "max" };
+export const MODE_PLAN = { spark: "hobby", turbo: "hobby", forge: "pro", zenith: "max", monarch: "ultra" };
 const PLAN_RANK = { hobby: 0, pro: 1, max: 2 }, PLAN_NAME = { hobby: "Hobby", pro: "Pro", max: "Max" };
 export const UPGRADE_PAGE = "https://ilikemacos.github.io/larkquillai/plans.html";
 export const planAllows = (plan, id) => !plan || (PLAN_RANK[MODE_PLAN[id] || "max"] ?? 2) <= (PLAN_RANK[plan] ?? 0);
@@ -101,7 +102,7 @@ export function initChatKit(o) {
   document.addEventListener("click", e => { if (!menu.hidden && !menu.contains(e.target)) closeMenu(); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !menu.hidden) closeMenu(); });
   const prefKey = () => "wy.model" + (st.user ? ":" + st.user : "");
-  const bestAllowed = () => [...MODELS].reverse().find(m => planAllows(st.plan, m.id) && m.id !== "zenith")?.id || "spark";
+  const bestAllowed = () => [...MODELS].reverse().find(m => planAllows(st.plan, m.id) && m.id !== "zenith" && m.id !== "monarch")?.id || "spark";
   function setTier(id, persist) { if (!MODELS.some(m => m.id === id)) return; if (!planAllows(st.plan, id)) { if (persist) return openUpgrade(MODE_PLAN[id], o.upgradeUrl); id = bestAllowed(); } st.tier = id; if (sel) { sel.value = id; sel.dispatchEvent(new Event("change")); } if (persist) { localStorage.setItem(prefKey(), id); localStorage.setItem("wy.model", id); } paintPill(); paintTray(); }
   const wrap = el("div", "wy-pillwrap"); wrap.append(pill, menu);
   // --- attachments ---
